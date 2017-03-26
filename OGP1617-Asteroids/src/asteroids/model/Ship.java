@@ -19,7 +19,7 @@ import be.kuleuven.cs.som.annotate.Raw;
  *       	| isValidRadius(getRadius())
  */
 public class Ship{
-	//test cedric
+
 	/**
 	 * Initialize this new Ship with given x, y, xV, yV, orientation and radius.
 	 *
