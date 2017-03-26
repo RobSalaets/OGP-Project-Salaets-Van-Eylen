@@ -35,6 +35,10 @@ public class Ship{
 	 *			The orientation for this new Ship.
 	 * @param radius
 	 *          The radius for this new Ship.
+	 * @param massDensity
+	 * 			The massDensity for this new Ship. 
+	 * @param thrustForce
+	 * 			The thrustForce for this new Ship.
 	 * @pre    The given orientation must be a valid orientation for any Ship.
 	 * 			| isValidOrientation(orientation)
 	 * @effect The x of this new Ship is set to the given x. 
@@ -53,11 +57,14 @@ public class Ship{
 	 * @post The radius of this new Ship number is equal to
 	 *		 the given radius.
 	 *       	| new.getRadius() == radius
+	 * @post The thrustForce of this new Ship is equal to
+	 * 		 the given thrustForce.
+	 * 			| new.getThrustForce() == thrustForce
 	 * @throws IllegalArgumentException
 	 *         The given radius is not a valid radius for any Ship.
 	 *       	| ! isValidRadius(radius)
 	 */
-	public Ship(double x, double y, double xV, double yV, double orientation, double radius) throws IllegalArgumentException{
+	public Ship(double x, double y, double xV, double yV, double orientation, double radius, double massDensity, double thrustForce) throws IllegalArgumentException{
 		if(!isValidRadius(radius))
 			throw new IllegalArgumentException();
 		this.setXPosition(x);
@@ -66,6 +73,7 @@ public class Ship{
 		this.setVelocity(xV, yV);
 		this.setOrientation(orientation);
 		this.radius = radius;
+		this.massDensity = massDensity;
 	}
 
 	/**
@@ -347,6 +355,72 @@ public class Ship{
 	private final double radius;
 	
 	/**
+	 * Return the massDensity of this Ship.
+	 */
+	@Basic @Raw
+	public double getMassDensity() {
+		return this.massDensity;
+	}
+	
+	/**
+	 * Return the lowest possible massDensity for this ship.
+	 * 
+	 * @return 
+	 */
+	@Basic
+	@Immutable
+	public double getLowestMassDensity() {
+		return 1.42 * Math.pow(10, 12);
+	}
+	
+	/**
+	 * Check whether the given massDensity is a valid massDensity for
+	 * any Ship.
+	 *  
+	 * @param  massDensity
+	 *         The massDensity to check.
+	 * @return 
+	 *       | result == (massDensity >= 1.42 * Math.pow(10, 12))
+	*/
+	public static boolean isValidMassDensity(double massDensity) {
+		return (massDensity >= 1.42 * Math.pow(10, 12));
+	}
+	
+	/**
+	 * Set the massDensity of this Ship to the given massDensity.
+	 * 
+	 * @param  massDensity
+	 *         The new massDensity for this Ship.
+	 * @post   If the given massDensity is a valid massDensity for any Ship,
+	 *         the massDensity of this new Ship is equal to the given
+	 *         massDensity. 
+	 *         Else it will be set to the lowest ThrustForce there is.
+	 *       | if (isValidMassDensity(massDensity))
+	 *       |   then new.getMassDensity() == massDensity
+	 *       | this.massDensity == getLowestMassDensity()
+	 */
+	@Raw
+	public void setMassDensity(double massDensity) {
+		if (isValidMassDensity(massDensity))
+			this.massDensity = massDensity;
+		this.massDensity = getLowestMassDensity();
+	}
+	
+	/**
+	 * Variable registering the massDensity of this Ship.
+	 */
+	private double massDensity;
+
+	/**
+	 * Return the mass of this Ship.
+	 */
+	@Basic @Raw
+	public double getMass() {
+		return getMassDensity() * 4/3 * Math.PI * Math.pow(getRadius(), 3);
+	}
+	
+	
+	/**
 	 * Move the ship to a new position given a time duration,
 	 * with respect to this ships current velocity.
 	 * @param  timeDelta
@@ -375,6 +449,19 @@ public class Ship{
 		setOrientation(getOrientation() + angle);
 	}
 	
+	
+	/**
+	 * 
+	 * @param force
+	 * 			The force provided by the thruster in newton.
+	 * @param mass
+	 * 			The mass of the ship in kilogram.
+	 * @return
+	 */
+	public double getAcceleration(){
+		return force/this.getMass();
+	}
+	
 	/**
 	 * Adjust the velocity of this Ship to the current orientation,
 	 * with a given amount.
@@ -392,6 +479,7 @@ public class Ship{
 	 * 			| 		getYVelocity() + amount * sin(getOrientation()))
 	 * 			| then getVectorLength(new.getXVelocity(), new.getYVelocity()) == getMaxVelocity()
 	 */
+	
 	public void thrust(double amount){
 		if(amount <= 0.0)
 			return;
@@ -406,6 +494,29 @@ public class Ship{
 			setYVelocity(getYVelocity() / velocity * getMaxVelocity());
 		}
 		
+	}
+	
+	/**
+	 * 
+	 * @param timeDelta
+	 */
+	public void thrustOn(double timeDelta){
+		if (this.getAcceleration(1, 1) < 0);
+			double acceleration =0;
+		acceleration = this.getAcceleration(1, 1);
+		double newXVelocity = getXVelocity() + acceleration * Math.cos(getOrientation()) * timeDelta;
+		double newYVelocity = getYVelocity() + acceleration * Math.sin(getOrientation()) * timeDelta; 
+		
+		if(canHaveAsVelocity(newXVelocity, newYVelocity))
+			setVelocity(newXVelocity, newYVelocity);
+		else{
+			double velocity = getVectorLength(getXVelocity(), getYVelocity());
+			setXVelocity(getXVelocity() / velocity * getMaxVelocity());
+			setYVelocity(getYVelocity() / velocity * getMaxVelocity());
+		}
+	}
+	
+	public void thrustOff(){
 	}
 	
 	/**
