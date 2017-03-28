@@ -394,7 +394,7 @@ public class Ship{
 	}
 	
 	/**
-	 * Set the massDensity of this Ship to the given massDensity.
+	 * Sets the massDensity of this Ship to the given massDensity.
 	 * 
 	 * @param  massDensity
 	 *         The new massDensity for this Ship.
@@ -402,12 +402,11 @@ public class Ship{
 	 *         the massDensity of this new Ship is equal to the given
 	 *         massDensity. 
 	 *       | if (isValidMassDensity(massDensity))
-	 *       |   then new.getMassDensity() == massDensity
-	 *       | this.massDensity == getLowestMassDensity()
+	 *       | 	   then new.getMassDensity() == massDensity
 	 * @post   If the given massDensity is not a valid massDensity for any Ship,
 	 *         the massDensity of this new Ship is equal to the lowest
-	 *         massDensity
-	 *       | this.massDensity = getLowestMassDensity()
+	 *         massDensity.
+	 *       | new.massDensity = getLowestMassDensity()
 	 */
 	@Raw
 	public void setMassDensity(double massDensity) {
@@ -430,7 +429,6 @@ public class Ship{
 	public double getMass() {
 		return getMassDensity() * 4.0/3.0 * Math.PI * Math.pow(getRadius(), 3);
 	}
-	
 	
 	/**
 	 * Move the ship to a new position given a time duration,
@@ -476,10 +474,10 @@ public class Ship{
 	 * @param  thrustForce
 	 *         The thrustForce to check.
 	 * @return 
-	 *       | result == (thrustForce>0)
+	 *       | result == true
 	*/
 	public static boolean isValidThrustForce(double thrustForce) {
-		return (thrustForce>0);
+		return true;
 	}
 	
 	/**
@@ -505,15 +503,22 @@ public class Ship{
 	private double thrustForce;
 		
 	/**
-	 * 
-	 *
-	 * @return the acceleration of the ship.
-	 * 		 | result = this.getThrustForce()/this.getMass()
+	 * Return the acceleration of this ship based on whether or not the thruster is active.
 	 *		
+	 *@post For an active thruster, with thrusterForce greater than zero, the Ships
+	 *		acceleration is equal too thrustForce/mass
+	 *		| if (getThrusterStatus()==true && this.getThrustForce()>0)
+	 *		| new.getAcceleration == this.getThrustForce()/this.getMass()	
+	 *@post For an inactive thruster or a thrusterForce less than zero, the Ships acceleration
+	 *		is equal too 0.
+	 *		| new.getAcceleration == 0
 	 */
 	@Basic
 	public double getAcceleration(){
-		return this.getThrustForce()/this.getMass();
+		if (getThrusterStatus()==true && this.getThrustForce()>0)
+			return this.getThrustForce()/this.getMass();
+		else {return 0;
+		}
 	}
 	
 	/**
