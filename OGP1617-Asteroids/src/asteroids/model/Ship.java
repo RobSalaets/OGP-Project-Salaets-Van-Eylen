@@ -80,7 +80,7 @@ public class Ship{
 		this.setVelocity(xV, yV);
 		this.setOrientation(orientation);
 		this.radius = radius;
-		this.massDensity = massDensity;
+		this.setMassDensity(massDensity);
 	}
 
 	/**
@@ -401,10 +401,13 @@ public class Ship{
 	 * @post   If the given massDensity is a valid massDensity for any Ship,
 	 *         the massDensity of this new Ship is equal to the given
 	 *         massDensity. 
-	 *         Else it will be set to the lowest ThrustForce there is.
 	 *       | if (isValidMassDensity(massDensity))
 	 *       |   then new.getMassDensity() == massDensity
 	 *       | this.massDensity == getLowestMassDensity()
+	 * @post   If the given massDensity is not a valid massDensity for any Ship,
+	 *         the massDensity of this new Ship is equal to the lowest
+	 *         massDensity
+	 *       | this.massDensity = getLowestMassDensity()
 	 */
 	@Raw
 	public void setMassDensity(double massDensity) {
@@ -508,6 +511,7 @@ public class Ship{
 	 * 		 | result = this.getThrustForce()/this.getMass()
 	 *		
 	 */
+	@Basic
 	public double getAcceleration(){
 		return this.getThrustForce()/this.getMass();
 	}
@@ -522,9 +526,8 @@ public class Ship{
 	 * @return 
 	 * 			| thrusterStatus = true
 	 */
-	public boolean thrustOn(){
+	public void thrustOn(){
 		thrusterStatus = true;
-		return thrusterStatus;
 	}
 	
 	/**
@@ -532,9 +535,8 @@ public class Ship{
 	 * @return
 	 * 			| thrusterStatus = false
 	 */
-	public boolean thrustOff(){
+	public void thrustOff(){
 		thrusterStatus = false;
-		return thrusterStatus;
 	}
 	
 	/**
@@ -542,6 +544,7 @@ public class Ship{
 	 * @return the thrusterStatus
 	 * 			| thrusterStatus
 	 */
+	@Basic
 	public boolean getThrusterStatus(){
 		return thrusterStatus;
 	}
@@ -563,7 +566,7 @@ public class Ship{
 	 * @post  For an acceleration that results in a velocity exceeding the maximum velocity, 
 	 * 		  the velocity direction remains unchanged and the total velocity
 	 * 		  is set to the maximum velocity.
-	 * 			| if(canHaveAsVelocity(getXVelocity() + acceleration * Math.cos(getOrientation()) * timeDelta,
+	 * 			| if(!canHaveAsVelocity(getXVelocity() + acceleration * Math.cos(getOrientation()) * timeDelta,
 	 * 			| 		getYVelocity() + acceleration * Math.sin(getOrientation()) * timeDelta))
 	 * 			| then getVectorLength(new.getXVelocity(), new.getYVelocity()) == getMaxVelocity()
 	 */
