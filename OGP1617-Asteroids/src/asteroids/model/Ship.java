@@ -17,6 +17,9 @@ import be.kuleuven.cs.som.annotate.Raw;
  *       	| isValidOrientation(getOrientation())
  * @invar  The radius of each Ship must be a valid radius for any Ship.
  *       	| isValidRadius(getRadius())
+ * @invar  The thrustForce of each Ship must be a valid thrustForce for any
+ *         Ship.
+ *       	| isValidThrustForce(getThrustForce())
  */
 public class Ship{
 
@@ -57,9 +60,13 @@ public class Ship{
 	 * @post The radius of this new Ship number is equal to
 	 *		 the given radius.
 	 *       	| new.getRadius() == radius
-	 * @post The thrustForce of this new Ship is equal to
-	 * 		 the given thrustForce.
-	 * 			| new.getThrustForce() == thrustForce
+	 * @post If the given thrustForce is a valid thrustForce for any Ship,
+	 *       the thrustForce of this new Ship is equal to the given
+	 *       thrustForce. Otherwise, the thrustForce of this new Ship is equal
+	 *       to 0.
+	 *       	| if (isValidThrustForce(thrustForce))
+	 *       	|   then new.getThrustForce() == thrustForce
+	 *       	|   else new.getThrustForce() == 0
 	 * @throws IllegalArgumentException
 	 *         The given radius is not a valid radius for any Ship.
 	 *       	| ! isValidRadius(radius)
@@ -366,10 +373,10 @@ public class Ship{
 	 * Return the lowest possible massDensity for this ship.
 	 * 
 	 * @return 
+	 * 			| 1.42 * Math.pow(10, 12)
 	 */
 	@Basic
-	@Immutable
-	public double getLowestMassDensity() {
+	public static double getLowestMassDensity() {
 		return 1.42 * Math.pow(10, 12);
 	}
 	
@@ -383,7 +390,7 @@ public class Ship{
 	 *       | result == (massDensity >= 1.42 * Math.pow(10, 12))
 	*/
 	public static boolean isValidMassDensity(double massDensity) {
-		return (massDensity >= 1.42 * Math.pow(10, 12));
+		return (massDensity >= getLowestMassDensity());
 	}
 	
 	/**
@@ -403,7 +410,9 @@ public class Ship{
 	public void setMassDensity(double massDensity) {
 		if (isValidMassDensity(massDensity))
 			this.massDensity = massDensity;
+		else{
 		this.massDensity = getLowestMassDensity();
+		}
 	}
 	
 	/**
@@ -416,7 +425,7 @@ public class Ship{
 	 */
 	@Basic @Raw
 	public double getMass() {
-		return getMassDensity() * 4/3 * Math.PI * Math.pow(getRadius(), 3);
+		return getMassDensity() * 4.0/3.0 * Math.PI * Math.pow(getRadius(), 3);
 	}
 	
 	
@@ -449,74 +458,130 @@ public class Ship{
 		setOrientation(getOrientation() + angle);
 	}
 	
-	
 	/**
-	 * 
-	 * @param force
-	 * 			The force provided by the thruster in newton.
-	 * @param mass
-	 * 			The mass of the ship in kilogram.
-	 * @return
+	 * Return the thrustForce of this Ship.
 	 */
-	public double getAcceleration(){
-		return force/this.getMass();
+	@Basic @Raw
+	public double getThrustForce() {
+		return this.thrustForce;
 	}
 	
 	/**
-	 * Adjust the velocity of this Ship to the current orientation,
-	 * with a given amount.
-	 * @param amount
-	 * 			A value representing the magnitude of this effect
-	 * @post  For a positive amount, the Ship's velocity is updated
-	 * 	  	  with respect to the current orientation and given amount.
-	 * 			| if(amount > 0)
-	 * 			| then (new.getXVelocity() == getXVelocity() + amount * cos(getOrientation()))
-	 * 			| && (new.getYVelocity() == getYVelocity() + amount * sin(getOrientation()))
-	 * @post  For an amount that results in a velocity exceeding the maximum velocity, 
-	 * 		  the velocity direciton remains unchanged and the total velocity
+	 * Check whether the given thrustForce is a valid thrustForce for
+	 * any Ship.
+	 *  
+	 * @param  thrustForce
+	 *         The thrustForce to check.
+	 * @return 
+	 *       | result == (thrustForce>0)
+	*/
+	public static boolean isValidThrustForce(double thrustForce) {
+		return (thrustForce>0);
+	}
+	
+	/**
+	 * Set the thrustForce of this Ship to the given thrustForce.
+	 * 
+	 * @param  thrustForce
+	 *         The new thrustForce for this Ship.
+	 * @post   If the given thrustForce is a valid thrustForce for any Ship,
+	 *         the thrustForce of this new Ship is equal to the given
+	 *         thrustForce.
+	 *       | if (isValidThrustForce(thrustForce))
+	 *       |   then new.getThrustForce() == thrustForce
+	 */
+	@Raw
+	public void setThrustForce(double thrustForce) {
+		if (isValidThrustForce(thrustForce))
+			this.thrustForce = thrustForce;
+	}
+	
+	/**
+	 * Variable registering the thrustForce of this Ship.
+	 */
+	private double thrustForce;
+		
+	/**
+	 * 
+	 *
+	 * @return the acceleration of the ship.
+	 * 		 | result = this.getThrustForce()/this.getMass()
+	 *		
+	 */
+	public double getAcceleration(){
+		return this.getThrustForce()/this.getMass();
+	}
+	
+	/**
+	 * Variable registering whether or not the thruster of the ship is active.
+	 */
+	private boolean thrusterStatus;
+	
+	/**
+	 * 
+	 * @return 
+	 * 			| thrusterStatus = true
+	 */
+	public boolean thrustOn(){
+		thrusterStatus = true;
+		return thrusterStatus;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 * 			| thrusterStatus = false
+	 */
+	public boolean thrustOff(){
+		thrusterStatus = false;
+		return thrusterStatus;
+	}
+	
+	/**
+	 * 
+	 * @return the thrusterStatus
+	 * 			| thrusterStatus
+	 */
+	public boolean getThrusterStatus(){
+		return thrusterStatus;
+	}
+	
+	/**
+	 * Variable registering the acceleration of this Ship.
+	 */
+	private double acceleration;
+	
+	/**
+	 * Adjust the velocity of this Ship to the current orientation, with its current acceleration
+	 * and a given timeDelta.
+	 * @post  For an active thruster and a positive acceleration, the Ship's velocity is updated
+	 * 	  	  with respect to the current orientation and given timeDelta.
+	 * 			| if (getThrusterStatus()==true);
+	 *			| acceleration = this.getAcceleration();
+	 *			| double newXVelocity = getXVelocity() + acceleration * Math.cos(getOrientation()) * timeDelta;
+	 *			| double newYVelocity = getYVelocity() + acceleration * Math.sin(getOrientation()) * timeDelta; 
+	 * @post  For an acceleration that results in a velocity exceeding the maximum velocity, 
+	 * 		  the velocity direction remains unchanged and the total velocity
 	 * 		  is set to the maximum velocity.
-	 * 			| if(canHaveAsVelocity(getXVelocity() + amount * cos(getOrientation()),
-	 * 			| 		getYVelocity() + amount * sin(getOrientation()))
+	 * 			| if(canHaveAsVelocity(getXVelocity() + acceleration * Math.cos(getOrientation()) * timeDelta,
+	 * 			| 		getYVelocity() + acceleration * Math.sin(getOrientation()) * timeDelta))
 	 * 			| then getVectorLength(new.getXVelocity(), new.getYVelocity()) == getMaxVelocity()
 	 */
 	
-	public void thrust(double amount){
-		if(amount <= 0.0)
-			return;
-		double newXVelocity = getXVelocity() + amount * Math.cos(getOrientation());
-		double newYVelocity = getYVelocity() + amount * Math.sin(getOrientation());
+	public void thrust(double timeDelta){
+		if (getThrusterStatus()==true);
+			acceleration = this.getAcceleration();
+			double newXVelocity = getXVelocity() + acceleration * Math.cos(getOrientation()) * timeDelta;
+			double newYVelocity = getYVelocity() + acceleration * Math.sin(getOrientation()) * timeDelta; 
 		
-		if(canHaveAsVelocity(newXVelocity, newYVelocity))
-			setVelocity(newXVelocity, newYVelocity);
-		else{
-			double velocity = getVectorLength(getXVelocity(), getYVelocity());
-			setXVelocity(getXVelocity() / velocity * getMaxVelocity());
-			setYVelocity(getYVelocity() / velocity * getMaxVelocity());
+			if(canHaveAsVelocity(newXVelocity, newYVelocity))
+				setVelocity(newXVelocity, newYVelocity);
+			else{
+				double velocity = getVectorLength(getXVelocity(), getYVelocity());
+				setXVelocity(getXVelocity() / velocity * getMaxVelocity());
+				setYVelocity(getYVelocity() / velocity * getMaxVelocity());
 		}
 		
-	}
-	
-	/**
-	 * 
-	 * @param timeDelta
-	 */
-	public void thrustOn(double timeDelta){
-		if (this.getAcceleration(1, 1) < 0);
-			double acceleration =0;
-		acceleration = this.getAcceleration(1, 1);
-		double newXVelocity = getXVelocity() + acceleration * Math.cos(getOrientation()) * timeDelta;
-		double newYVelocity = getYVelocity() + acceleration * Math.sin(getOrientation()) * timeDelta; 
-		
-		if(canHaveAsVelocity(newXVelocity, newYVelocity))
-			setVelocity(newXVelocity, newYVelocity);
-		else{
-			double velocity = getVectorLength(getXVelocity(), getYVelocity());
-			setXVelocity(getXVelocity() / velocity * getMaxVelocity());
-			setYVelocity(getYVelocity() / velocity * getMaxVelocity());
-		}
-	}
-	
-	public void thrustOff(){
 	}
 	
 	/**
