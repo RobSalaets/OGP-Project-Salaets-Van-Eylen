@@ -14,73 +14,60 @@ import be.kuleuven.cs.som.annotate.Raw;
 public class Ship extends Entity{
 
 	/**
-	 * Initialize this new Ship with given x, y, xVelocity, yVelocity, orientation, radius and mass.
+	 * Initialize this new Ship with given x, y, xVelocity, yVelocity, radius, mass and thrustForce.
 	 *
 	 * @param x
-	 *     		The x for this new Ship.
+	 *     		The x-position for this new Ship.
 	 * @param y
-	 *        	The y for this new Ship.
+	 *        	The y-position for this new Ship.
 	 * @param xVelocity
 	 * 			The x-velocity for this new Ship.
 	 * @param yVelocity
 	 *       	The y-velocity for this new Ship.
-	 * @param orientation
-	 *			The orientation for this new Ship.
 	 * @param radius
 	 *          The radius for this new Ship.
 	 * @param mass
-	 * 			The mass for this new Ship. 
-	 * @pre    The given orientation must be a valid orientation for any Ship.
-	 * 			| isValidOrientation(orientation)
-	 * @effect The x of this new Ship is set to the given x. 
-	 * 			| setXPosition(x)
-	 * @effect The y of this new Ship is set to the given y. 
-	 * 			| setYPosition(y)
-	 * @effect The thrust force of this new Ship is set to the DEFAULT_THRUST_FORCE
-	 * 			| setThrustForce(DEFAULT_THRUST_FORCE)
-	 * @post If the given xVelocity and yVelocity form a total velocity smaller than the speed of light, the velocity components 
-	 * 		 of this new Ship are equal to the given xVelocity and yVelocity. 
-	 *       Otherwise, the velocity components of this new Ship are equal to 0. 
-	 *       	| if (getVectorLength(xVelocity, yVelocity) <= 300000.0) 
-	 *       	| then new.getXVelocity() == xVelocity && new.getYVelocity() == yVelocity
-	 *       	| else new.getXVelocity() == 0 && new.getYVelocity() == 0
+	 * 			The mass for this new Ship.
+	 * @param thrustForce
+	 * 			The thrustForce for this new Ship.
+	 * @effect This new Ship is initialized as a new Entity with
+	 * 		   given x, y, xVelocity, yVelocity, radius and mass.
+	 * 			| super(x, y, xVelocity, yVelocity, radius, mass)
 	 * @post The orientation of this new Ship is equal to the given
 	 *       orientation.
 	 *    		| new.getOrientation() == orientation
-	 * @post The radius of this new Ship number is equal to
-	 *		 the given radius.
-	 *       	| new.getRadius() == radius
-	 * @post If given mass is a valid mass value for this new Ship, the mass is equal to the given mass.
-	 * 		 Otherwise the mass is set to the lowest possible mass.
-	 * 			| let 
-	 * 			| 	lowestMass = 4.0 / 3.0 * Math.PI * Math.pow(radius, 3) * getLowestMassDensity()
-	 * 			| in
-	 * 			|   if (mass > lowestMass) 
-	 *       	|   then new.getMass() == mass
-	 *       	|   else new.getMass() == lowestMass
-	 * @throws IllegalArgumentException
-	 *         The given radius is not a valid radius for any Ship.
-	 *       	| ! isValidRadius(radius)
+	 * @effect The thrust force of this new Ship is set to the given thrustForce
+	 * 			| setThrustForce(thrustForce)
 	 */
-	public Ship(double x, double y, double xVelocity, double yVelocity, double orientation, double radius, double mass) throws IllegalArgumentException{
-		this(x, y, xVelocity, yVelocity, orientation, radius, mass, DEFAULT_THRUST_FORCE);
-	}
-
-	public Ship(double x, double y, double xVelocity, double yVelocity, double orientation, double radius) throws IllegalArgumentException{
-		this(x, y, xVelocity, yVelocity, orientation, radius, 4.0 / 3.0 * Math.PI * Math.pow(radius, 3) * getLowestMassDensity(), DEFAULT_THRUST_FORCE);
-	}
-
 	public Ship(double x, double y, double xVelocity, double yVelocity, double orientation, double radius, double mass, double thrustForce) throws IllegalArgumentException{
 		super(x, y, xVelocity, yVelocity, radius, mass);
 		this.setOrientation(orientation);
 		this.setThrustForce(thrustForce);
 	}
-
-	// TODO:
+	
 	/**
-	 * zoek op spec voor inheritance constructor
-	 * 			spec voor overloading constructor
+	 * Initialize this new Ship with given x, y, xVelocity, yVelocity, radius and mass.
+	 *
+	 * @param x
+	 *     		The x-position for this new Ship.
+	 * @param y
+	 *        	The y-position for this new Ship.
+	 * @param xVelocity
+	 * 			The x-velocity for this new Ship.
+	 * @param yVelocity
+	 *       	The y-velocity for this new Ship.
+	 * @param radius
+	 *          The radius for this new Ship.
+	 * @param mass
+	 * 			The mass for this new Ship.
+	 * @effect This new Ship is initialized as a new Ship with given x, y, xVelocity,
+	 * 		   yVelocity, radius, mass and the default thrust force.
+	 * 			| this(x, y, xVelocity, yVelocity, orientation, radius, mass, DEFAULT_THRUST_FORCE)
+	 * 
 	 */
+	public Ship(double x, double y, double xVelocity, double yVelocity, double orientation, double radius, double mass) throws IllegalArgumentException{
+		this(x, y, xVelocity, yVelocity, orientation, radius, mass, DEFAULT_THRUST_FORCE);
+	}
 
 	/**
 	 * Return the orientation of this Ship.
@@ -271,7 +258,6 @@ public class Ship extends Entity{
 	 *			|						getVelocity().getY() + getAcceleration() * Math.sin(getOrientation()) * timeDelta)
 	 * 			| then new.getVelocity().getLength() == getMaxVelocity()
 	 */
-
 	public void thrust(double timeDelta){
 		assert getThrusterStatus(); // TODO
 
