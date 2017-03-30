@@ -650,6 +650,9 @@ public class Ship{
 	 * 			|	if (result < Double.POSITIVE_INFINITY)
 	 * 			| 	then getVectorLength(thisCollisionX - otherCollisionX, thisCollisionY - otherCollisionY)
 	 * 			|		 	== this.getRadius() + other.getRadius()
+	 * @return No value smaller than the resulting value will result in a collision between both ships.
+	 *       	| for each number in [0,result) :
+	 *       	|   vector uitdrukkingen en dan zeggen dat som van de radiussen niet de afstand is tussen de 2 schepen.
 	 * @throws NullPointerException
 	 * 			| other == null
 	 * @throws IllegalArgumentException 
