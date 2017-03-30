@@ -8,10 +8,8 @@ import be.kuleuven.cs.som.annotate.Raw;
 /**
  * A Class to represent an Entity in the game
  * 
- * @invar The x of each Entity must be a valid x for any Entity. 
- * 			| isValidXPosition(getXPosition())
- * @invar The y of each Entity must be a valid y for any Entity. 
- * 			| isValidYPosition(getYPosition())
+ * @invar The position of this Entity must be a valid position for this Entity. 
+ * 			| isValidPosition(getPosition().getX(), getPosition().getY))
  * @invar The velocity components of this Entity must form a valid velocity for this Entity.
  * 			| canHaveAsVelocity(getXVelocity(), getYVelocity())
  * @invar  The radius of this Entity must be a valid radius for this Entity.
@@ -27,9 +25,9 @@ public abstract class Entity{
 	 * Initialize this new Entity with given x, y, xVelocity, yVelocity, radius and mass.
 	 *
 	 * @param x
-	 *     		The x for this new Entity.
+	 *     		The x-position for this new Entity.
 	 * @param y
-	 *        	The y for this new Entity.
+	 *        	The y-position for this new Entity.
 	 * @param xVelocity
 	 * 			The x-velocity for this new Entity.
 	 * @param yVelocity
@@ -38,10 +36,8 @@ public abstract class Entity{
 	 *          The radius for this new Entity.
 	 * @param mass
 	 * 			The mass for this new Entity.
-	 * @effect The x of this new Entity is set to the given x. 
-	 * 			| setXPosition(x)
-	 * @effect The y of this new Entity is set to the given y. 
-	 * 			| setYPosition(y)
+	 * @effect The x-position and y-position of this new Entity is set to the given x and y. 
+	 * 			| setPosition(x, y)
 	 * @post If the given xVelocity and yVelocity form a total velocity smaller than the speed of light, 
 	 * 		 the velocity components of this new Entity are equal to the given xVelocity and yVelocity. 
 	 *       Otherwise, the velocity components of this new Entity are equal to 0. 
@@ -69,203 +65,175 @@ public abstract class Entity{
 	protected Entity(double x, double y, double xVelocity, double yVelocity, double radius, double mass) throws IllegalArgumentException{
 		if(!canHaveAsRadius(radius))
 			throw new IllegalArgumentException();
-		this.position = new double[2];
-		this.setXPosition(x);
-		this.setYPosition(y);
-		this.velocity = new double[2];
-		this.setVelocity(xVelocity, yVelocity);
+		this.setPosition(x, y);
+		this.velocity = Vector2d.ZERO;
 		this.maxVelocity = SPEED_OF_LIGHT; // miss overloaden
+		this.setVelocity(xVelocity, yVelocity);
 		this.radius = radius;
 		this.setMass(mass);
 	}
 
 	/**
-	 * Return the x of this Entity.
+	 * Return the position of this Entity.
 	 */
 	@Basic
 	@Raw
-	public double getXPosition(){
-		return this.position[0];
+	public Vector2d getPosition(){
+		return this.position;
 	}
-
+	
 	/**
-	 * Return the y of this Entity.
-	 */
-	@Basic
-	@Raw
-	public double getYPosition(){
-		return this.position[1];
-	}
-
-	/**
-	 * Check whether the given x is a valid x for any Entity.
+	 * Check whether the given position is a valid position for any Entity.
 	 * 
-	 * @param x
-	 *            The x to check.
-	 * @return | result == Double.isFinite(x)
+	 * @param position
+	 *            The position to check.
+	 * @return | result == //TODO word canhaveas
 	 */
-	public static boolean isValidXPosition(double x){
-		return Double.isFinite(x);
+	public static boolean isValidPosition(double x, double y){
+		return true;
 	}
 
 	/**
-	 * Check whether the given y is a valid y for any Entity.
-	 * 
-	 * @param y
-	 *            The y to check.
-	 * @return | result == Double.isFinite(y)
-	 */
-	public static boolean isValidYPosition(double y){
-		return Double.isFinite(y);
-	}
-
-	/**
-	 * Set the x of this Entity to the given x.
+	 * Set the x-position of this Entity to the given x.
 	 * 
 	 * @param  x
-	 *            The new x for this Entity.
-	 * @post   The x of this new Entity is equal to the given x. 
-	 * 			| new.getXPosition() == x
+	 *            The new x-position for this Entity.
+	 * @post   The x-position of this new Entity is equal to the given x. 
+	 * 			| new.getPosition().getX() == x
 	 * @throws IllegalArgumentException
-	 *             The given x is not a valid x for any Entity. 
-	 *        	| !isValidXPosition(getXPosition())
+	 *             The given x-position does not form a valid position. 
+	 *        	| !isValidPosition(x, getPosition().getY())
 	 */
 	@Raw
 	public void setXPosition(double x) throws IllegalArgumentException{
-		if(!isValidXPosition(x))
+		if(!isValidPosition(x, getPosition().getY()))
 			throw new IllegalArgumentException();
-		this.position[0] = x;
+		this.position = new Vector2d(x, getPosition().getY());
 	}
 
 	/**
-	 * Set the y of this Entity to the given y.
+	 * Set the y-position of this Entity to the given y.
 	 * 
 	 * @param  y
-	 *            The new y for this Entity.
-	 * @post   The y of this new Entity is equal to the given y. 
-	 * 			| new.getYPosition() == y
+	 *            The new y-position for this Entity.
+	 * @post   The y-position of this new Entity is equal to the given y. 
+	 * 			| new.getPosition().getY() == y
 	 * @throws IllegalArgumentException
-	 *             The given y is not a valid y for any Entity. 
-	 *         	| !isValidYPosition(getYPosition())
+	 *             The given y-position does not form a valid position. 
+	 *        	| !isValidPosition(getPosition().getX(), y)
 	 */
 	@Raw
 	public void setYPosition(double y) throws IllegalArgumentException{
-		if(!isValidYPosition(y))
+		if(!isValidPosition(getPosition().getX(), y))
 			throw new IllegalArgumentException();
-		this.position[1] = y;
+		this.position = new Vector2d(position.getX(), y);
 	}
-
+	
 	/**
-	 * Variable containing the (x,y) components of the position vector of this Entity in kilometers.
+	 * Set the position of this Entity to the given x and y.
+	 * 
+	 * @param  x
+	 * 		      The new x-position for this Entity.
+	 * @param  y
+	 *            The new y-position for this Entity.
+	 * @post   The x-position of this new Entity is equal to the given x. 
+	 * 			| new.getPosition().getX() == x
+	 * @post   The y-position of this new Entity is equal to the given y. 
+	 * 			| new.getPosition().getY() == y
+	 * @throws IllegalArgumentException
+	 *             The given x and y do not form a valid position. 
+	 *        	| !isValidPosition(x, y)
 	 */
-	private double[] position;
-
-	/**
-	 * Return the x-velocity of this Entity.
-	 */
-	@Basic
 	@Raw
-	public double getXVelocity(){
-		return this.velocity[0];
+	public void setPosition(double x, double y) throws IllegalArgumentException{
+		if(!isValidPosition(x, y))
+			throw new IllegalArgumentException();
+		this.position = new Vector2d(x, y);
 	}
 
 	/**
-	 * Return the y-velocity of this Entity.
+	 * Variable referencing the position vector of this Entity in kilometers.
 	 */
-	@Basic
-	@Raw
-	public double getYVelocity(){
-		return this.velocity[1];
-	}
+	private Vector2d position;
 
 	/**
 	 * Return the velocity of this Entity.
 	 */
 	@Basic
 	@Raw
-	public double[] getVelocity(){
+	public Vector2d getVelocity(){
 		return this.velocity;
 	}
 
 	/**
-	 * Check whether this Entity can have the given xV, yV as its velocity components.
+	 * Check whether this Entity can have the given xVelocity, yVelocity as its velocity components.
 	 *  
-	 * @param xV
+	 * @param xVelocity
 	 *            The x-velocity to check.
-	 * @param yV
+	 * @param yVelocity
 	 * 			  The y-velocity to check.
-	 * @return | result == getVectorLength(xV, yV) <= getMaxVelocity()
+	 * @return | result == new Vector2d(xVelocity, yVelocity).getLength() <= getMaxVelocity()
 	 */
 	@Raw
-	public boolean canHaveAsVelocity(double xV, double yV){
-		return getVectorLength(xV, yV) <= getMaxVelocity();
+	public boolean canHaveAsVelocity(double xVelocity, double yVelocity){
+		return new Vector2d(xVelocity, yVelocity).getLength() <= getMaxVelocity();
 	}
 
 	/**
-	 * Set the x-velocity of this Entity to the given xV.
+	 * Set the x-velocity of this Entity to the given xVelocity.
 	 * 
-	 * @param xV
+	 * @param xVelocity
 	 *            The new x-velocity for this Entity.
-	 * @post  If the given xV in combination with the current y-veloctiy is a valid velocity,
-	 * 	      the x-velocity is equal to the given xV. 
-	 *       	| if (canHaveAsVelocity(xV, getYVelocity())) 
-	 *       	| then new.getXVelocity() == xV
+	 * @post  If the given xVelocity in combination with the current y-veloctiy is a valid velocity,
+	 * 	      the x-velocity is equal to the given xVelocity. 
+	 *       	| if (canHaveAsVelocity(xVelocity, getVelocity().getY())) 
+	 *       	| then new.getVelocity().getX() == xVelocity
 	 */
 	@Raw
-	public void setXVelocity(double xV){
-		if(canHaveAsVelocity(xV, this.getYVelocity()))
-			this.velocity[0] = xV;
+	public void setXVelocity(double xVelocity){
+		if(canHaveAsVelocity(xVelocity, getVelocity().getY()))
+			this.velocity = new Vector2d(xVelocity, getVelocity().getY());
 	}
 
 	/**
-	 * Set the y-velocity of this Entity to the given yV.
+	 * Set the y-velocity of this Entity to the given yVelocity.
 	 * 
-	 * @param yV
+	 * @param yVelocity
 	 *            The new y-velocity for this Entity.
-	 * @post  If the given yV in combination with the current x-veloctiy is a valid velocity,
-	 * 	      the y-velocity is equal to the given yV. 
-	 *       	| if (canHaveAsVelocity(getXVelocity(), yV)) 
-	 *       	| then new.getYVelocity() == yV
+	 * @post  If the given yVelocity in combination with the current x-veloctiy is a valid velocity,
+	 * 	      the y-velocity is equal to the given yVelocity. 
+	 *       	| if (canHaveAsVelocity(getVelocity().getX(), yVelocity)) 
+	 *       	| then new.getVelocity().getY() == yVelocity
 	 */
 	@Raw
-	public void setYVelocity(double yV){
-		if(canHaveAsVelocity(this.getXVelocity(), yV))
-			this.velocity[1] = yV;
+	public void setYVelocity(double yVelocity){
+		if(canHaveAsVelocity(getVelocity().getX(), yVelocity))
+			this.velocity = new Vector2d(getVelocity().getX(), yVelocity);
 	}
 
 	/**
-	 * Set the velocity components of this Entity to the given xV and yV.
+	 * Set the velocity components of this Entity to the given xVelocity and yVelocity.
 	 * 
-	 * @param xV
+	 * @param xVelocity
 	 * 			  The new x-velocity for this Entity.
-	 * @param yV
+	 * @param yVelocity
 	 *            The new y-velocity for this Entity.
-	 * @post  If the given xV and yV form a valid velocity,
-	 * 	      the new velocity components are equal to the given xV and yV. 
-	 *       	| if (canHaveAsVelocity(xV, yV)) 
-	 *       	| then new.getXVelocity() == xV && new.getYVelocity() == yV
+	 * @post  If the given xVelocity and yVelocity form a valid velocity,
+	 * 	      the new velocity components are equal to the given xVelocity and yVelocity. 
+	 *       	| if (canHaveAsVelocity(xVelocity, yVelocity)) 
+	 *       	| then new.getVelocity().getX() == xVelocity && new.getVelocity().getY() == yVelocity
 	 */
 	@Raw
-	public void setVelocity(double xV, double yV){
-		if(canHaveAsVelocity(xV, yV)){
-			this.velocity[0] = xV;
-			this.velocity[1] = yV;
+	public void setVelocity(double xVelocity, double yVelocity){
+		if(canHaveAsVelocity(xVelocity, yVelocity)){
+			this.velocity = new Vector2d(xVelocity, yVelocity);
 		}
 	}
 
 	/**
-	 * Return the length of a vector, given the (x,y) components
-	 * 
-	 * @return | sqrt(x * x + y * y)
+	 * Variable referencing the velocity vector of this Entity in kilometers/second.
 	 */
-	protected static double getVectorLength(double x, double y){
-		return Math.sqrt(x * x + y * y);
-	}
-
-	/**
-	 * Variable containing the (vx,vy) components of the velocity vector of this Entity in kilometers/second.
-	 */
-	private double[] velocity;
+	private Vector2d velocity;
 
 	/**
 	 * Return the maxVelocity of this Entity.
@@ -439,5 +407,137 @@ public abstract class Entity{
 	 * Variable registering whether this person is terminated.
 	 */
 	private boolean isTerminated = false;
+	
+	/**
+	 * Move the Entity to a new position given a time duration,
+	 * with respect to this Entity's current velocity.
+	 * @param  timeDelta
+	 * 			The amount of time the Entity moves with current velocity
+	 * @throws IllegalArgumentException
+	 * 			The timedelta cannot be less than zero
+	 * 			| timeDelta < 0.0
+	 */
+	public void move(double timeDelta) throws IllegalArgumentException{
+		if(timeDelta < 0.0)
+			throw new IllegalArgumentException();
+		setPosition(getPosition().getX() + timeDelta * getVelocity().getX(),
+				    getPosition().getY() + timeDelta * getVelocity().getY());
+	}
+	
+	/**
+	 * Returns the distance between this Entity and another Entity in kilometres.
+	 * 
+	 * @param  other 
+	 * 			The other Entity
+	 * @return The euclidean distance between this Entity and the other Entity
+	 * 			| result == this.getPosition().sub(other.getPosition()).getLength() - this.getRadius() - other.getRadius()
+	 * @throws NullPointerException
+	 * 			| other == null
+	 */
+
+	public double getDistanceBetween(Entity other) throws NullPointerException{
+		if(other == null)
+			throw new NullPointerException();
+		return this.getPosition().sub(other.getPosition()).getLength() - this.getRadius() - other.getRadius();
+	}
+
+	/**
+	 * Checks if this Entities overlaps with another Entity.
+	 * 
+	 * @param  other
+	 * 			The other Entity
+	 * @return result == (this == other || getDistanceBetween(other) < 0.0)
+	 * @throws NullPointerException
+	 * 			| other == null
+	 */
+	public boolean overlaps(Entity other) throws NullPointerException{
+		if(other == null)
+			throw new NullPointerException();
+		return this == other || getDistanceBetween(other) < 0.0;
+	}
+
+	/**
+	 * Calculate the time before collision with the given other Ship, assuming the velocities
+	 * of both Entities do not change. If in the current state no collision will occur,
+	 * the time to collision is considered infinite.
+	 * 
+	 * @param  other
+	 * 			The other Entity
+	 * @return   The calculated result is cannot be negative
+	 * 			| result >= 0.0
+	 * @return Starting from the current position of each Entity, when the current velocities 
+	 * 		   are applied for the calculated duration of time on both Entitys, their boundaries touch.
+	 * 		   In other words the distance between the center of this Entity and the other Entity will then 
+	 * 		   equal the sum of their radii. Assuming the calculated result is a finite value.
+	 * 			| let
+	 * 			| 	thisCollision = this.getPosition().add(this.getVelocity().mul(result))
+	 * 			| 	otherCollision = other.getPosition().add(other.getVelocity().mul(result))
+	 * 			| in
+	 * 			|	if (result < Double.POSITIVE_INFINITY)
+	 * 			| 	then thisCollision.sub(otherCollision).getLength() == this.getRadius() + other.getRadius()
+	 * @return No collision occurs prior to the resulting time value. Assuming the calculated result is a finite value.
+	 * 			| for each value in [0,result):
+	 * 			|    let
+	 * 			| 	   thisCollision = this.getPosition().add(this.getVelocity().mul(value))
+	 * 			| 	   otherCollision = other.getPosition().add(other.getVelocity().mul(value))
+	 * 			|    in
+	 * 			| 	   thisCollision.sub(otherCollision).getLength() > this.getRadius() + other.getRadius()
+	 * @throws NullPointerException
+	 * 			| other == null
+	 * @throws IllegalArgumentException 
+	 * 			| this.overlaps(other)
+	 */
+	public double getTimeToCollision(Entity other) throws NullPointerException, IllegalArgumentException{
+		if(other == null)
+			throw new NullPointerException();
+		if(this.overlaps(other))
+			throw new IllegalArgumentException();
+
+		double sigmaSq = Math.pow(this.getRadius() + other.getRadius(), 2);
+		double rDotr = this.getPosition().sub(other.getPosition()).getLengthSquared();
+//		double rDotr = Math.pow(this.getXPosition() - other.getXPosition(), 2) + Math.pow(this.getYPosition() - other.getYPosition(), 2);
+		double vDotv = this.getVelocity().sub(other.getVelocity()).getLengthSquared();
+//		double vDotv = Math.pow(this.getXVelocity() - other.getXVelocity(), 2) + Math.pow(this.getYVelocity() - other.getYVelocity(), 2);
+		double vDotr = this.getVelocity().sub(other.getVelocity()).dot(this.getPosition().sub(other.getPosition()));
+//		double vDotr = (this.getXVelocity() - other.getXVelocity()) * (this.getXPosition() - other.getXPosition()) + (this.getYVelocity() - other.getYVelocity()) * (this.getYPosition() - other.getYPosition());
+		double d = vDotr * vDotr - vDotv * (rDotr - sigmaSq);
+		if(vDotr >= 0 || d <= 0)
+			return Double.POSITIVE_INFINITY;
+		else return -(vDotr + Math.sqrt(d)) / vDotv;
+	}
+
+	/**
+	 * Find the position of a possible collision with another Entity,
+	 * assuming the current velocities remain constant.
+	 * @param other
+	 * 			The other Entity.
+	 * @return The x- and y-coordinate of the calculated collision position, if in the current
+	 * 		   state of the Entitys no collision will occur the result is null. The collision point
+	 * 		   lies on the connecting line between the Entitys. It's position on the line is determined
+	 * 		   by the radii of the Entities.
+	 * 		| let
+	 * 		| 	thisCollision = this.getPosition().add(this.getVelocity().mul(result))
+	 * 		| 	otherCollision = other.getPosition().add(other.getVelocity().mul(result))
+	 * 		| in
+	 * 		|   if(getTimeToCollision(other) == Double.POSITIVE_INFINITY)
+	 * 		|   then result == null
+	 * 		|	else result.equals(thisCollision.mul(other.getRadius()).add(otherCollision.mul(this.getRadius())).mul(1.0/(this.getRadius() + other.getRadius())))
+	 * @throws NullPointerException
+	 * 			| other == null
+	 * @throws IllegalArgumentException
+	 * 			| this.overlaps(other)
+	 */
+	public Vector2d getCollisionPosition(Entity other) throws NullPointerException, IllegalArgumentException{
+		if(other == null)
+			throw new NullPointerException();
+
+		double timeTilCollision = getTimeToCollision(other);
+		if(timeTilCollision == Double.POSITIVE_INFINITY)
+			return null;
+		double sumRadii = this.getRadius() + other.getRadius();
+		Vector2d thisCollisionPoint = this.getPosition().add(this.getVelocity().mul(timeTilCollision));
+		Vector2d otherCollisionPoint = other.getPosition().add(other.getVelocity().mul(timeTilCollision));
+		return thisCollisionPoint.mul(other.getRadius()).add(otherCollisionPoint.mul(this.getRadius())).mul(1.0/sumRadii);
+	}
 
 }

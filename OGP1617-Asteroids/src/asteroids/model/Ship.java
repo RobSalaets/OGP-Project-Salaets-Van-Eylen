@@ -65,23 +65,23 @@ public class Ship extends Entity{
 	public Ship(double x, double y, double xVelocity, double yVelocity, double orientation, double radius, double mass) throws IllegalArgumentException{
 		this(x, y, xVelocity, yVelocity, orientation, radius, mass, DEFAULT_THRUST_FORCE);
 	}
-	
+
 	public Ship(double x, double y, double xVelocity, double yVelocity, double orientation, double radius) throws IllegalArgumentException{
 		this(x, y, xVelocity, yVelocity, orientation, radius, 4.0 / 3.0 * Math.PI * Math.pow(radius, 3) * getLowestMassDensity(), DEFAULT_THRUST_FORCE);
 	}
-	
+
 	public Ship(double x, double y, double xVelocity, double yVelocity, double orientation, double radius, double mass, double thrustForce) throws IllegalArgumentException{
 		super(x, y, xVelocity, yVelocity, radius, mass);
 		this.setOrientation(orientation);
 		this.setThrustForce(thrustForce);
 	}
-	
-	//TODO:
+
+	// TODO:
 	/**
 	 * zoek op spec voor inheritance constructor
 	 * 			spec voor overloading constructor
 	 */
-	
+
 	/**
 	 * Return the orientation of this Ship.
 	 */
@@ -130,7 +130,7 @@ public class Ship extends Entity{
 	 * The mininum radius for any Ship in kilometres
 	 */
 	private static final double MIN_RADIUS = 10.0;
-	
+
 	@Basic
 	@Override
 	public double getMinRadius(){
@@ -244,22 +244,6 @@ public class Ship extends Entity{
 	private double acceleration;
 
 	/**
-	 * Move the ship to a new position given a time duration,
-	 * with respect to this ships current velocity.
-	 * @param  timeDelta
-	 * 			The amount of time the ship moves with current velocity
-	 * @throws IllegalArgumentException
-	 * 			The timedelta cannot be less than zero
-	 * 			| timeDelta < 0.0
-	 */
-	public void move(double timeDelta) throws IllegalArgumentException{
-		if(timeDelta < 0.0)
-			throw new IllegalArgumentException();
-		setXPosition(getXPosition() + timeDelta * getXVelocity());
-		setYPosition(getYPosition() + timeDelta * getYVelocity());
-	}
-
-	/**
 	 * Turn the Ship with a given angle, by adding the angle
 	 * to the current orientation.
 	 * 
@@ -277,148 +261,29 @@ public class Ship extends Entity{
 	 * and a given timeDelta.
 	 * @post  For an active thruster and a positive acceleration, the Ship's velocity is updated
 	 * 	  	  with respect to the current orientation and given timeDelta.
-	 * 			| if (getThrusterStatus()==true);
-	 *			| acceleration = this.getAcceleration();
-	 *			| double newXVelocity = getXVelocity() + acceleration * Math.cos(getOrientation()) * timeDelta;
-	 *			| double newYVelocity = getYVelocity() + acceleration * Math.sin(getOrientation()) * timeDelta; 
+	 * 			| if (getThrusterStatus())
+	 *			| then new.getVelocity().equals(new Vector2d(getVelocity().getX() + getAcceleration() * Math.cos(getOrientation()) * timeDelta,
+	 *														 getVelocity().getY() + getAcceleration() * Math.sin(getOrientation()) * timeDelta))
 	 * @post  For an acceleration that results in a velocity exceeding the maximum velocity, 
 	 * 		  the velocity direction remains unchanged and the total velocity
 	 * 		  is set to the maximum velocity.
-	 * 			| if(!canHaveAsVelocity(getXVelocity() + acceleration * Math.cos(getOrientation()) * timeDelta,
-	 * 			| 		getYVelocity() + acceleration * Math.sin(getOrientation()) * timeDelta))
-	 * 			| then getVectorLength(new.getXVelocity(), new.getYVelocity()) == getMaxVelocity()
+	 * 			| if(!canHaveAsVelocity(getVelocity().getX() + getAcceleration() * Math.cos(getOrientation()) * timeDelta,
+	 *			|						getVelocity().getY() + getAcceleration() * Math.sin(getOrientation()) * timeDelta)
+	 * 			| then new.getVelocity().getLength() == getMaxVelocity()
 	 */
 
 	public void thrust(double timeDelta){
-		if(getThrusterStatus() == true)
-			;
-		acceleration = this.getAcceleration();
-		double newXVelocity = getXVelocity() + acceleration * Math.cos(getOrientation()) * timeDelta;
-		double newYVelocity = getYVelocity() + acceleration * Math.sin(getOrientation()) * timeDelta;
+		assert getThrusterStatus(); // TODO
 
-		if(canHaveAsVelocity(newXVelocity, newYVelocity))
-			setVelocity(newXVelocity, newYVelocity);
-		else{
-			double velocity = getVectorLength(getXVelocity(), getYVelocity());
-			setXVelocity(getXVelocity() / velocity * getMaxVelocity());
-			setYVelocity(getYVelocity() / velocity * getMaxVelocity());
+		if(getThrusterStatus()){
+			acceleration = this.getAcceleration();
+			Vector2d newVel = new Vector2d(getVelocity().getX() + acceleration * Math.cos(getOrientation()) * timeDelta,
+										getVelocity().getY() + acceleration * Math.sin(getOrientation()) * timeDelta);
+
+			if(!canHaveAsVelocity(newVel.getX(), newVel.getY()))
+				newVel = getVelocity().normalize().mul(getMaxVelocity());
+
+			setVelocity(newVel.getX(), newVel.getY());
 		}
-
-	}
-
-	/**
-	 * Returns the distance between this ship and another ship in kilometres.
-	 * 
-	 * @param  other 
-	 * 			The other ship
-	 * @return The euclidean distance between this ship and the other ship
-	 * 			| result == getVectorLength(this.getXPosition()-other.getXPosition(),
-	 * 			| this.getYPosition()-other.getYPosition())-this.getRadius()-other.getRadius()
-	 *
-	 * @throws NullPointerException
-	 * 			| other == null
-	 */
-
-	public double getDistanceBetween(Ship other) throws NullPointerException{
-		if(other == null)
-			throw new NullPointerException();
-		return getVectorLength(this.getXPosition() - other.getXPosition(), this.getYPosition() - other.getYPosition()) - this.getRadius() - other.getRadius();
-
-	}
-
-	/**
-	 * Checks if this ships overlaps with another ship.
-	 * 
-	 * @param  other
-	 * 			The other ship
-	 * @return result == (this == other || getDistanceBetween(other) < 0.0)
-	 * @throws NullPointerException
-	 * 			| other == null
-	 */
-	public boolean overlaps(Ship other) throws NullPointerException{
-		if(other == null)
-			throw new NullPointerException();
-		return this == other || getDistanceBetween(other) < 0.0;
-	}
-
-	/**
-	 * Calculate the time before collision with the given other Ship, assuming the velocities
-	 * of both ships do not change. If in the current state no collision will occur,
-	 * the time to collision is considered infinite.
-	 * 
-	 * @param  other
-	 * 			The other ship
-	 * @post   The calculated result is cannot be negative
-	 * 			| result >= 0.0
-	 * @return Starting from the current position of each ship, when the current velocities 
-	 * 		   are applied for the calculated duration of time on both ships, their boundaries touch.
-	 * 		   In other words the distance between the center of this ship and the other ship will then 
-	 * 		   equal the sum of their radii. Assuming the calculated result is a finite value.
-	 * 			| let
-	 * 			| 	thisCollisionX = this.getXPosition() + result * this.getXVelocity()
-	 * 			| 	thisCollisionY = this.getYPosition() + result * this.getYVelocity()
-	 * 			| 	otherCollisionX = other.getXPosition() + result * other.getXVelocity()
-	 * 			|	otherCollisionY = other.getYPosition() + result * other.getYVelocity()
-	 * 			| in
-	 * 			|	if (result < Double.POSITIVE_INFINITY)
-	 * 			| 	then getVectorLength(thisCollisionX - otherCollisionX, thisCollisionY - otherCollisionY)
-	 * 			|		 	== this.getRadius() + other.getRadius()
-	 * @throws NullPointerException
-	 * 			| other == null
-	 * @throws IllegalArgumentException 
-	 * 			| this.overlaps(other)
-	 */
-	public double getTimeToCollision(Ship other) throws NullPointerException, IllegalArgumentException{
-		if(other == null)
-			throw new NullPointerException();
-		if(this.overlaps(other))
-			throw new IllegalArgumentException();
-
-		double sigmaSq = Math.pow(this.getRadius() + other.getRadius(), 2);
-		double rDotr = Math.pow(this.getXPosition() - other.getXPosition(), 2) + Math.pow(this.getYPosition() - other.getYPosition(), 2);
-		double vDotv = Math.pow(this.getXVelocity() - other.getXVelocity(), 2) + Math.pow(this.getYVelocity() - other.getYVelocity(), 2);
-		double vDotr = (this.getXVelocity() - other.getXVelocity()) * (this.getXPosition() - other.getXPosition()) + (this.getYVelocity() - other.getYVelocity()) * (this.getYPosition() - other.getYPosition());
-		double d = vDotr * vDotr - vDotv * (rDotr - sigmaSq);
-		if(vDotr >= 0 || d <= 0)
-			return Double.POSITIVE_INFINITY;
-		else return -(vDotr + Math.sqrt(d)) / vDotv;
-	}
-
-	/**
-	 * Find the position of a possible collision with another ship,
-	 * assuming the current velocities remain constant.
-	 * @param other
-	 * 			The other ship.
-	 * @return The x- and y-coordinate of the calculated collision position, if in the current
-	 * 		   state of the ships no collision will occur the result is null. The collision point
-	 * 		   lies on the connecting line between the ships. It's position on the line is determined
-	 * 		   by the radii of the ships.
-	 * 		| let
-	 * 		| 	thisCollisionX = this.getXPosition() + getTimeToCollision(other) * this.getXVelocity()
-	 * 		| 	thisCollisionY = this.getYPosition() + getTimeToCollision(other) * this.getYVelocity()
-	 * 		| 	otherCollisionX = other.getXPosition() + getTimeToCollision(other) * other.getXVelocity()
-	 * 		|	otherCollisionY = other.getYPosition() + getTimeToCollision(other) * other.getYVelocity()
-	 * 		| in
-	 * 		|   if(getTimeToCollision(other) == Double.POSITIVE_INFINITY)
-	 * 		|   then result == null
-	 * 		|   else result == {(thisCollisionX * other.getRadius() + otherCollisionX * this.getRadius()) / (this.getRadius() + other.getRadius),
-	 * 		|					(thisCollisionY * other.getRadius() + otherCollisionY * this.getRadius()) / (this.getRadius() + other.getRadius)}
-	 * @throws NullPointerException
-	 * 			| other == null
-	 * @throws IllegalArgumentException
-	 * 			| this.overlaps(other)
-	 */
-	public double[] getCollisionPosition(Ship other) throws NullPointerException, IllegalArgumentException{
-		if(other == null)
-			throw new NullPointerException();
-
-		double timeTilCollision = getTimeToCollision(other);
-		if(timeTilCollision == Double.POSITIVE_INFINITY)
-			return null;
-		double sumRadii = this.getRadius() + other.getRadius();
-		double[] result = new double[2];
-		result[0] = ((this.getXPosition() + timeTilCollision * this.getXVelocity()) * other.getRadius() + (other.getXPosition() + timeTilCollision * other.getXVelocity()) * this.getRadius()) / sumRadii;
-		result[1] = ((this.getYPosition() + timeTilCollision * this.getYVelocity()) * other.getRadius() + (other.getYPosition() + timeTilCollision * other.getYVelocity()) * this.getRadius()) / sumRadii;
-		return result;
 	}
 }

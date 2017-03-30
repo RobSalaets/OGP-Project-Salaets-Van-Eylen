@@ -153,12 +153,50 @@ public class Vector2d{
 	}
 	
 	/**
+	 * Compute the componentwise multiplication of this vector and a given value
+	 * 
+	 * @param value
+	 * 			The value to mulitply
+	 * @return A vector with its components equal to the multiplication of the components with the given value
+	 * 			| result == new Vector2d(this.getX() * other.getX(), this.getY() * other.getY());
+	 * @throws IllegalArgumentException
+	 * 			| other == null
+	 */
+	public Vector2d mul(double value) throws IllegalArgumentException{
+		return new Vector2d(this.getX() * value, this.getY() * value);
+	}
+	
+	/**
 	 * Return this vectors euclidean length
 	 * 
 	 * @return | result == Math.sqrt(getX() * getX() + getY() * getY())
 	 */
 	public double getLength(){
 		return Math.sqrt(getX() * getX() + getY() * getY());
+	}
+	
+	/**
+	 * Return this vectors euclidean length squared
+	 * 
+	 * @return | result == getX() * getX() + getY() * getY()
+	 */
+	public double getLengthSquared(){
+		return getX() * getX() + getY() * getY();
+	}
+	
+	/**
+	 * Compute the dot product of this vector and a given other vector
+	 * 
+	 * @param other
+	 * 			The other Vector2d.
+	 * @return  | result == this.getX() * other.getX() + this.getY() * other.getY();
+	 * @throws IllegalArgumentException
+	 * 			| other == null
+	 */
+	public double dot(Vector2d other){
+		if(other == null)
+			throw new IllegalArgumentException();
+		return this.getX() * other.getX() + this.getY() * other.getY();
 	}
 	
 	/**
@@ -171,6 +209,14 @@ public class Vector2d{
 	public Vector2d normalize(){
 		double length = getLength();
 		return new Vector2d(getX() / length, getY() / length);
+	}
+	
+	/**
+	 * Return the velocity components as an array
+	 * @return | result[0] == x && result[1] == y
+	 */
+	public double[] asArray(){
+		return new double[]{x, y};
 	}
 	
 	/**
