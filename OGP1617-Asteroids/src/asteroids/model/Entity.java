@@ -457,6 +457,21 @@ public abstract class Entity{
 	}
 
 	/**
+	 * Checks if this Entity significant overlaps with another Entity.
+	 * 
+	 * @param  other
+	 * 			The other Entity
+	 * @return result == (this == other || getDistanceBetween(other) <= (99.0/100.0)*(this.getRadius()+other.getRadius()))
+	 * @throws NullPointerException
+	 * 			| other == null
+	 */
+	public boolean significantOverlap(Entity other) throws NullPointerException{
+		if(other == null)
+			throw new NullPointerException();
+		return (this == other || getDistanceBetween(other) <= (99.0/100.0)*(this.getRadius()+other.getRadius()));
+	}
+	
+	/**
 	 * Calculate the time before collision with the given other Ship, assuming the velocities
 	 * of both Entities do not change. If in the current state no collision will occur,
 	 * the time to collision is considered infinite.
@@ -540,4 +555,28 @@ public abstract class Entity{
 		return thisCollisionPoint.mul(other.getRadius()).add(otherCollisionPoint.mul(this.getRadius())).mul(1.0/sumRadii);
 	}
 
+	/**
+	 * Check whether this entity can have the given world
+	 * as its world.
+	 *
+	 * @param  world
+	 *         The world to check.
+	 * @return If this world is terminated, true if and only if
+	 *         the given world is not effective.
+	 *       | if (this.isTerminated())
+	 *       |   then result == (world == null)
+	 *         Otherwise, true if and only if the given world is
+	 *         either not effective or not terminated.
+	 *       | else result ==
+	 *       |   (world == null) || (! world.isTerminated())
+	 */
+	@Raw
+	public boolean canHaveAsWorld(World world) {
+		if (this.isTerminated())
+			return (world == null);
+		return (world == null) || (!world.isTerminated());
+	}
+	
+	
+	
 }
