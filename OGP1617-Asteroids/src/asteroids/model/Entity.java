@@ -603,4 +603,8 @@ public abstract class Entity{
 	 * Variable referencing the Container to which this Entity belongs.
 	 */
 	private Container<Entity> container = null;
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> cd6d8b7b723b64a2446794b58ef227b9146aa24f
