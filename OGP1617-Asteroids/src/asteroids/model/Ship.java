@@ -1,5 +1,8 @@
 package asteroids.model;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Raw;
 
@@ -10,77 +13,99 @@ import be.kuleuven.cs.som.annotate.Raw;
  *       	| isValidOrientation(getOrientation())
  * @invar  The thrustForce of each Ship must be a valid thrustForce for any Ship.
  *       	| isValidThrustForce(getThrustForce())
+ * @invar   Each Ship must have proper Bullets.
+ *          | hasProperItems()
  */
-public class Ship extends Entity{
+public class Ship extends Entity implements Container<Entity>{
 
 	/**
-	 * Initialize this new Ship with given x, y, xVelocity, yVelocity, orientation, radius and mass.
+	 * Initialize this new Ship with given x, y, xVelocity, yVelocity, radius, mass, container and thrustForce
+	 * with no Bullets yet.
 	 *
 	 * @param x
-	 *     		The x for this new Ship.
+	 *     		The x-position for this new Ship.
 	 * @param y
-	 *        	The y for this new Ship.
+	 *        	The y-position for this new Ship.
 	 * @param xVelocity
 	 * 			The x-velocity for this new Ship.
 	 * @param yVelocity
 	 *       	The y-velocity for this new Ship.
-	 * @param orientation
-	 *			The orientation for this new Ship.
 	 * @param radius
 	 *          The radius for this new Ship.
 	 * @param mass
-	 * 			The mass for this new Ship. 
-	 * @pre    The given orientation must be a valid orientation for any Ship.
-	 * 			| isValidOrientation(orientation)
-	 * @effect The x of this new Ship is set to the given x. 
-	 * 			| setXPosition(x)
-	 * @effect The y of this new Ship is set to the given y. 
-	 * 			| setYPosition(y)
-	 * @effect The thrust force of this new Ship is set to the DEFAULT_THRUST_FORCE
-	 * 			| setThrustForce(DEFAULT_THRUST_FORCE)
-	 * @post If the given xVelocity and yVelocity form a total velocity smaller than the speed of light, the velocity components 
-	 * 		 of this new Ship are equal to the given xVelocity and yVelocity. 
-	 *       Otherwise, the velocity components of this new Ship are equal to 0. 
-	 *       	| if (getVectorLength(xVelocity, yVelocity) <= 300000.0) 
-	 *       	| then new.getXVelocity() == xVelocity && new.getYVelocity() == yVelocity
-	 *       	| else new.getXVelocity() == 0 && new.getYVelocity() == 0
+	 * 			The mass for this new Ship.
+	 * @param thrustForce
+	 * 			The thrustForce for this new Ship.
+	 * @param container
+	 * 			The world for this new Ship.
+	 * @effect This new Ship is initialized as a new Entity with
+	 * 		   given x, y, xVelocity, yVelocity, radius and mass.
+	 * 			| super(x, y, xVelocity, yVelocity, radius, mass, container)
 	 * @post The orientation of this new Ship is equal to the given
 	 *       orientation.
 	 *    		| new.getOrientation() == orientation
-	 * @post The radius of this new Ship number is equal to
-	 *		 the given radius.
-	 *       	| new.getRadius() == radius
-	 * @post If given mass is a valid mass value for this new Ship, the mass is equal to the given mass.
-	 * 		 Otherwise the mass is set to the lowest possible mass.
-	 * 			| let 
-	 * 			| 	lowestMass = 4.0 / 3.0 * Math.PI * Math.pow(radius, 3) * getLowestMassDensity()
-	 * 			| in
-	 * 			|   if (mass > lowestMass) 
-	 *       	|   then new.getMass() == mass
-	 *       	|   else new.getMass() == lowestMass
-	 * @throws IllegalArgumentException
-	 *         The given radius is not a valid radius for any Ship.
-	 *       	| ! isValidRadius(radius)
+	 * @effect The thrust force of this new Ship is set to the given thrustForce
+	 * 			| setThrustForce(thrustForce)
+	 * @post   This new Ship has no bullets yet.
+	 *      	| new.getNbItems() == 0
+	 */
+	public Ship(double x, double y, double xVelocity, double yVelocity, double orientation, double radius, double mass, Container<Entity> container, double thrustForce) throws IllegalArgumentException{
+		super(x, y, xVelocity, yVelocity, radius, mass, container);
+		this.setOrientation(orientation);
+		this.setThrustForce(thrustForce);
+	}
+	
+	/**
+	 * Initialize this new Ship with given x, y, xVelocity, yVelocity, radius, mass and thrustForce.
+	 *
+	 * @param x
+	 *     		The x-position for this new Ship.
+	 * @param y
+	 *        	The y-position for this new Ship.
+	 * @param xVelocity
+	 * 			The x-velocity for this new Ship.
+	 * @param yVelocity
+	 *       	The y-velocity for this new Ship.
+	 * @param radius
+	 *          The radius for this new Ship.
+	 * @param mass
+	 * 			The mass for this new Ship.
+	 * @param thrustForce
+	 * 			The thrustForce for this new Ship.
+	 * @effect This new Ship is initialized as a new Ship with given x, y, xVelocity,
+	 * 		   yVelocity, radius, mass, no world and the default thrust force.
+	 * 			| this(x, y, xVelocity, yVelocity, orientation, radius, mass, null, thrustForce)
+	 * 
+	 */
+	public Ship(double x, double y, double xVelocity, double yVelocity, double orientation, double radius, double mass, double thrustForce) throws IllegalArgumentException{
+		super(x, y, xVelocity, yVelocity, radius, mass, null);
+		this.setOrientation(orientation);
+		this.setThrustForce(thrustForce);
+	}
+	
+	/**
+	 * Initialize this new Ship with given x, y, xVelocity, yVelocity, radius and mass.
+	 *
+	 * @param x
+	 *     		The x-position for this new Ship.
+	 * @param y
+	 *        	The y-position for this new Ship.
+	 * @param xVelocity
+	 * 			The x-velocity for this new Ship.
+	 * @param yVelocity
+	 *       	The y-velocity for this new Ship.
+	 * @param radius
+	 *          The radius for this new Ship.
+	 * @param mass
+	 * 			The mass for this new Ship.
+	 * @effect This new Ship is initialized as a new Ship with given x, y, xVelocity,
+	 * 		   yVelocity, radius, mass and the default thrust force.
+	 * 			| this(x, y, xVelocity, yVelocity, orientation, radius, mass, DEFAULT_THRUST_FORCE)
+	 * 
 	 */
 	public Ship(double x, double y, double xVelocity, double yVelocity, double orientation, double radius, double mass) throws IllegalArgumentException{
 		this(x, y, xVelocity, yVelocity, orientation, radius, mass, DEFAULT_THRUST_FORCE);
 	}
-
-	public Ship(double x, double y, double xVelocity, double yVelocity, double orientation, double radius) throws IllegalArgumentException{
-		this(x, y, xVelocity, yVelocity, orientation, radius, 4.0 / 3.0 * Math.PI * Math.pow(radius, 3) * getLowestMassDensity(), DEFAULT_THRUST_FORCE);
-	}
-
-	public Ship(double x, double y, double xVelocity, double yVelocity, double orientation, double radius, double mass, double thrustForce) throws IllegalArgumentException{
-		super(x, y, xVelocity, yVelocity, radius, mass);
-		this.setOrientation(orientation);
-		this.setThrustForce(thrustForce);
-	}
-
-	// TODO:
-	/**
-	 * zoek op spec voor inheritance constructor
-	 * 			spec voor overloading constructor
-	 */
 
 	/**
 	 * Return the orientation of this Ship.
@@ -135,6 +160,28 @@ public class Ship extends Entity{
 	@Override
 	public double getMinRadius(){
 		return MIN_RADIUS;
+	}
+	
+	/**
+	 * Check whether this Ship can have the given container as
+	 * its container.
+	 * 
+	 * @param  container
+	 * 		   The container to check.
+	 * @return If this Ship is terminated, true if and only if the
+	 *         given Container is not effective.
+	 *       | if (this.isTerminated())
+	 *       |   then result == (container == null)
+	 * @return If this Ship is not terminated, true if and only if the given
+	 *         Container is effective and an instance of World and not yet terminated.
+	 *       | if (! this.isTerminated())
+	 *       |   then result == (container != null) && (container instanceof World) && (!container.isTerminatedContainer())
+	 */
+	@Raw
+	public boolean canHaveAsContainer(Container<Entity> container){
+		if(this.isTerminated())
+			return container == null;
+		return (container != null) && (container instanceof World) && (!container.isTerminatedContainer());
 	}
 
 	/**
@@ -271,7 +318,6 @@ public class Ship extends Entity{
 	 *			|						getVelocity().getY() + getAcceleration() * Math.sin(getOrientation()) * timeDelta)
 	 * 			| then new.getVelocity().getLength() == getMaxVelocity()
 	 */
-
 	public void thrust(double timeDelta){
 		assert getThrusterStatus(); // TODO
 
@@ -285,5 +331,132 @@ public class Ship extends Entity{
 
 			setVelocity(newVel.getX(), newVel.getY());
 		}
+	}
+
+	@Override
+	public boolean isInBounds(Entity item){
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override @Basic @Raw
+	public boolean hasAsItem(@Raw Entity item){
+		return bullets.contains(item);
+	}
+	
+	/**
+	 * Check whether this Ship can have the given Entity
+	 * as one of its Bullets.
+	 * 
+	 * @param  item
+	 *         The Entity to check.
+	 * @return True if and only if the given Entity is effective
+	 *         and an instance of a Bullet and that Bullet is a valid Bullet for a Ship.
+	 *       | result == (item != null) && (item instanceof Bullet) && ((Bullet) item).canHaveAsContainer(this);
+	 */
+	@Override @Raw
+	public boolean canHaveAsItem(Entity item){
+		return item != null && item instanceof Bullet && ((Bullet) item).canHaveAsContainer(this);
+	}
+	
+	/**
+	 * Check whether this Ship has proper Bullets attached to it.
+	 * 
+	 * @return True if and only if this Ship can have each of the
+	 *         Bullets attached to it as one of its Bullets,
+	 *         and if each of these Bullets references this Ship as
+	 *         the Ship to which they are attached.
+	 *       | for each bullet in bullets:
+	 *       |   if (hasAsItem(bullet))
+	 *       |     then canHaveAsItem(bullet) && (bullet.getContainer() == this) 
+	 */
+	@Override
+	public boolean hasProperItems(){
+		for(Bullet bullet : bullets){
+			if(!canHaveAsItem(bullet))
+				return false;
+			if(bullet.getContainer() != this)
+				return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Add the given item to the set of Bullets of this Ship.
+	 * 
+	 * @param  item
+	 *         The Entity to be added.
+	 * @post   This Ship has the given Entity as one of its Bullets.
+	 * 			| new.hasAsItem(item)
+	 * @throws IllegalArgumentException
+	 * 		   The given Entity is cannot be a bullet of this Ships bullets
+	 * 		   or does not reference this Ship as its container.
+	 * 			| !canHaveAsItem(item) || (Bullet item).getContainer() != this
+	 */
+	@Override
+	public void addItem(Entity item) throws IllegalArgumentException{
+		if(!canHaveAsItem(item) || item.getContainer() != this)
+			throw new IllegalArgumentException();
+		bullets.add((Bullet) item);
+	}
+
+	/**
+	 * Remove the given item from the set of bullets of this Ship.
+	 * 
+	 * @param  item
+	 *         The Entity to be removed.
+	 * @post   This Ship no longer has the given Entity as
+	 *         one of its bullets.
+	 *       | ! new.hasAsItem(item)
+	 * @throws IllegalArgumentException
+	 * 		   The Ship does not have the given Entity as one of its bullets
+	 * 		   or is not an instance of Bullet or the given Entity still references
+	 * 		   any Ship as its container.
+	 * 			| !(item instanceof Bullet) || !this.hasAsItem(item) || item.getContainer() != null
+	 */
+	@Override @Raw
+	public void removeItem(Entity item) throws IllegalArgumentException{
+		if( !(item instanceof Bullet) || !this.hasAsItem(item) || item.getContainer() != null)
+			throw new IllegalArgumentException();
+		assert bullets.remove((Bullet)item);
+	}
+	
+	@Override @Basic @Raw
+	public int getNbItems(){
+		return bullets.size();
+	}
+	
+	/**
+	 * Terminate this Ship.
+	 *
+	 * @post   This Ship  is terminated.
+	 *       | new.isTerminated()
+	 * @post   TODO...
+	 *       | ...
+	 */
+	 public void terminate() {
+		 this.isTerminated = true;
+	 }
+
+
+	/**
+	 * Variable referencing a set collecting all the Bullets
+	 * of this Ship.
+	 * 
+	 * @invar  The referenced set is effective.
+	 *       | bullets != null
+	 * @invar  Each Bullet registered in the referenced list is
+	 *         effective and not yet terminated.
+	 *       | for each bullet in bullets:
+	 *       |   ( (bullet != null) &&
+	 *       |     (! bullet.isTerminated()) )
+	 */
+	private final Set<Bullet> bullets = new HashSet<Bullet>();
+	
+	@Basic
+	@Raw
+	@Override
+	public boolean isTerminatedContainer(){
+		return this.isTerminated;
 	}
 }

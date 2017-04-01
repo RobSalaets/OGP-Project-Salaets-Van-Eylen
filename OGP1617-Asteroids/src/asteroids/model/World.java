@@ -1,7 +1,9 @@
 package asteroids.model;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import be.kuleuven.cs.som.annotate.*;
 
@@ -234,21 +236,7 @@ public class World{
 	 *       |   ( (entity != null) &&
 	 *       |     (! entity.isTerminated()) )
 	 */
-	private final Set<Entity> entitys = new HashSet<Entity>();
-	
-	
-	/**
-	 * Variable referencing a list collecting all the entities of
-	 * this world.
-	 * 
-	 * @invar  The referenced list is effective.
-	 *       | Entities != null
-	 * @invar  Each entity registered in the referenced list is
-	 *         effective and not yet terminated.
-	 *       | for each entity in entities:
-	 *       |   ( (entity != null) && (!entity.isTerminated()) )
-	 */
-	private final List<Entity> entities = new ArrayList<Entity>();
+	private final Set<Entity> entities = new HashSet<Entity>();
 	
 	/**
 	 * Return the entity of this world at the given index.
