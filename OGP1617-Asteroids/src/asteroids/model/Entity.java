@@ -36,8 +36,13 @@ public abstract class Entity{
 	 *          The radius for this new Entity.
 	 * @param mass
 	 * 			The mass for this new Entity.
+	 * @param world
+	 *         The world for this new Entity.
 	 * @effect The x-position and y-position of this new Entity is set to the given x and y. 
 	 * 			| setPosition(x, y)
+	 * @effect The world of this new Entity is set to the given
+	 *         world.
+	 *       	| setWorld(world)
 	 * @post If the given xVelocity and yVelocity form a total velocity smaller than the speed of light, 
 	 * 		 the velocity components of this new Entity are equal to the given xVelocity and yVelocity. 
 	 *       Otherwise, the velocity components of this new Entity are equal to 0. 
@@ -62,7 +67,7 @@ public abstract class Entity{
 	 *       	| ! canHaveAsRadius(radius)
 	 */
 	@Model
-	protected Entity(double x, double y, double xVelocity, double yVelocity, double radius, double mass) throws IllegalArgumentException{
+	protected Entity(double x, double y, double xVelocity, double yVelocity, double radius, double mass, World world) throws IllegalArgumentException{
 		if(!canHaveAsRadius(radius))
 			throw new IllegalArgumentException();
 		this.setPosition(x, y);
@@ -71,6 +76,7 @@ public abstract class Entity{
 		this.setVelocity(xVelocity, yVelocity);
 		this.radius = radius;
 		this.setMass(mass);
+		this.setWorld(world);
 	}
 
 	/**
@@ -404,7 +410,7 @@ public abstract class Entity{
 	}
 
 	/**
-	 * Variable registering whether this person is terminated.
+	 * Variable registering whether this Entity is terminated.
 	 */
 	private boolean isTerminated = false;
 	
@@ -556,6 +562,16 @@ public abstract class Entity{
 	}
 
 	/**
+	 * Return the world of this entity.
+	 *   A null reference is returned if this entity has no world.
+	 */
+	@Basic
+	@Raw
+	public World getWorld() {
+		return this.world;
+	}
+	
+	/**
 	 * Check whether this entity can have the given world
 	 * as its world.
 	 *
@@ -577,6 +593,112 @@ public abstract class Entity{
 		return (world == null) || (!world.isTerminated());
 	}
 	
+	/**
+	 * Variable referencing the world of this entity.
+	 */
+	private World world;
 	
+	/**
+	 * Set the world of this entity to the given world.
+	 *
+	 * @param  world
+	 *         The new world for this entity.
+	 * @pre    This entity can have the given world as its world.
+	 *       | canHaveAsWorld(world)
+	 * @post   The world of this Entity is the same as the given world.
+	 *       | new.getWorld() == world
+	 */
+	@Raw
+	private void setWorld(@Raw World world) {
+		assert canHaveAsWorld(world);
+		this.world = world;
+	}
+	
+	/**
+	 * Check whether this entity has a proper world.
+	 *
+	 * @return True if and only if this entity can have its world as
+	 *         its world, and if either the world of this entity is not
+	 *         effective or that world has this entity as one of its
+	 *         entities.
+	 *       | result ==
+	 *       |   canHaveAsWorld(getWorld() &&
+	 *       |   ( (getWorld() == null) ||
+	 *       |     getWorld().hasAsEntity(this) )
+	 */
+	@Raw
+	public boolean hasProperWorld() {
+		return canHaveAsWorld(getWorld())
+				&& ((getWorld() == null) || getWorld()
+						.hasAsEntity(this));
+	}
+	
+	/**
+	 * Check whether this entity has a world.
+	 *
+	 * @return True if and only if the world of this entity is effective.
+	 *       | result == (getWorld() != null)
+	 */
+	@Raw
+	public boolean hasWorld() {
+		return getWorld() != null;
+	}
+	
+	/**
+	 * Set the world of this entity to the given world.
+	 *
+	 * @param  world
+	 *         The new world for this entity.
+	 * @post   The world of this entity is the same as the given world.
+	 *       | new.getWorld() == world
+	 * @post   The number of entities of the given world
+	 *         is incremented by 1.
+	 *       | (new world).getNbEntities() == world.getNbEntities() + 1
+	 * @post   The given world has this entity as its new last
+	 *         entity.
+	 *       | (new world).getEntityAt(getNbentities()+1) == this
+	 * @throws IllegalArgumentException
+	 *         The given world is not effective or it cannot have this entity
+	 *         as its new last entity.
+	 *       | (world == null) ||
+	 *       |   (! world.canHaveAsEntityAt(this,world.getNbEntities()+1))
+	 * @throws IllegalStateException
+	 *         This entity already has a world.
+	 *       | hasWorld()
+	 */
+	public void setWorldTo(World world)
+			throws IllegalArgumentException, IllegalStateException {
+		if ((world == null)
+				|| (!world.canHaveAsEntityAt(this, world.getNbEntities()+1)))
+			throw new IllegalArgumentException();
+		if (this.hasWorld())
+			throw new IllegalStateException("Already has a world!");
+		setWorld(world);
+		world.addEntity(this);
+	}
+
+	/**
+	 * Unset the world, if any, from this entity.
+	 *
+	 * @post   This entity no longer has a world.
+	 *       | ! new.hasWorld()
+	 * @post   The former world of this entity, if any, no longer
+	 *         has this entity as one of its entities.
+	 *       |    (getWorld() == null)
+	 *       | || (! (new getWorld()).hasAsEntity(entity))
+	 * @post   All entities registered beyond the position at which
+	 *         this entity was registered move one position to the left.
+	 *       | (getWorld() == null) ||
+	 *       | (for each index in
+	 *       |        getWorld().getIndexOfEntity(entity)+1..getWorld().getNbEntities():
+	 *       |    (new getWorld()).getEntityAt(index-1) == getWorld().getEntityAt(index) ) 
+	 */
+	public void unsetWorld() {
+		if (hasWorld()) {
+			World oldWorld = this.getWorld();
+			setWorld(null);
+			oldWorld.removeEntity(this);
+		}
+	}
 	
 }
