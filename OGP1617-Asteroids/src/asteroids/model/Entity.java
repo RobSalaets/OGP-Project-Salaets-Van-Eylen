@@ -18,11 +18,14 @@ import be.kuleuven.cs.som.annotate.Raw;
  *       	| canHaveAsMass(getMass())
  * @invar  Each Entity can have its maxVelocity as maxVelocity.
  *          | canHaveAsMaxVelocity(this.getMaxVelocity())
+ * @invar  Each Entity must have a proper container.
+ *       	| hasProperContainer()
+
  */
 public abstract class Entity{
 
 	/**
-	 * Initialize this new Entity with given x, y, xVelocity, yVelocity, radius and mass.
+	 * Initialize this new Entity with given x, y, xVelocity, yVelocity, radius, mass and container.
 	 *
 	 * @param x
 	 *     		The x-position for this new Entity.
@@ -34,6 +37,8 @@ public abstract class Entity{
 	 *       	The y-velocity for this new Entity.
 	 * @param radius
 	 *          The radius for this new Entity.
+	 * @param container
+	 * 			The container for this new Entity.
 	 * @param mass
 	 * 			The mass for this new Entity.
 	 * @param world
@@ -62,21 +67,30 @@ public abstract class Entity{
 	 * 			|   if (mass > lowestMass) 
 	 *       	|   then new.getMass() == mass
 	 *       	|   else new.getMass() == lowestMass
+	 * @post   The container of this new Bullet is the same as the
+	 *         given container.
+	 *       	| new.getContainer() == container
+	 * @post   The given container has this new Bullet as one of its
+	 *         items.
+	 *      	| (new container).hasAsItem(this)
+	 * @throws The new Bullet cannot have the given container as its container
+	 * 			| !canHaveAsContainer(container)
 	 * @throws IllegalArgumentException
 	 *         The given radius is not a valid radius for this Entity.
 	 *       	| ! canHaveAsRadius(radius)
 	 */
 	@Model
-	protected Entity(double x, double y, double xVelocity, double yVelocity, double radius, double mass, World world) throws IllegalArgumentException{
+	protected Entity(double x, double y, double xVelocity, double yVelocity, double radius, double mass, Container<Entity> container) throws IllegalArgumentException{
 		if(!canHaveAsRadius(radius))
 			throw new IllegalArgumentException();
 		this.setPosition(x, y);
 		this.velocity = Vector2d.ZERO;
-		this.maxVelocity = SPEED_OF_LIGHT; // miss overloaden
+		this.maxVelocity = SPEED_OF_LIGHT;
 		this.setVelocity(xVelocity, yVelocity);
 		this.radius = radius;
 		this.setMass(mass);
-		this.setWorld(world);
+		setContainer(container);
+		container.addItem(this);
 	}
 
 	/**
@@ -87,13 +101,13 @@ public abstract class Entity{
 	public Vector2d getPosition(){
 		return this.position;
 	}
-	
+
 	/**
 	 * Check whether the given position is a valid position for any Entity.
 	 * 
 	 * @param position
 	 *            The position to check.
-	 * @return | result == //TODO word canhaveas
+	 * @return | result == //TODO word canhaveas?
 	 */
 	public static boolean isValidPosition(double x, double y){
 		return true;
@@ -134,7 +148,7 @@ public abstract class Entity{
 			throw new IllegalArgumentException();
 		this.position = new Vector2d(position.getX(), y);
 	}
-	
+
 	/**
 	 * Set the position of this Entity to the given x and y.
 	 * 
@@ -269,7 +283,7 @@ public abstract class Entity{
 	 * Variable registering the maxVelocity of this Entity.
 	 */
 	private final double maxVelocity;
-	
+
 	/**
 	 * Constant registering the speed of light in kilometres/second
 	 */
@@ -387,34 +401,6 @@ public abstract class Entity{
 	private double mass;
 
 	/**
-	 * Terminate this Entity.
-	 *
-	 * @post   This Entity  is terminated.
-	 *       | new.isTerminated()
-	 * @post   ???????
-	 *       | ???????
-	 */
-	public void terminate(){
-		// TODO: dis
-		this.isTerminated = true;
-	}
-
-	/**
-	 * Return a boolean indicating whether or not this Entity
-	 * is terminated.
-	 */
-	@Basic
-	@Raw
-	public boolean isTerminated(){
-		return this.isTerminated;
-	}
-
-	/**
-	 * Variable registering whether this Entity is terminated.
-	 */
-	private boolean isTerminated = false;
-	
-	/**
 	 * Move the Entity to a new position given a time duration,
 	 * with respect to this Entity's current velocity.
 	 * @param  timeDelta
@@ -426,10 +412,9 @@ public abstract class Entity{
 	public void move(double timeDelta) throws IllegalArgumentException{
 		if(timeDelta < 0.0)
 			throw new IllegalArgumentException();
-		setPosition(getPosition().getX() + timeDelta * getVelocity().getX(),
-				    getPosition().getY() + timeDelta * getVelocity().getY());
+		setPosition(getPosition().getX() + timeDelta * getVelocity().getX(), getPosition().getY() + timeDelta * getVelocity().getY());
 	}
-	
+
 	/**
 	 * Returns the distance between this Entity and another Entity in kilometres.
 	 * 
@@ -516,11 +501,8 @@ public abstract class Entity{
 
 		double sigmaSq = Math.pow(this.getRadius() + other.getRadius(), 2);
 		double rDotr = this.getPosition().sub(other.getPosition()).getLengthSquared();
-//		double rDotr = Math.pow(this.getXPosition() - other.getXPosition(), 2) + Math.pow(this.getYPosition() - other.getYPosition(), 2);
 		double vDotv = this.getVelocity().sub(other.getVelocity()).getLengthSquared();
-//		double vDotv = Math.pow(this.getXVelocity() - other.getXVelocity(), 2) + Math.pow(this.getYVelocity() - other.getYVelocity(), 2);
 		double vDotr = this.getVelocity().sub(other.getVelocity()).dot(this.getPosition().sub(other.getPosition()));
-//		double vDotr = (this.getXVelocity() - other.getXVelocity()) * (this.getXPosition() - other.getXPosition()) + (this.getYVelocity() - other.getYVelocity()) * (this.getYPosition() - other.getYPosition());
 		double d = vDotr * vDotr - vDotv * (rDotr - sigmaSq);
 		if(vDotr >= 0 || d <= 0)
 			return Double.POSITIVE_INFINITY;
@@ -558,147 +540,92 @@ public abstract class Entity{
 		double sumRadii = this.getRadius() + other.getRadius();
 		Vector2d thisCollisionPoint = this.getPosition().add(this.getVelocity().mul(timeTilCollision));
 		Vector2d otherCollisionPoint = other.getPosition().add(other.getVelocity().mul(timeTilCollision));
-		return thisCollisionPoint.mul(other.getRadius()).add(otherCollisionPoint.mul(this.getRadius())).mul(1.0/sumRadii);
+		return thisCollisionPoint.mul(other.getRadius()).add(otherCollisionPoint.mul(this.getRadius())).mul(1.0 / sumRadii);
 	}
 
+	public abstract void terminate();
+
 	/**
-	 * Return the world of this entity.
-	 *   A null reference is returned if this entity has no world.
+	 * Return a boolean indicating whether or not this Entity
+	 * is terminated.
 	 */
 	@Basic
 	@Raw
-	public World getWorld() {
-		return this.world;
-	}
-	
-	/**
-	 * Check whether this entity can have the given world
-	 * as its world.
-	 *
-	 * @param  world
-	 *         The world to check.
-	 * @return If this world is terminated, true if and only if
-	 *         the given world is not effective.
-	 *       | if (this.isTerminated())
-	 *       |   then result == (world == null)
-	 *         Otherwise, true if and only if the given world is
-	 *         either not effective or not terminated.
-	 *       | else result ==
-	 *       |   (world == null) || (! world.isTerminated())
-	 */
-	@Raw
-	public boolean canHaveAsWorld(World world) {
-		if (this.isTerminated())
-			return (world == null);
-		return (world == null) || (!world.isTerminated());
-	}
-	
-	/**
-	 * Variable referencing the world of this entity.
-	 */
-	private World world;
-	
-	/**
-	 * Set the world of this entity to the given world.
-	 *
-	 * @param  world
-	 *         The new world for this entity.
-	 * @pre    This entity can have the given world as its world.
-	 *       | canHaveAsWorld(world)
-	 * @post   The world of this Entity is the same as the given world.
-	 *       | new.getWorld() == world
-	 */
-	@Raw
-	private void setWorld(@Raw World world) {
-		assert canHaveAsWorld(world);
-		this.world = world;
-	}
-	
-	/**
-	 * Check whether this entity has a proper world.
-	 *
-	 * @return True if and only if this entity can have its world as
-	 *         its world, and if either the world of this entity is not
-	 *         effective or that world has this entity as one of its
-	 *         entities.
-	 *       | result ==
-	 *       |   canHaveAsWorld(getWorld() &&
-	 *       |   ( (getWorld() == null) ||
-	 *       |     getWorld().hasAsEntity(this) )
-	 */
-	@Raw
-	public boolean hasProperWorld() {
-		return canHaveAsWorld(getWorld())
-				&& ((getWorld() == null) || getWorld()
-						.hasAsEntity(this));
-	}
-	
-	/**
-	 * Check whether this entity has a world.
-	 *
-	 * @return True if and only if the world of this entity is effective.
-	 *       | result == (getWorld() != null)
-	 */
-	@Raw
-	public boolean hasWorld() {
-		return getWorld() != null;
-	}
-	
-	/**
-	 * Set the world of this entity to the given world.
-	 *
-	 * @param  world
-	 *         The new world for this entity.
-	 * @post   The world of this entity is the same as the given world.
-	 *       | new.getWorld() == world
-	 * @post   The number of entities of the given world
-	 *         is incremented by 1.
-	 *       | (new world).getNbEntities() == world.getNbEntities() + 1
-	 * @post   The given world has this entity as its new last
-	 *         entity.
-	 *       | (new world).getEntityAt(getNbentities()+1) == this
-	 * @throws IllegalArgumentException
-	 *         The given world is not effective or it cannot have this entity
-	 *         as its new last entity.
-	 *       | (world == null) ||
-	 *       |   (! world.canHaveAsEntityAt(this,world.getNbEntities()+1))
-	 * @throws IllegalStateException
-	 *         This entity already has a world.
-	 *       | hasWorld()
-	 */
-	public void setWorldTo(World world)
-			throws IllegalArgumentException, IllegalStateException {
-		if ((world == null)
-				|| (!world.canHaveAsEntityAt(this, world.getNbEntities()+1)))
-			throw new IllegalArgumentException();
-		if (this.hasWorld())
-			throw new IllegalStateException("Already has a world!");
-		setWorld(world);
-		world.addEntity(this);
+	public boolean isTerminated(){
+		return this.isTerminated;
 	}
 
 	/**
-	 * Unset the world, if any, from this entity.
-	 *
-	 * @post   This entity no longer has a world.
-	 *       | ! new.hasWorld()
-	 * @post   The former world of this entity, if any, no longer
-	 *         has this entity as one of its entities.
-	 *       |    (getWorld() == null)
-	 *       | || (! (new getWorld()).hasAsEntity(entity))
-	 * @post   All entities registered beyond the position at which
-	 *         this entity was registered move one position to the left.
-	 *       | (getWorld() == null) ||
-	 *       | (for each index in
-	 *       |        getWorld().getIndexOfEntity(entity)+1..getWorld().getNbEntities():
-	 *       |    (new getWorld()).getEntityAt(index-1) == getWorld().getEntityAt(index) ) 
+	 * Variable registering whether this entity is terminated.
 	 */
-	public void unsetWorld() {
-		if (hasWorld()) {
-			World oldWorld = this.getWorld();
-			setWorld(null);
-			oldWorld.removeEntity(this);
-		}
+	protected boolean isTerminated = false;
+
+	/**
+	 * Return the Container to which this Entity belongs.
+	 */
+	@Basic
+	@Raw
+	public Container<Entity> getContainer(){
+		return this.container;
 	}
-	
+
+	/**
+	 * Check whether this Entity can have the given Container as
+	 * its container.
+	 * 
+	 * @param  container
+	 * 		   The container to check.
+	 * @return If this Entity is terminated, true if and only if the
+	 *         given Container is not effective.
+	 *       | if (this.isTerminated())
+	 *       |   then result == (container == null)
+	 * @return If this Entity is not terminated, true if and only if the given
+	 *         Container is effective and not yet terminated.
+	 *       | if (! this.isTerminated())
+	 *       |   then result == (container != null) && (!container.isTerminatedContainer())
+	 */
+	@Raw
+	public boolean canHaveAsContainer(Container<Entity> container){
+		if(this.isTerminated())
+			return container == null;
+		return (container != null) && (!container.isTerminatedContainer());
+	}
+
+	/**
+	 * Check whether this Entity has a proper container.
+	 * 
+	 * @return True if and only if this Entity can have its container as its
+	 *         container, and if the container of this Entity is either not effective
+	 *         or if it has this Entity as one of its Entitys.
+	 *       | result == canHaveAsContainer(getContainer()) &&
+	 *       |   ((getContainer() == null) || getContainer().hasAsItem(this))
+	 */
+	@Raw
+	public boolean hasProperContainer(){
+		return canHaveAsContainer(getContainer()) && ((getContainer() == null) || (getContainer().hasAsItem(this)));
+	}
+
+	/**
+	 * Set the container of this Entity to the given container.
+	 * 
+	 * @param  container
+	 *         The new container for this Entity.
+	 * @post   The container of this Entity is the same as the
+	 *         given container.
+	 *       | new.getContainer() == container
+	 * @throws IllegalArgumentException
+	 *         This Entity cannot have the given container as its container.
+	 *       | ! canHaveAsContainer(container)
+	 */
+	@Raw
+	protected void setContainer(Container<Entity> container){
+		if(!canHaveAsContainer(container))
+			throw new IllegalArgumentException("Inappropriate Container!");
+		this.container = container;
+	}
+
+	/**
+	 * Variable referencing the Container to which this Entity belongs.
+	 */
+	private Container<Entity> container = null;
 }
