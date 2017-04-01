@@ -41,8 +41,13 @@ public abstract class Entity{
 	 * 			The container for this new Entity.
 	 * @param mass
 	 * 			The mass for this new Entity.
+	 * @param world
+	 *         The world for this new Entity.
 	 * @effect The x-position and y-position of this new Entity is set to the given x and y. 
 	 * 			| setPosition(x, y)
+	 * @effect The world of this new Entity is set to the given
+	 *         world.
+	 *       	| setWorld(world)
 	 * @post If the given xVelocity and yVelocity form a total velocity smaller than the speed of light, 
 	 * 		 the velocity components of this new Entity are equal to the given xVelocity and yVelocity. 
 	 *       Otherwise, the velocity components of this new Entity are equal to 0. 
@@ -443,6 +448,21 @@ public abstract class Entity{
 	}
 
 	/**
+	 * Checks if this Entity significant overlaps with another Entity.
+	 * 
+	 * @param  other
+	 * 			The other Entity
+	 * @return result == (this == other || getDistanceBetween(other) <= (99.0/100.0)*(this.getRadius()+other.getRadius()))
+	 * @throws NullPointerException
+	 * 			| other == null
+	 */
+	public boolean significantOverlap(Entity other) throws NullPointerException{
+		if(other == null)
+			throw new NullPointerException();
+		return (this == other || getDistanceBetween(other) <= (99.0/100.0)*(this.getRadius()+other.getRadius()));
+	}
+	
+	/**
 	 * Calculate the time before collision with the given other Ship, assuming the velocities
 	 * of both Entities do not change. If in the current state no collision will occur,
 	 * the time to collision is considered infinite.
@@ -608,5 +628,4 @@ public abstract class Entity{
 	 * Variable referencing the Container to which this Entity belongs.
 	 */
 	private Container<Entity> container = null;
-
 }
