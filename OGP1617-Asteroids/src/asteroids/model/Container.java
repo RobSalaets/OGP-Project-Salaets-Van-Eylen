@@ -6,7 +6,7 @@ package asteroids.model;
  * @param T
  * 		The type of Entity being an item of a container
  */
-public interface Container<T>{
+public interface Container<T extends Entity>{
 	
 	public boolean isInBounds(T item);
 	

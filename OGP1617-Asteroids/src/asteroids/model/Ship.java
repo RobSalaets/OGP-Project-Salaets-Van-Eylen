@@ -14,9 +14,7 @@ import be.kuleuven.cs.som.annotate.Raw;
  * @invar  The thrustForce of each Ship must be a valid thrustForce for any Ship.
  *       	| isValidThrustForce(getThrustForce())
  * @invar   Each Ship must have proper Bullets.
- *        | hasProperItems()
- * @post   This new Ship has no Bullets yet.
- *        | new.getNbItems() == 0
+ *          | hasProperItems()
  */
 public class Ship extends Entity implements Container<Entity>{
 
@@ -39,7 +37,7 @@ public class Ship extends Entity implements Container<Entity>{
 	 * @param thrustForce
 	 * 			The thrustForce for this new Ship.
 	 * @param container
-	 * 			The container for this new Ship.
+	 * 			The world for this new Ship.
 	 * @effect This new Ship is initialized as a new Entity with
 	 * 		   given x, y, xVelocity, yVelocity, radius and mass.
 	 * 			| super(x, y, xVelocity, yVelocity, radius, mass, container)
@@ -48,7 +46,8 @@ public class Ship extends Entity implements Container<Entity>{
 	 *    		| new.getOrientation() == orientation
 	 * @effect The thrust force of this new Ship is set to the given thrustForce
 	 * 			| setThrustForce(thrustForce)
-	 * 
+	 * @post   This new Ship has no bullets yet.
+	 *      	| new.getNbItems() == 0
 	 */
 	public Ship(double x, double y, double xVelocity, double yVelocity, double orientation, double radius, double mass, Container<Entity> container, double thrustForce) throws IllegalArgumentException{
 		super(x, y, xVelocity, yVelocity, radius, mass, container);
@@ -57,7 +56,7 @@ public class Ship extends Entity implements Container<Entity>{
 	}
 	
 	/**
-	 * Initialize this new Ship with given x, y, xVelocity, yVelocity, radius and mass.
+	 * Initialize this new Ship with given x, y, xVelocity, yVelocity, radius, mass and thrustForce.
 	 *
 	 * @param x
 	 *     		The x-position for this new Ship.
@@ -71,9 +70,11 @@ public class Ship extends Entity implements Container<Entity>{
 	 *          The radius for this new Ship.
 	 * @param mass
 	 * 			The mass for this new Ship.
+	 * @param thrustForce
+	 * 			The thrustForce for this new Ship.
 	 * @effect This new Ship is initialized as a new Ship with given x, y, xVelocity,
 	 * 		   yVelocity, radius, mass, no world and the default thrust force.
-	 * 			| this(x, y, xVelocity, yVelocity, orientation, radius, mass, null, DEFAULT_THRUST_FORCE)
+	 * 			| this(x, y, xVelocity, yVelocity, orientation, radius, mass, null, thrustForce)
 	 * 
 	 */
 	public Ship(double x, double y, double xVelocity, double yVelocity, double orientation, double radius, double mass, double thrustForce) throws IllegalArgumentException{
@@ -103,7 +104,7 @@ public class Ship extends Entity implements Container<Entity>{
 	 * 
 	 */
 	public Ship(double x, double y, double xVelocity, double yVelocity, double orientation, double radius, double mass) throws IllegalArgumentException{
-		this(x, y, xVelocity, yVelocity, orientation, radius, mass, null, DEFAULT_THRUST_FORCE);
+		this(x, y, xVelocity, yVelocity, orientation, radius, mass, DEFAULT_THRUST_FORCE);
 	}
 
 	/**
@@ -159,6 +160,28 @@ public class Ship extends Entity implements Container<Entity>{
 	@Override
 	public double getMinRadius(){
 		return MIN_RADIUS;
+	}
+	
+	/**
+	 * Check whether this Ship can have the given container as
+	 * its container.
+	 * 
+	 * @param  container
+	 * 		   The container to check.
+	 * @return If this Ship is terminated, true if and only if the
+	 *         given Container is not effective.
+	 *       | if (this.isTerminated())
+	 *       |   then result == (container == null)
+	 * @return If this Ship is not terminated, true if and only if the given
+	 *         Container is effective and an instance of World and not yet terminated.
+	 *       | if (! this.isTerminated())
+	 *       |   then result == (container != null) && (container instanceof World) && (!container.isTerminatedContainer())
+	 */
+	@Raw
+	public boolean canHaveAsContainer(Container<Entity> container){
+		if(this.isTerminated())
+			return container == null;
+		return (container != null) && (container instanceof World) && (!container.isTerminatedContainer());
 	}
 
 	/**
@@ -318,9 +341,7 @@ public class Ship extends Entity implements Container<Entity>{
 
 	@Override @Basic @Raw
 	public boolean hasAsItem(@Raw Entity item){
-		if(item instanceof Bullet)
-			bullets.contains(item);
-		return false;
+		return bullets.contains(item);
 	}
 	
 	/**
@@ -347,7 +368,7 @@ public class Ship extends Entity implements Container<Entity>{
 	 *         the Ship to which they are attached.
 	 *       | for each bullet in bullets:
 	 *       |   if (hasAsItem(bullet))
-	 *       |     then canHaveAsBullet(bullet) && (bullet.getShip() == this) 
+	 *       |     then canHaveAsItem(bullet) && (bullet.getContainer() == this) 
 	 */
 	@Override
 	public boolean hasProperItems(){
@@ -365,16 +386,16 @@ public class Ship extends Entity implements Container<Entity>{
 	 * 
 	 * @param  item
 	 *         The Entity to be added.
-	 * @post   This Ship has the given Bullet as one of its Bullets.
-	 * 			| new.hasAsBullet(bullet)
+	 * @post   This Ship has the given Entity as one of its Bullets.
+	 * 			| new.hasAsItem(item)
 	 * @throws IllegalArgumentException
-	 * 		   The given Entity is ineffective or is not an instance of Bullet
-	 * 		   or does not already reference this Ship as its container
-	 * 			| (item == null) || !(item instanceof Bullet) || (Bullet item).getContainer() == this
+	 * 		   The given Entity is cannot be a bullet of this Ships bullets
+	 * 		   or does not reference this Ship as its container.
+	 * 			| !canHaveAsItem(item) || (Bullet item).getContainer() != this
 	 */
 	@Override
 	public void addItem(Entity item) throws IllegalArgumentException{
-		if(item == null || !(item instanceof Bullet) || item.getContainer() == this)
+		if(!canHaveAsItem(item) || item.getContainer() != this)
 			throw new IllegalArgumentException();
 		bullets.add((Bullet) item);
 	}
@@ -384,14 +405,9 @@ public class Ship extends Entity implements Container<Entity>{
 	 * 
 	 * @param  item
 	 *         The Entity to be removed.
-	 * @pre    This Ship has the given Entity as one of
-	 *         its bullets, and the given Bullet does not
-	 *         reference any Ship.
-	 *       | this.hasAsBullet(bullet) &&
-	 *       | (bullet.getShip() == null)
-	 * @post   This Ship no longer has the given Bullet as
-	 *         one of its Bullets.
-	 *       | ! new.hasAsBullet(bullet)
+	 * @post   This Ship no longer has the given Entity as
+	 *         one of its bullets.
+	 *       | ! new.hasAsItem(item)
 	 * @throws IllegalArgumentException
 	 * 		   The Ship does not have the given Entity as one of its bullets
 	 * 		   or is not an instance of Bullet or the given Entity still references
@@ -405,8 +421,7 @@ public class Ship extends Entity implements Container<Entity>{
 		assert bullets.remove((Bullet)item);
 	}
 	
-	
-	@Override
+	@Override @Basic @Raw
 	public int getNbItems(){
 		return bullets.size();
 	}

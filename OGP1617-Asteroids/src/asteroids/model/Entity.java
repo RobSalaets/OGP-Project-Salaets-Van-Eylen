@@ -37,17 +37,12 @@ public abstract class Entity{
 	 *       	The y-velocity for this new Entity.
 	 * @param radius
 	 *          The radius for this new Entity.
-	 * @param container
-	 * 			The container for this new Entity.
 	 * @param mass
 	 * 			The mass for this new Entity.
-	 * @param world
-	 *         The world for this new Entity.
+	 * @param container
+	 * 			The container for this new Entity.
 	 * @effect The x-position and y-position of this new Entity is set to the given x and y. 
 	 * 			| setPosition(x, y)
-	 * @effect The world of this new Entity is set to the given
-	 *         world.
-	 *       	| setWorld(world)
 	 * @post If the given xVelocity and yVelocity form a total velocity smaller than the speed of light, 
 	 * 		 the velocity components of this new Entity are equal to the given xVelocity and yVelocity. 
 	 *       Otherwise, the velocity components of this new Entity are equal to 0. 
@@ -452,16 +447,16 @@ public abstract class Entity{
 	 * 
 	 * @param  other
 	 * 			The other Entity
-	 * @return result == (this == other || getDistanceBetween(other) <= (99.0/100.0)*(this.getRadius()+other.getRadius()))
+	 * @return result == (this == other || getDistanceBetween(other) <= 0.99 *(this.getRadius() + other.getRadius()))
 	 * @throws NullPointerException
 	 * 			| other == null
 	 */
 	public boolean significantOverlap(Entity other) throws NullPointerException{
 		if(other == null)
 			throw new NullPointerException();
-		return (this == other || getDistanceBetween(other) <= (99.0/100.0)*(this.getRadius()+other.getRadius()));
+		return (this == other || getDistanceBetween(other) <= 0.99 * (this.getRadius() + other.getRadius()));
 	}
-	
+
 	/**
 	 * Calculate the time before collision with the given other Ship, assuming the velocities
 	 * of both Entities do not change. If in the current state no collision will occur,
@@ -569,27 +564,7 @@ public abstract class Entity{
 		return this.container;
 	}
 
-	/**
-	 * Check whether this Entity can have the given Container as
-	 * its container.
-	 * 
-	 * @param  container
-	 * 		   The container to check.
-	 * @return If this Entity is terminated, true if and only if the
-	 *         given Container is not effective.
-	 *       | if (this.isTerminated())
-	 *       |   then result == (container == null)
-	 * @return If this Entity is not terminated, true if and only if the given
-	 *         Container is effective and not yet terminated.
-	 *       | if (! this.isTerminated())
-	 *       |   then result == (container != null) && (!container.isTerminatedContainer())
-	 */
-	@Raw
-	public boolean canHaveAsContainer(Container<Entity> container){
-		if(this.isTerminated())
-			return container == null;
-		return (container != null) && (!container.isTerminatedContainer());
-	}
+	public abstract boolean canHaveAsContainer(Container<Entity> container);
 
 	/**
 	 * Check whether this Entity has a proper container.

@@ -1,6 +1,7 @@
 package asteroids.model;
 
 import be.kuleuven.cs.som.annotate.Basic;
+import be.kuleuven.cs.som.annotate.Raw;
 
 
 public class Bullet extends Entity{
@@ -37,6 +38,30 @@ public class Bullet extends Entity{
 	@Override
 	public double getMinRadius(){
 		return MIN_RADIUS;
+	}
+	
+	/**
+	 * Check whether this Bullet can have the given container as
+	 * its container.
+	 * 
+	 * @param  container
+	 * 		   The container to check.
+	 * @return If this Bullet is terminated, true if and only if the
+	 *         given Container is not effective.
+	 *       | if (this.isTerminated())
+	 *       |   then result == (container == null)
+	 * @return If this Bullet is not terminated, true if and only if the given
+	 *         Container is effective and an instance of Ship or World and not yet terminated.
+	 *       | if (! this.isTerminated())
+	 *       |   then result == (container != null) && (container instanceof World) 
+	 *       |							&& (!container.isTerminatedContainer())
+	 */
+	@Raw
+	public boolean canHaveAsContainer(Container<Entity> container){
+		if(this.isTerminated())
+			return container == null;
+		return (container != null) && (container instanceof World || container instanceof Ship)
+				&& (!container.isTerminatedContainer());
 	}
 	
 	/**

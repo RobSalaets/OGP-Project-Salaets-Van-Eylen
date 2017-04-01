@@ -1,20 +1,22 @@
 package asteroids.model;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
-import be.kuleuven.cs.som.annotate.*;
+import be.kuleuven.cs.som.annotate.Basic;
+import be.kuleuven.cs.som.annotate.Immutable;
+import be.kuleuven.cs.som.annotate.Raw;
 
 
-public class World{
-	/**
-	 * @invar  Each world can have its width as width .
-	 *       | canHaveAsWidth(this.getWidth())
-	 * @invar  Each world can have its height as height .
-	 *       | canHaveAsHeight(this.getHeight())
-	 * @invar  Each world must have proper entities.
-	 *       | hasProperEntities()       
-	 */
+/**
+ * @invar  Each world can have its width as width .
+ *       | canHaveAsWidth(this.getWidth())
+ * @invar  Each world can have its height as height .
+ *       | canHaveAsHeight(this.getHeight())
+ * @invar  Each world must have proper entities.
+ *       | hasProperItems()       
+ */
+public class World implements Container<Entity>{
 
 	/**
 	 * Initialize this new world as a non-terminated world with given width and height
@@ -43,12 +45,14 @@ public class World{
 	 */
 	@Raw
 	public World(double width, double height) {
-		if (! isValidWidth(width))
-			width = 0;
-		this.width = width;
-		if (! isValidHeight(height))
-			height = 0;
-		this.height = height;
+		if (isValidWidth(width))
+			this.width = width;
+		else
+			this.width = 0.0;
+		if (isValidHeight(height))
+			this.height = height;
+		else
+			this.height = 0.0;
 	}
 	
 	/**
@@ -112,116 +116,130 @@ public class World{
 	 * The maximum upperbound for the height for any World.
 	 */
 	private static final double MAX_HEIGHT = Double.MAX_VALUE ;
-	
-	
-	
+
 	/**
-	 * Check whether this world has the given entity as one of
-	 * its entities.
+	 * Terminate this World.
 	 *
-	 * @param  entity
-	 *         The entity to check.
-	 * @return True if and only if this world has the given entity
-	 *         as one of its entities at some index.
-	 *       | result ==
-	 *       |   for some index in 1..getNbEntities():
-	 *       |     getEntityAt(index).equals(entity)
+	 * @post   This World  is terminated.
+	 *       | new.isTerminated()
+	 * @post   TODO...
+	 *       | ...
 	 */
-	@Basic
-	@Raw
-	public boolean hasAsEntity(Entity entity) {
-		return entities.contains(entity);
-	// getEntity at index moet nog uitgewerkt worden
+	 public void terminate() {
+		 this.isTerminated = true;
+	 }
+	 
+	 /**
+	  * Return a boolean indicating whether or not this World
+	  * is terminated.
+	  */
+	 @Basic @Raw
+	 public boolean isTerminated() {
+		 return this.isTerminated;
+	 }
+	 
+	 /**
+	  * Variable registering whether this person is terminated.
+	  */
+	 private boolean isTerminated = false;
+
+	@Override
+	public boolean isInBounds(Entity item){
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override @Basic @Raw
+	public boolean hasAsItem(@Raw Entity item){
+		return entities.contains(item);
 	}
 
 	/**
-	 * Check whether this world can have the given entity
+	 * Check whether this World can have the given Entity
 	 * as one of its entities.
 	 * 
-	 * @param  entity
-	 *         The entity to check.
-	 * @return True if and only if the given entity is effective, and
-	 *         if that entity can have this world as its world.
-	 *       | result ==
-	 *       |   (entity != null) &&
-	 *       |   entity.canHaveAsWorld(this)
+	 * @param  item
+	 *         The Entity to check.
+	 * @return True if and only if the given Entity is effective
+	 *         and is a valid Entity for a World.
+	 *       | result == (item != null) && item.canHaveAsContainer(this);
 	 */
-	@Raw
-	public boolean canHaveAsEntity(Entity entity) {
-		return (entity != null) && entity.canHaveAsWorld(this);
+	@Override @Raw
+	public boolean canHaveAsItem(Entity item){
+		return item != null && item.canHaveAsContainer(this);
 	}
-	
+
 	/**
-	 * Check whether this world has proper entities attached to it.
+	 * Check whether this World has proper Entities attached to it.
 	 * 
-	 * @return True if and only if this world can have each of the
+	 * @return True if and only if this World can have each of the
 	 *         entities attached to it as one of its entities,
-	 *         and if each of these entities references this world as
-	 *         the world to which they are attached.
-	 *       | for each entity in Entity:
-	 *       |   if (hasAsEntity(entity))
-	 *       |     then canHaveAsEntity(entity) &&
-	 *       |          (entity.getWorld() == this)
+	 *         and if each of these entities references this World as
+	 *         the World to which they are attached.
+	 *       | for each entity in entities:
+	 *       |   if (hasAsItem(entity))
+	 *       |     then canHaveAsItem(entity) && (entity.getContainer() == this) 
 	 */
-	public boolean hasProperEntitys() {
-		for (Entity entity : entities) {
-			if (!canHaveAsEntity(entity))
+	@Override
+	public boolean hasProperItems(){
+		for(Entity entity : entities){
+			if(!canHaveAsItem(entity))
 				return false;
-			if (entity.getWorld() != this)
+			if(entity.getContainer() != this)
 				return false;
 		}
 		return true;
 	}
 
-	/**
-	 * Return the number of entities associated with this world.
-	 *
-	 * @return  The total number of entities collected in this world.
-	 *        | result ==
-	 *        |   card({entity:Entity | hasAsEntity({entity)})
-	 */
-	@Basic
-	@Raw
-	public int getNbEntities() {
+	@Override @Basic @Raw
+	public int getNbItems(){
 		return entities.size();
 	}
 
 	/**
-	 * Add the given entity to the set of entities of this world.
+	 * Add the given item to the set of entities of this World.
 	 * 
-	 * @param  entity
-	 *         The entity to be added.
-	 * @pre    The given entity is effective and already references
-	 *         this world.
-	 *       | (entity != null) && (entity.getWorld() == this)
-	 * @post   This world has the given entity as one of its entities.
-	 *       | new.hasAsEntity(entity)
+	 * @param  item
+	 *         The Entity to be added.
+	 * @post   This World has the given Entity as one of its entities.
+	 * 			| new.hasAsItem(item)
+	 * @throws IllegalArgumentException
+	 * 		   The given Entity is cannot be an entity of this Worlds entities
+	 * 		   or does not reference this World as its container.
+	 * 			| !canHaveAsItem(item) || (item.getContainer() != this)
 	 */
-	public void addEntity(@Raw Entity entity) {
-		assert (entity != null) && (entity.getWorld() == this);
-		entities.add(entity);
+	@Override
+	public void addItem(Entity item) throws IllegalArgumentException{
+		if(!canHaveAsItem(item) || item.getContainer() != this)
+			throw new IllegalArgumentException();
+		entities.add(item);
 	}
 
 	/**
-	 * Remove the given entity from the set of entities of this world.
+	 * Remove the given item from the set of entities of this World.
 	 * 
-	 * @param  entity
-	 *         The entity to be removed.
-	 * @pre    This world has the given entity as one of
-	 *         its entities, and the given entity does not
-	 *         reference any world.
-	 *       | this.hasAsEntity(entity) &&
-	 *       | (entity.getWorld() == null)
-	 * @post   This world no longer has the given entity as
+	 * @param  item
+	 *         The Entity to be removed.
+	 * @post   This World no longer has the given Entity as
 	 *         one of its entities.
-	 *       | ! new.hasAsEntity(entity)
+	 *       | ! new.hasAsItem(item)
+	 * @throws IllegalArgumentException
+	 * 		   The World does not have the given Entity as one of its entities
+	 * 		   or the given Entity still references any World as its container.
+	 * 			| !this.hasAsItem(item) || item.getContainer() != null
 	 */
-	@Raw
-	public void removeEntity(Entity entity) {
-		assert this.hasAsEntity(entity) && (entity.getWorld() == null);
-		entities.remove(entity);
+	@Override @Raw
+	public void removeItem(Entity item) throws IllegalArgumentException{
+		if(!this.hasAsItem(item) || item.getContainer() != null)
+			throw new IllegalArgumentException();
+		assert entities.remove(item);
 	}
 
+	@Override
+	public boolean isTerminatedContainer(){
+		return this.isTerminated;
+	}
+	
 	/**
 	 * Variable referencing a set collecting all the entities
 	 * of this world.
@@ -234,103 +252,5 @@ public class World{
 	 *       |   ( (entity != null) &&
 	 *       |     (! entity.isTerminated()) )
 	 */
-	private final Set<Entity> entitys = new HashSet<Entity>();
-	
-	
-	/**
-	 * Variable referencing a list collecting all the entities of
-	 * this world.
-	 * 
-	 * @invar  The referenced list is effective.
-	 *       | Entities != null
-	 * @invar  Each entity registered in the referenced list is
-	 *         effective and not yet terminated.
-	 *       | for each entity in entities:
-	 *       |   ( (entity != null) && (!entity.isTerminated()) )
-	 */
-	private final List<Entity> entities = new ArrayList<Entity>();
-	
-	/**
-	 * Return the entity of this world at the given index.
-	 * 
-	 * @param  index
-	 *         The index of the entity to return.
-	 * @throws IndexOutOfBoundsException
-	 *         The given index is not positive or it exceeds the
-	 *         number of entities of this world.
-	 *       | (index < 1) || (index > getNbEntities())
-	 */
-	@Basic
-	@Raw
-	public Entity getEntityAt(int index) throws IndexOutOfBoundsException {
-		return entities.get(index - 1);
-	}
-	
-	/**
-	 * Return the index at which the given entity is registered
-	 * in the set of entities for this world.
-	 *  
-	 * @param  entity
-	 *         The entity to search for.
-	 * @return If this world has the given entity as one of its
-	 *         entities, that entity is registered at the resulting
-	 *         index. Otherwise, the resulting value is -1.
-	 *       | if (hasAsEntity(entity))
-	 *       |    then getEntityAt(result) == entity
-	 *       |    else result == -1
-	 */
-	@Raw
-	public int getIndexOfOwning(Entity entity) {
-		return entities.indexOf(entity);
-	}
-	
-	/**
-	 * Check whether this world can have the given entity
-	 * as one of its entities at the given index.
-	 * 
-	 * @param  entity
-	 *         The entity to check.
-	 * @param  index
-	 *         The index to check.
-	 * @return False if the given index is not positive or exceeds
-	 *         the number of entities of this world + 1.
-	 *       | if ( (index < 1) || (index > getNbentities()+1) )
-	 *       |   then result == false
-	 *         Otherwise, false if this world cannot have the
-	 *         given entity as one of its entities.
-	 *       | else if (! canHaveAsEntity(entity))
-	 *       |   then result == false
-	 *         Otherwise, true if and only if the given entity is
-	 *         not already registered at another index.
-	 *       | else result ==
-	 *       |   for each i in 1..getNbEntities():
-	 *       |     ( (i == index) || (getEntityAt(i) != entity) )
-	 */
-	@Raw
-	public boolean canHaveAsEntityAt(Entity entity, int index) {
-		if ((index < 1) || (index > getNbEntities() + 1))
-			return false;
-		if (!canHaveAsEntity(entity))
-			return false;
-		for (int pos = 1; pos <= getNbEntities(); pos++)
-			if ((pos != index) && (getEntityAt(pos) == entity))
-				return false;
-		return true;
-	}
-	
-	/**
-	 * Check whether this world is terminated.
-	 */
-	@Basic
-	@Raw
-	public boolean isTerminated() {
-		return this.isTerminated;
-	}
-	
-	/**
-	 * Variable reflecting whether or not this world is terminated.
-	 */
-	private boolean isTerminated;
-	
-	
+	private final Set<Entity> entities = new HashSet<Entity>();
 }
