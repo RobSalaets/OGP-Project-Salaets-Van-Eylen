@@ -1,5 +1,6 @@
 package asteroids.model;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -54,7 +55,7 @@ public class Ship extends Entity implements Container<Entity>{
 		this.setOrientation(orientation);
 		this.setThrustForce(thrustForce);
 	}
-	
+
 	/**
 	 * Initialize this new Ship with given x, y, xVelocity, yVelocity, radius, mass and thrustForce.
 	 *
@@ -82,7 +83,7 @@ public class Ship extends Entity implements Container<Entity>{
 		this.setOrientation(orientation);
 		this.setThrustForce(thrustForce);
 	}
-	
+
 	/**
 	 * Initialize this new Ship with given x, y, xVelocity, yVelocity, radius and mass.
 	 *
@@ -161,7 +162,7 @@ public class Ship extends Entity implements Container<Entity>{
 	public double getMinRadius(){
 		return MIN_RADIUS;
 	}
-	
+
 	/**
 	 * Check whether this Ship can have the given container as
 	 * its container.
@@ -173,15 +174,15 @@ public class Ship extends Entity implements Container<Entity>{
 	 *       | if (this.isTerminated())
 	 *       |   then result == (container == null)
 	 * @return If this Ship is not terminated, true if and only if the given
-	 *         Container is effective and an instance of World and not yet terminated.
+	 *         Container is not effective or an instance of World and not yet terminated.
 	 *       | if (! this.isTerminated())
-	 *       |   then result == (container != null) && (container instanceof World) && (!container.isTerminatedContainer())
+	 *       |   then result == (container == null) && ((container instanceof World) && (!container.isTerminatedContainer()))
 	 */
 	@Raw
 	public boolean canHaveAsContainer(Container<Entity> container){
 		if(this.isTerminated())
 			return container == null;
-		return (container != null) && (container instanceof World) && (!container.isTerminatedContainer());
+		return (container == null) ||  ((container instanceof World) && (!container.isTerminatedContainer()));
 	}
 
 	/**
@@ -323,8 +324,7 @@ public class Ship extends Entity implements Container<Entity>{
 
 		if(getThrusterStatus()){
 			acceleration = this.getAcceleration();
-			Vector2d newVel = new Vector2d(getVelocity().getX() + acceleration * Math.cos(getOrientation()) * timeDelta,
-										getVelocity().getY() + acceleration * Math.sin(getOrientation()) * timeDelta);
+			Vector2d newVel = new Vector2d(getVelocity().getX() + acceleration * Math.cos(getOrientation()) * timeDelta, getVelocity().getY() + acceleration * Math.sin(getOrientation()) * timeDelta);
 
 			if(!canHaveAsVelocity(newVel.getX(), newVel.getY()))
 				newVel = getVelocity().normalize().mul(getMaxVelocity());
@@ -339,11 +339,13 @@ public class Ship extends Entity implements Container<Entity>{
 		return false;
 	}
 
-	@Override @Basic @Raw
+	@Override
+	@Basic
+	@Raw
 	public boolean hasAsItem(@Raw Entity item){
 		return bullets.contains(item);
 	}
-	
+
 	/**
 	 * Check whether this Ship can have the given Entity
 	 * as one of its Bullets.
@@ -354,11 +356,12 @@ public class Ship extends Entity implements Container<Entity>{
 	 *         and an instance of a Bullet and that Bullet is a valid Bullet for a Ship.
 	 *       | result == (item != null) && (item instanceof Bullet) && ((Bullet) item).canHaveAsContainer(this);
 	 */
-	@Override @Raw
+	@Override
+	@Raw
 	public boolean canHaveAsItem(Entity item){
 		return item != null && item instanceof Bullet && ((Bullet) item).canHaveAsContainer(this);
 	}
-	
+
 	/**
 	 * Check whether this Ship has proper Bullets attached to it.
 	 * 
@@ -414,30 +417,62 @@ public class Ship extends Entity implements Container<Entity>{
 	 * 		   any Ship as its container.
 	 * 			| !(item instanceof Bullet) || !this.hasAsItem(item) || item.getContainer() != null
 	 */
-	@Override @Raw
+	@Override
+	@Raw
 	public void removeItem(Entity item) throws IllegalArgumentException{
-		if( !(item instanceof Bullet) || !this.hasAsItem(item) || item.getContainer() != null)
+		if(!(item instanceof Bullet) || !this.hasAsItem(item) || item.getContainer() != null)
 			throw new IllegalArgumentException();
-		assert bullets.remove((Bullet)item);
+		assert bullets.remove((Bullet) item);
 	}
-	
-	@Override @Basic @Raw
+
+	@Override
+	@Basic
+	@Raw
 	public int getNbItems(){
 		return bullets.size();
 	}
-	
+
 	/**
 	 * Terminate this Ship.
 	 *
 	 * @post   This Ship  is terminated.
 	 *       | new.isTerminated()
-	 * @post   TODO...
-	 *       | ...
+	 * @post   This Ship no longer references an effective container.
+	 *       | new.getContainer() == null
+	 * @post   If this Ship was not yet terminated, this Ship
+	 *         is no longer one of the Entities for the Container to which
+	 *         this Ship belonged.
+	 *       | if (! isTerminated())
+	 *       |   then ! (new getContainer()).hasAsItem(this))
+	 * @post   If this Ship was not yet terminated, the size of
+	 *         the container to which this Ship belonged is decremented by 1.
+	 *       | if (! isTerminated())
+	 *       |   then (new getContainer()).getNbItems() ==
+	 *       |            getContainer().getNbItems() - 1
+	 * @post   If this Ship was not terminated, each Bullet that belonged to this Ship
+	 * 		   now belongs to the Container that contained this Ship.
+	 * 		 | if (! isTerminated())
+	 *       |   then for each bullet in bullets: 
+	 *       		(new bullet).getContainer() == this.getContainer()
+	 * @post   If this Ship was not yet terminated, the set of bullets of this Ship
+	 * 		   is now an empty set.
+	 * 		 | if(! isTerminated())
+	 * 		 |	 then new.getNbItems() == 0
 	 */
-	 public void terminate() {
-		 this.isTerminated = true;
-	 }
-
+	public void terminate(){
+		if(!isTerminated()){
+			Container<Entity> oldContainer = getContainer();
+			if(oldContainer != null){
+				setContainer(null);
+				oldContainer.removeItem(this);
+			}
+			for(Bullet bullet : new ArrayList<Bullet>(bullets)){
+				removeItem(bullet);	
+				bullet.setContainer(oldContainer);
+			}
+			this.isTerminated = true;
+		}
+	}
 
 	/**
 	 * Variable referencing a set collecting all the Bullets
@@ -452,7 +487,7 @@ public class Ship extends Entity implements Container<Entity>{
 	 *       |     (! bullet.isTerminated()) )
 	 */
 	private final Set<Bullet> bullets = new HashSet<Bullet>();
-	
+
 	@Basic
 	@Raw
 	@Override

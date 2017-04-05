@@ -35,7 +35,7 @@ public interface Container<T extends Entity>{
 	public void removeItem(T item);
 
 	/**
-	 * Return a boolean indicating whether or not this Container
+	 * Return whether or not this Container
 	 * is terminated.
 	 */
 	public boolean isTerminatedContainer();

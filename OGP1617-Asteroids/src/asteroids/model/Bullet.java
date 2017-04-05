@@ -3,7 +3,6 @@ package asteroids.model;
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Raw;
 
-
 public class Bullet extends Entity{
 
 	/**
@@ -28,18 +27,18 @@ public class Bullet extends Entity{
 	protected Bullet(double x, double y, double xVelocity, double yVelocity, double radius, double mass, Container<Entity> container) throws IllegalArgumentException{
 		super(x, y, xVelocity, yVelocity, radius, mass, container);
 	}
-	
+
 	/**
 	 * The mininum radius for any Bullet in kilometres
 	 */
 	private static final double MIN_RADIUS = 1.0;
-	
+
 	@Basic
 	@Override
 	public double getMinRadius(){
 		return MIN_RADIUS;
 	}
-	
+
 	/**
 	 * Check whether this Bullet can have the given container as
 	 * its container.
@@ -51,19 +50,18 @@ public class Bullet extends Entity{
 	 *       | if (this.isTerminated())
 	 *       |   then result == (container == null)
 	 * @return If this Bullet is not terminated, true if and only if the given
-	 *         Container is effective and an instance of Ship or World and not yet terminated.
+	 *         Container is not effective or an instance of Ship or World and not yet terminated.
 	 *       | if (! this.isTerminated())
-	 *       |   then result == (container != null) && (container instanceof World) 
-	 *       |							&& (!container.isTerminatedContainer())
+	 *       |   then result == (container == null) || ((container instanceof World) 
+	 *       |							&& (!container.isTerminatedContainer()))
 	 */
 	@Raw
 	public boolean canHaveAsContainer(Container<Entity> container){
 		if(this.isTerminated())
 			return container == null;
-		return (container != null) && (container instanceof World || container instanceof Ship)
-				&& (!container.isTerminatedContainer());
+		return (container == null) || ((container instanceof World || container instanceof Ship) && (!container.isTerminatedContainer()));
 	}
-	
+
 	/**
 	 * Return the source of this Bullet if any exists.
 	 *  
@@ -74,19 +72,36 @@ public class Bullet extends Entity{
 	 */
 	public Ship getSource(){
 		if(getContainer() instanceof Ship)
-			return (Ship)getContainer();
+			return (Ship) getContainer();
 		return null;
 	}
-	
+
 	/**
 	 * Terminate this Bullet.
 	 *
 	 * @post   This Bullet  is terminated.
 	 *       | new.isTerminated()
-	 * @post   TODO...
-	 *       | ...
+	 * @post   This Bullet no longer references an effective container.
+	 *       | new.getContainer() == null
+	 * @post   If this Bullet was not yet terminated, this Bullet
+	 *         is no longer one of the Entities for the Container to which
+	 *         this Bullet belonged.
+	 *       | if (! isTerminated())
+	 *       |   then ! (new getContainer()).hasAsItem(this))
+	 * @post   If this Bullet was not yet terminated, the size of
+	 *         the container to which this Bullet belonged is decremented by 1.
+	 *       | if (! isTerminated())
+	 *       |   then (new getContainer()).getNbItems() ==
+	 *       |            getContainer().getNbItems() - 1
 	 */
-	 public void terminate() {
-		 this.isTerminated = true;
-	 } 
+	public void terminate(){
+		if(!isTerminated()){
+			Container<Entity> oldContainer = getContainer();
+			if(oldContainer != null){
+				setContainer(null);
+				oldContainer.removeItem(this);
+			}
+			this.isTerminated = true;
+		}
+	}
 }

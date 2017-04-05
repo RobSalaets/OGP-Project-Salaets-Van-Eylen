@@ -1,12 +1,12 @@
 package asteroids.model;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Immutable;
 import be.kuleuven.cs.som.annotate.Raw;
-
 
 /**
  * @invar  Each world can have its width as width .
@@ -44,25 +44,25 @@ public class World implements Container<Entity>{
 	 *       | new.getNbEntitys() == 0
 	 */
 	@Raw
-	public World(double width, double height) {
-		if (isValidWidth(width))
+	public World(double width, double height){
+		if(isValidWidth(width))
 			this.width = width;
-		else
-			this.width = 0.0;
-		if (isValidHeight(height))
+		else this.width = 0.0;
+		if(isValidHeight(height))
 			this.height = height;
-		else
-			this.height = 0.0;
+		else this.height = 0.0;
 	}
-	
+
 	/**
 	 * Return the width of this world.
 	 */
-	@Basic @Raw @Immutable
-	public double getWidth() {
+	@Basic
+	@Raw
+	@Immutable
+	public double getWidth(){
 		return this.width;
 	}
-	
+
 	/**
 	 * Check whether this world can have the given width as its width.
 	 *  
@@ -72,28 +72,30 @@ public class World implements Container<Entity>{
 	 *       | result == (0 < width && width < maxWidth)
 	*/
 	@Raw
-	public boolean isValidWidth(double width) {
+	public boolean isValidWidth(double width){
 		return (0 < width && width < MAX_WIDTH);
 	}
-	
+
 	/**
 	 * Variable registering the width of this world.
 	 */
 	private final double width;
-	
+
 	/**
 	 * The maximum upperbound for the width for any World.
 	 */
-	private static final double MAX_WIDTH = Double.MAX_VALUE ;
+	private static final double MAX_WIDTH = Double.MAX_VALUE;
 
 	/**
 	 * Return the height of this world.
 	 */
-	@Basic @Raw @Immutable
-	public double getHeight() {
+	@Basic
+	@Raw
+	@Immutable
+	public double getHeight(){
 		return this.height;
 	}
-	
+
 	/**
 	 * Check whether this world can have the given height as its height.
 	 *  
@@ -103,45 +105,59 @@ public class World implements Container<Entity>{
 	 *       | result == (0 < height && height < maxHeight)
 	*/
 	@Raw
-	public boolean isValidHeight(double height) {
+	public boolean isValidHeight(double height){
 		return (0 < height && height < MAX_HEIGHT);
 	}
-	
+
 	/**
 	 * Variable registering the height of this world.
 	 */
 	private final double height;
-	
+
 	/**
 	 * The maximum upperbound for the height for any World.
 	 */
-	private static final double MAX_HEIGHT = Double.MAX_VALUE ;
+	private static final double MAX_HEIGHT = Double.MAX_VALUE;
 
 	/**
 	 * Terminate this World.
 	 *
 	 * @post   This World  is terminated.
 	 *       | new.isTerminated()
-	 * @post   TODO...
-	 *       | ...
+	 * @post   If this World was not yet terminated, each Entity that belonged to this World
+	 * 		   is now unbounded and has no container.
+	 * 		 | if (! isTerminated())
+	 *       |   then for each enitty in entities: 
+	 *       		(new entity).getContainer() == null
+	 * @post   If this World was not yet terminated, the set of bullets of this World
+	 * 		   is now an empty set.
+	 * 		 | if(! isTerminated())
+	 * 		 |	 then new.getNbItems() == 0
 	 */
-	 public void terminate() {
-		 this.isTerminated = true;
-	 }
-	 
-	 /**
-	  * Return a boolean indicating whether or not this World
-	  * is terminated.
-	  */
-	 @Basic @Raw
-	 public boolean isTerminated() {
-		 return this.isTerminated;
-	 }
-	 
-	 /**
-	  * Variable registering whether this person is terminated.
-	  */
-	 private boolean isTerminated = false;
+	public void terminate(){
+		if(!isTerminated()){
+			for(Entity entity : new ArrayList<Entity>(entities)){
+				removeItem(entity);
+				entity.setContainer(null);
+			}
+			this.isTerminated = true;
+		}
+	}
+
+	/**
+	 * Return a boolean indicating whether or not this World
+	 * is terminated.
+	 */
+	@Basic
+	@Raw
+	public boolean isTerminated(){
+		return this.isTerminated;
+	}
+
+	/**
+	 * Variable registering whether this person is terminated.
+	 */
+	private boolean isTerminated = false;
 
 	@Override
 	public boolean isInBounds(Entity item){
@@ -149,7 +165,9 @@ public class World implements Container<Entity>{
 		return false;
 	}
 
-	@Override @Basic @Raw
+	@Override
+	@Basic
+	@Raw
 	public boolean hasAsItem(@Raw Entity item){
 		return entities.contains(item);
 	}
@@ -164,7 +182,8 @@ public class World implements Container<Entity>{
 	 *         and is a valid Entity for a World.
 	 *       | result == (item != null) && item.canHaveAsContainer(this);
 	 */
-	@Override @Raw
+	@Override
+	@Raw
 	public boolean canHaveAsItem(Entity item){
 		return item != null && item.canHaveAsContainer(this);
 	}
@@ -191,7 +210,9 @@ public class World implements Container<Entity>{
 		return true;
 	}
 
-	@Override @Basic @Raw
+	@Override
+	@Basic
+	@Raw
 	public int getNbItems(){
 		return entities.size();
 	}
@@ -228,7 +249,8 @@ public class World implements Container<Entity>{
 	 * 		   or the given Entity still references any World as its container.
 	 * 			| !this.hasAsItem(item) || item.getContainer() != null
 	 */
-	@Override @Raw
+	@Override
+	@Raw
 	public void removeItem(Entity item) throws IllegalArgumentException{
 		if(!this.hasAsItem(item) || item.getContainer() != null)
 			throw new IllegalArgumentException();
@@ -239,7 +261,7 @@ public class World implements Container<Entity>{
 	public boolean isTerminatedContainer(){
 		return this.isTerminated;
 	}
-	
+
 	/**
 	 * Variable referencing a set collecting all the entities
 	 * of this world.

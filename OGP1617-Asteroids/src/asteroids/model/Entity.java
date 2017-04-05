@@ -428,33 +428,18 @@ public abstract class Entity{
 	}
 
 	/**
-	 * Checks if this Entities overlaps with another Entity.
+	 * Checks if this Entities (significantly) overlaps with another Entity.
 	 * 
 	 * @param  other
 	 * 			The other Entity
-	 * @return result == (this == other || getDistanceBetween(other) < 0.0)
+	 * @return result == (this == other || getDistanceBetween(other) <= 0.99 * (this.getRadius() + other.getRadius()))
 	 * @throws NullPointerException
 	 * 			| other == null
 	 */
 	public boolean overlaps(Entity other) throws NullPointerException{
 		if(other == null)
 			throw new NullPointerException();
-		return this == other || getDistanceBetween(other) < 0.0;
-	}
-
-	/**
-	 * Checks if this Entity significant overlaps with another Entity.
-	 * 
-	 * @param  other
-	 * 			The other Entity
-	 * @return result == (this == other || getDistanceBetween(other) <= 0.99 *(this.getRadius() + other.getRadius()))
-	 * @throws NullPointerException
-	 * 			| other == null
-	 */
-	public boolean significantOverlap(Entity other) throws NullPointerException{
-		if(other == null)
-			throw new NullPointerException();
-		return (this == other || getDistanceBetween(other) <= 0.99 * (this.getRadius() + other.getRadius()));
+		return this == other || getDistanceBetween(other) <= 0.99 * (this.getRadius() + other.getRadius());
 	}
 
 	/**
