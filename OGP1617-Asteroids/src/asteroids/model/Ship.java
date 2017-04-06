@@ -350,10 +350,13 @@ public class Ship extends Entity implements Container<Entity>{
 		}
 	}
 
+	/**
+	 * Return whether or not an Entity with given position and radius is within bounds of this Ship
+	 * @see implementation
+	 */
 	@Override
-	public boolean isInBounds(Entity item){
-		// TODO Auto-generated method stub
-		return false;
+	public boolean isInBounds(Vector2d position, double radius){
+		return getRadius() - position.sub(getPosition()).getLength() > 0.99 * radius;
 	}
 
 	@Override

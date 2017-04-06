@@ -2,6 +2,7 @@ package asteroids.model;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -143,8 +144,8 @@ public class World implements Container<Entity>{
 	public boolean isEntityColliding(Vector2d position, double radius){
 		return (position.getX() > radius * 0.99 && position.getX() < radius * 1.01) ||
 			   (position.getY() > radius * 0.99 && position.getY() < radius * 1.01) ||
-			   (position.getX() > getWidth() + radius * 0.99 && position.getX() < getWidth() + radius * 1.01) ||
-			   (position.getY() > getHeight() + radius * 0.99 && position.getY() < getHeight() + radius * 1.01);
+			   (getWidth() - position.getX() > radius * 0.99 && getWidth() - position.getX() < radius * 1.01) ||
+			   (getHeight() - position.getY() > radius * 0.99 && getHeight() - position.getY() < radius * 1.01);
 	}
 	
 	/**
@@ -214,7 +215,7 @@ public class World implements Container<Entity>{
 			}
 			double collisionTime = current.getTimeToCollision(entity);
 			if(collisionTime < fCollisionInvCurrent.getTimeToCollision())
-				fCollisionInvCurrent = new CollisionData(collisionTime, current.getCollisionPosition(entity), CollisionType.INTER_ENTITY);
+				fCollisionInvCurrent = new CollisionData(collisionTime, current.getCollisionPosition(entity), CollisionType.INTER_ENTITY, Arrays.asList(new Entity[]{current, entity}));
 		}
 		remainingEntities.remove(current);
 		CollisionData recursiveResult = checkEntityCollisions(remainingEntities);
@@ -262,10 +263,14 @@ public class World implements Container<Entity>{
 	 */
 	private boolean isTerminated = false;
 
+	/**
+	 * Return whether or not an Entity with given position and radius is within bounds of this World
+	 * @see implementation
+	 */
 	@Override
-	public boolean isInBounds(Entity item){
-		// TODO Auto-generated method stub
-		return false;
+	public boolean isInBounds(Vector2d position, double radius){
+		return (position.getX() >= radius * 0.99 && getWidth() - position.getX() >=  radius * 0.99) &&
+				(position.getY() >= radius * 0.99 && getHeight() - position.getY() >=  radius * 0.99);
 	}
 
 	@Override

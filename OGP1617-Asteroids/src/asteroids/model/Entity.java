@@ -1,5 +1,7 @@
 package asteroids.model;
 
+import java.util.Arrays;
+
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Immutable;
 import be.kuleuven.cs.som.annotate.Model;
@@ -9,7 +11,7 @@ import be.kuleuven.cs.som.annotate.Raw;
  * A Class to represent an Entity in the game
  * 
  * @invar The position of this Entity must be a valid position for this Entity. 
- * 			| isValidPosition(getPosition().getX(), getPosition().getY))
+ * 			| canHaveAsPosition(getPosition().getX(), getPosition().getY))
  * @invar The velocity components of this Entity must form a valid velocity for this Entity.
  * 			| canHaveAsVelocity(getXVelocity(), getYVelocity())
  * @invar  The radius of this Entity must be a valid radius for this Entity.
@@ -99,13 +101,26 @@ public abstract class Entity{
 	}
 
 	/**
-	 * Check whether the given position is a valid position for any Entity.
+	 * Check whether this Entity can have this position.
 	 * 
-	 * @param position
-	 *            The position to check.
-	 * @return | result == //TODO word canhaveas?
+	 * @param x
+	 * 			The x-position to check.
+	 * @param y
+	 * 			The y-position to check.
+	 * @return In all cases the given x and y must be finite values.
+ 	 *			If the container of this Entity is effective the position must be 
+	 * 			in the bounds specified by the container. Otherwise the position 
+	 * 			is unbounded.
+	 * 			| if(getContainer() != null)
+	 * 			| then result == getContainer().isInbounds(new Vector2d(x,y), getRadius())
+	 * 			|				&& Double.isFinite(x) && Double.isFinite(y)
+	 * 			| else result == Double.isFinite(x) && Double.isFinite(y)
 	 */
-	public static boolean isValidPosition(double x, double y){
+	public boolean canHaveAsPosition(double x, double y){
+		if(!Double.isFinite(x) || !Double.isFinite(y))
+			return false;
+		if(getContainer() != null)
+			return getContainer().isInBounds(new Vector2d(x, y), getRadius());
 		return true;
 	}
 
@@ -118,11 +133,11 @@ public abstract class Entity{
 	 * 			| new.getPosition().getX() == x
 	 * @throws IllegalArgumentException
 	 *             The given x-position does not form a valid position. 
-	 *        	| !isValidPosition(x, getPosition().getY())
+	 *        	| !canHaveAsPosition(x, getPosition().getY())
 	 */
 	@Raw
 	public void setXPosition(double x) throws IllegalArgumentException{
-		if(!isValidPosition(x, getPosition().getY()))
+		if(!canHaveAsPosition(x, getPosition().getY()))
 			throw new IllegalArgumentException();
 		this.position = new Vector2d(x, getPosition().getY());
 	}
@@ -136,11 +151,11 @@ public abstract class Entity{
 	 * 			| new.getPosition().getY() == y
 	 * @throws IllegalArgumentException
 	 *             The given y-position does not form a valid position. 
-	 *        	| !isValidPosition(getPosition().getX(), y)
+	 *        	| !canHaveAsPosition(getPosition().getX(), y)
 	 */
 	@Raw
 	public void setYPosition(double y) throws IllegalArgumentException{
-		if(!isValidPosition(getPosition().getX(), y))
+		if(!canHaveAsPosition(getPosition().getX(), y))
 			throw new IllegalArgumentException();
 		this.position = new Vector2d(position.getX(), y);
 	}
@@ -158,11 +173,11 @@ public abstract class Entity{
 	 * 			| new.getPosition().getY() == y
 	 * @throws IllegalArgumentException
 	 *             The given x and y do not form a valid position. 
-	 *        	| !isValidPosition(x, y)
+	 *        	| !canHaveAsPosition(x, y)
 	 */
 	@Raw
 	public void setPosition(double x, double y) throws IllegalArgumentException{
-		if(!isValidPosition(x, y))
+		if(!canHaveAsPosition(x, y))
 			throw new IllegalArgumentException();
 		this.position = new Vector2d(x, y);
 	}
@@ -554,14 +569,14 @@ public abstract class Entity{
 					return CollisionData.UNDEFINED_COLLISION;
 				Vector2d intersect = new Vector2d(getPosition().getX() + getRadius(), getPosition().getY()).add(getVelocity().mul(time));
 				if(intersect.getY() >= getRadius() && intersect.getY() <= height - getRadius())
-					return new CollisionData(time, intersect, CollisionType.BOUNDARY);
+					return new CollisionData(time, intersect, CollisionType.BOUNDARY, Arrays.asList(new Entity[]{this}));
 			}else{
 				double time = Vector2d.intersect(new Vector2d(getPosition().getX() - getRadius(), getPosition().getY()), getVelocity(), Vector2d.ZERO, Vector2d.Y_AXIS);
 				Vector2d intersect = new Vector2d(getPosition().getX() - getRadius(), getPosition().getY()).add(getVelocity().mul(time));
 				if(time == Double.POSITIVE_INFINITY)
 					return CollisionData.UNDEFINED_COLLISION;
 				if(intersect.getY() >= getRadius() && intersect.getY() <= height - getRadius())
-					return new CollisionData(time, intersect, CollisionType.BOUNDARY);
+					return new CollisionData(time, intersect, CollisionType.BOUNDARY, Arrays.asList(new Entity[]{this}));
 			}
 			if(getVelocity().dot(Vector2d.Y_AXIS) > 0.0){
 				double time = Vector2d.intersect(new Vector2d(getPosition().getX(), getPosition().getY() + getRadius()), getVelocity(), new Vector2d(0, height), Vector2d.X_AXIS);
@@ -569,14 +584,14 @@ public abstract class Entity{
 				if(time == Double.POSITIVE_INFINITY)
 					return CollisionData.UNDEFINED_COLLISION;
 				if(intersect.getX() >= getRadius() && intersect.getX() <= width - getRadius())
-					return new CollisionData(time, intersect, CollisionType.BOUNDARY);
+					return new CollisionData(time, intersect, CollisionType.BOUNDARY, Arrays.asList(new Entity[]{this}));
 			}else{
 				double time = Vector2d.intersect(new Vector2d(getPosition().getX(), getPosition().getY() - getRadius()), getVelocity(), Vector2d.ZERO, Vector2d.X_AXIS);
 				Vector2d intersect = new Vector2d(getPosition().getX(), getPosition().getY() + getRadius()).add(getVelocity().mul(time));
 				if(time == Double.POSITIVE_INFINITY)
 					return CollisionData.UNDEFINED_COLLISION;
 				if(intersect.getX() >= getRadius() && intersect.getX() <= width - getRadius())
-					return new CollisionData(time, intersect, CollisionType.BOUNDARY);
+					return new CollisionData(time, intersect, CollisionType.BOUNDARY, Arrays.asList(new Entity[]{this}));
 			}
 		}
 		return CollisionData.UNDEFINED_COLLISION;

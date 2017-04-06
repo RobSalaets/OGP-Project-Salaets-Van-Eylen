@@ -8,7 +8,7 @@ package asteroids.model;
  */
 public interface Container<T extends Entity>{
 	
-	public boolean isInBounds(T item);
+	public boolean isInBounds(Vector2d position, double radius);
 	
 	/**
      * Check whether this container has the given item as one

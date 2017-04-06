@@ -1,5 +1,7 @@
 package asteroids.model;
 
+import java.util.List;
+
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Immutable;
 import be.kuleuven.cs.som.annotate.Raw;
@@ -12,22 +14,37 @@ import be.kuleuven.cs.som.annotate.Value;
 public class CollisionData{
 
 	/**
-	 * Initialise this CollisionData with given timeToCollision, collisionPoint and collisionType
+	 * Initialise this CollisionData with given timeToCollision, collisionPoint, collisionType and collidingAgents
 	 * 
 	 * @param timeToCollision
 	 * 			The given timeToCollision
 	 * @param collisionPoint
 	 * 			The given collisionPoint
+	 * @param collisionType
+	 * 			The given collisionType
+	 * @param colliders
+	 * 			The set of colliding entities
 	 * @post | new.getTimeToCollision() == timeToCollision
 	 * @post | new.getCollisionPoint() == collisionPoint
+	 * @post | new.getCollisionType() == collisionType
+	 * @post | new.getColliders() == colliders
+	 * @throws IllegalArgumentException
+	 * 		 | collisionType == CollisionType.BOUNDARY && colliders.size() != 1
+	 * @throws IllegalArgumentException
+	 * 		 | collisionType == CollisionType.INTER_ENTITY && colliders.size() != 2
 	 */
-	public CollisionData(double timeToCollision, Vector2d collisionPoint, CollisionType collisionType){
+	public CollisionData(double timeToCollision, Vector2d collisionPoint, CollisionType collisionType, List<Entity> colliders) throws IllegalArgumentException{
+		if(collisionType == CollisionType.BOUNDARY && colliders.size() != 1)
+			throw new IllegalArgumentException();
+		if(collisionType == CollisionType.INTER_ENTITY && colliders.size() != 2)
+			throw new IllegalArgumentException();
 		this.timeToCollision = timeToCollision;
 		this.collisionPoint = collisionPoint;
 		this.collisionType = collisionType;
+		this.colliders = colliders;
 	}
 	
-	public static final CollisionData UNDEFINED_COLLISION = new CollisionData(Double.POSITIVE_INFINITY, null, CollisionType.UNDEFINED);
+	public static final CollisionData UNDEFINED_COLLISION = new CollisionData(Double.POSITIVE_INFINITY, null, CollisionType.UNDEFINED, null);
 
 	/**
 	 * Return the timeToCollision of this CollisionData.
@@ -73,6 +90,22 @@ public class CollisionData{
 	 * Variable registering the collisionType of this CollisionData.
 	 */
 	private final CollisionType collisionType;
+	
+	/**
+	 * Return the colliders of this CollisionData.
+	 */
+	@Basic
+	@Raw
+	@Immutable
+	public List<Entity> getColliders(){
+		return this.colliders;
+	}
+
+	/**
+	 * Variable registering the colliders of this CollisionData
+     * the list consists of a single element in case of a BOUNDARY collision.
+	 */
+	private final List<Entity> colliders;
 	
 	/**
 	 * Check whether this CollisionData is equal to the given object
