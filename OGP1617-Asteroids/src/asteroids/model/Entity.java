@@ -75,6 +75,7 @@ public abstract class Entity{
 	 *       	| ! canHaveAsRadius(radius)
 	 */
 	@Model
+	@Raw
 	protected Entity(double x, double y, double xVelocity, double yVelocity, double radius, double mass, Container<Entity> container) throws IllegalArgumentException{
 		if(!canHaveAsRadius(radius))
 			throw new IllegalArgumentException();
@@ -521,6 +522,82 @@ public abstract class Entity{
 		Vector2d thisCollisionPoint = this.getPosition().add(this.getVelocity().mul(timeTilCollision));
 		Vector2d otherCollisionPoint = other.getPosition().add(other.getVelocity().mul(timeTilCollision));
 		return thisCollisionPoint.mul(other.getRadius()).add(otherCollisionPoint.mul(this.getRadius())).mul(1.0 / sumRadii);
+	}
+
+	/**
+	 * Compute the point of collision and the time to collision of this Entity
+	 * with the bounds specified by a possible World container.
+	 * 
+	 * @return If the container of this Entity is a World, this entity
+	 * 			collides with the bounds of its World after the computed amount of time,
+	 * 			assuming the velocity remains unchanged.
+	 * 			| if( getContainer() instance of World)
+	 * 			| then (World getContainer()).isEntityColliding(getPosition().add(getVelocity().mul(result.getTimeToCollision())), getRadius)
+	 * @return If the container of this Entity is a World, this entity
+	 * 			collides with the bounds of its World on the computed position,
+	 * 			assuming the velocity remains unchanged.
+	 * 			| if( getContainer() instance of World)
+	 * 			| then getPosition().add(getVelocity().mul(result.getTimeToCollision())).sub(result.getCollisionPoint()).length() == getRadius()
+	 * @return If the container of this Entity is not a World or not effective
+	 * 			the computed time to collision is equal to POSITIVE_INFINITy and
+	 * 			the computed position is not effective.
+	 * 			| if(! getContainer() instanceof World)
+	 * 			| then result.equals(CollisionData.UNDEFINED_COLLISION)
+	 */
+	public CollisionData getBoundaryCollisionData(){
+		if(getContainer() instanceof World){
+			double width = ((World) getContainer()).getWidth();
+			double height = ((World) getContainer()).getHeight();
+			if(getVelocity().dot(Vector2d.X_AXIS) > 0.0){
+				double time = Vector2d.intersect(new Vector2d(getPosition().getX() + getRadius(), getPosition().getY()), getVelocity(), new Vector2d(width, 0), Vector2d.Y_AXIS);
+				if(time == Double.POSITIVE_INFINITY)
+					return CollisionData.UNDEFINED_COLLISION;
+				Vector2d intersect = new Vector2d(getPosition().getX() + getRadius(), getPosition().getY()).add(getVelocity().mul(time));
+				if(intersect.getY() >= getRadius() && intersect.getY() <= height - getRadius())
+					return new CollisionData(time, intersect, CollisionType.BOUNDARY);
+			}else{
+				double time = Vector2d.intersect(new Vector2d(getPosition().getX() - getRadius(), getPosition().getY()), getVelocity(), Vector2d.ZERO, Vector2d.Y_AXIS);
+				Vector2d intersect = new Vector2d(getPosition().getX() - getRadius(), getPosition().getY()).add(getVelocity().mul(time));
+				if(time == Double.POSITIVE_INFINITY)
+					return CollisionData.UNDEFINED_COLLISION;
+				if(intersect.getY() >= getRadius() && intersect.getY() <= height - getRadius())
+					return new CollisionData(time, intersect, CollisionType.BOUNDARY);
+			}
+			if(getVelocity().dot(Vector2d.Y_AXIS) > 0.0){
+				double time = Vector2d.intersect(new Vector2d(getPosition().getX(), getPosition().getY() + getRadius()), getVelocity(), new Vector2d(0, height), Vector2d.X_AXIS);
+				Vector2d intersect = new Vector2d(getPosition().getX(), getPosition().getY() + getRadius()).add(getVelocity().mul(time));
+				if(time == Double.POSITIVE_INFINITY)
+					return CollisionData.UNDEFINED_COLLISION;
+				if(intersect.getX() >= getRadius() && intersect.getX() <= width - getRadius())
+					return new CollisionData(time, intersect, CollisionType.BOUNDARY);
+			}else{
+				double time = Vector2d.intersect(new Vector2d(getPosition().getX(), getPosition().getY() - getRadius()), getVelocity(), Vector2d.ZERO, Vector2d.X_AXIS);
+				Vector2d intersect = new Vector2d(getPosition().getX(), getPosition().getY() + getRadius()).add(getVelocity().mul(time));
+				if(time == Double.POSITIVE_INFINITY)
+					return CollisionData.UNDEFINED_COLLISION;
+				if(intersect.getX() >= getRadius() && intersect.getX() <= width - getRadius())
+					return new CollisionData(time, intersect, CollisionType.BOUNDARY);
+			}
+		}
+		return CollisionData.UNDEFINED_COLLISION;
+	}
+
+	/**
+	 * Return the time to the collision (if any) with the bounds of the possible World container of this Entity
+	 * 
+	 * @effect | getBoundaryCollisionData().getTimeToCollision()
+	 */
+	public double getTimeToBoundaryCollision(){
+		return getBoundaryCollisionData().getTimeToCollision();
+	}
+
+	/**
+	 * Return the collision point (if any) with the bounds of the possible World container of this Entity
+	 * 
+	 * @effect | getBoundaryCollisionData().getCollsionPoint()
+	 */
+	public Vector2d getBoundaryCollisionPosition(){
+		return getBoundaryCollisionData().getCollisionPoint();
 	}
 
 	public abstract void terminate();

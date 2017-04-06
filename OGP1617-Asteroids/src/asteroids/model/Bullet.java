@@ -24,7 +24,8 @@ public class Bullet extends Entity{
 	 * 		   given x, y, xVelocity, yVelocity, radius and mass.
 	 * 			| super(x, y, xVelocity, yVelocity, radius, mass, container)
 	 */
-	protected Bullet(double x, double y, double xVelocity, double yVelocity, double radius, double mass, Container<Entity> container) throws IllegalArgumentException{
+	@Raw
+	public Bullet(double x, double y, double xVelocity, double yVelocity, double radius, double mass, Container<Entity> container) throws IllegalArgumentException{
 		super(x, y, xVelocity, yVelocity, radius, mass, container);
 	}
 

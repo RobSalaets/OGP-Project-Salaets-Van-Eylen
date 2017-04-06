@@ -50,6 +50,7 @@ public class Ship extends Entity implements Container<Entity>{
 	 * @post   This new Ship has no bullets yet.
 	 *      	| new.getNbItems() == 0
 	 */
+	@Raw
 	public Ship(double x, double y, double xVelocity, double yVelocity, double orientation, double radius, double mass, Container<Entity> container, double thrustForce) throws IllegalArgumentException{
 		super(x, y, xVelocity, yVelocity, radius, mass, container);
 		this.setOrientation(orientation);
@@ -78,6 +79,7 @@ public class Ship extends Entity implements Container<Entity>{
 	 * 			| this(x, y, xVelocity, yVelocity, orientation, radius, mass, null, thrustForce)
 	 * 
 	 */
+	@Raw
 	public Ship(double x, double y, double xVelocity, double yVelocity, double orientation, double radius, double mass, double thrustForce) throws IllegalArgumentException{
 		super(x, y, xVelocity, yVelocity, radius, mass, null);
 		this.setOrientation(orientation);
@@ -104,6 +106,7 @@ public class Ship extends Entity implements Container<Entity>{
 	 * 			| this(x, y, xVelocity, yVelocity, orientation, radius, mass, DEFAULT_THRUST_FORCE)
 	 * 
 	 */
+	@Raw
 	public Ship(double x, double y, double xVelocity, double yVelocity, double orientation, double radius, double mass) throws IllegalArgumentException{
 		this(x, y, xVelocity, yVelocity, orientation, radius, mass, DEFAULT_THRUST_FORCE);
 	}
@@ -161,6 +164,20 @@ public class Ship extends Entity implements Container<Entity>{
 	@Override
 	public double getMinRadius(){
 		return MIN_RADIUS;
+	}
+	
+	/**
+	 * Compute the total mass of this Ship with respect
+	 * to the bullets carried by this Ship
+	 * @return The sum of the mass of the Ship itself and mass of
+	 * 		   each bullet it carries
+	 * 		| result == getMass() + sum(bullet.getMass() for each bullet in bullets)
+	 */
+	public double getTotalMass(){
+		double mass = getMass();
+		for(Bullet bullet : bullets)
+			mass += bullet.getMass();
+		return mass;
 	}
 
 	/**
