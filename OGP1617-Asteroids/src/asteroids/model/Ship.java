@@ -20,7 +20,7 @@ import be.kuleuven.cs.som.annotate.Raw;
 public class Ship extends Entity implements Container<Entity>{
 
 	/**
-	 * Initialize this new Ship with given x, y, xVelocity, yVelocity, radius, mass, container and thrustForce
+	 * Initialize this new Ship with given x, y, xVelocity, yVelocity, orientation, radius, mass, container and thrustForce
 	 * with no Bullets yet.
 	 *
 	 * @param x
@@ -31,6 +31,8 @@ public class Ship extends Entity implements Container<Entity>{
 	 * 			The x-velocity for this new Ship.
 	 * @param yVelocity
 	 *       	The y-velocity for this new Ship.
+	 * @param orientation
+	 * 			The orientation for this new S
 	 * @param radius
 	 *          The radius for this new Ship.
 	 * @param mass
@@ -58,7 +60,7 @@ public class Ship extends Entity implements Container<Entity>{
 	}
 
 	/**
-	 * Initialize this new Ship with given x, y, xVelocity, yVelocity, radius, mass and thrustForce.
+	 * Initialize this new Ship with given x, y, xVelocity, yVelocity, radius, orientation, mass and thrustForce.
 	 *
 	 * @param x
 	 *     		The x-position for this new Ship.
@@ -68,6 +70,8 @@ public class Ship extends Entity implements Container<Entity>{
 	 * 			The x-velocity for this new Ship.
 	 * @param yVelocity
 	 *       	The y-velocity for this new Ship.
+	 * @param orientation
+	 * 			The orientation for this new Ship
 	 * @param radius
 	 *          The radius for this new Ship.
 	 * @param mass
@@ -87,7 +91,7 @@ public class Ship extends Entity implements Container<Entity>{
 	}
 
 	/**
-	 * Initialize this new Ship with given x, y, xVelocity, yVelocity, radius and mass.
+	 * Initialize this new Ship with given x, y, xVelocity, yVelocity, orientation, radius and mass.
 	 *
 	 * @param x
 	 *     		The x-position for this new Ship.
@@ -97,6 +101,8 @@ public class Ship extends Entity implements Container<Entity>{
 	 * 			The x-velocity for this new Ship.
 	 * @param yVelocity
 	 *       	The y-velocity for this new Ship.
+	 * @param orientation
+	 * 			The orientation for this new S
 	 * @param radius
 	 *          The radius for this new Ship.
 	 * @param mass
@@ -373,11 +379,15 @@ public class Ship extends Entity implements Container<Entity>{
 	 *         and an instance of a Bullet and that Bullet is a valid Bullet for a Ship and 
 	 *         that the Bullet lies within the Ship.
 	 *       | result == (item != null) && (item instanceof Bullet) && ((Bullet) item).canHaveAsContainer(this)
-	 *       | && isInBounds(item.getPosition(), item.getRadius())
+	 *       | && isInBounds(item.getPosition(), item.getRadius()) && ( ! item.getContainer instanceof World ||
+	 *       | item.getContainer() == this.getContainer())
+	 *
 	 */
 	@Override
 	@Raw
 	public boolean canHaveAsItem(Entity item){
+		if(item.getContainer() instanceof World && this.getContainer() != item.getContainer())
+			return false;
 		return item != null && item instanceof Bullet && ((Bullet) item).canHaveAsContainer(this) && isInBounds(item.getPosition(), item.getRadius());
 	}
 
@@ -533,14 +543,19 @@ public class Ship extends Entity implements Container<Entity>{
 	 * 			| bullets.length == 0
 	 * @throws IllegalArgumentExcetion
 	 * 			| for some bullet in bullets:
-	 * 			| !canHaveAsItem(bullet)
+	 * 			| 	!canHaveAsItem(bullet)
+	 * @throws IllegalArgumentExcetion
+	 * 			| for some bullet in bullets:
+	 * 			| 	bullet.getSource() != this
 	 */
-	public void loadBullet(Bullet... bullets) throws NullPointerException, IllegalArgumentException{ //TODO precondition?
+	public void loadBullet(Bullet... bullets) throws NullPointerException, IllegalArgumentException{
 		if(bullets.length == 0)
 			throw new NullPointerException();
-		for (Bullet bullet : bullets)
-				addItem(bullet);
-		
+		for (Bullet bullet : bullets){
+			if(bullet.getSource() != this)
+				throw new IllegalArgumentException();
+			addItem(bullet);
+		}
 	}
 //	/**
 //	 * 

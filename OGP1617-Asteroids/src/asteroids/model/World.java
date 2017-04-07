@@ -46,7 +46,7 @@ public class World implements Container<Entity>{
 	 *       |   then new.getHeight() == height
 	 *       |   else new.getHeight() == 0
 	 * @post   This new world has no entities yet.
-	 *       | new.getNbEntitys() == 0
+	 *       | new.getNbEntities() == 0
 	 */
 	@Raw
 	public World(double width, double height){
@@ -139,8 +139,6 @@ public class World implements Container<Entity>{
 			resolve(next);
 			evolve(timeDelta - next.getTimeToCollision());
 		}
-		
-		
 	}
 	
 	/**
@@ -165,6 +163,8 @@ public class World implements Container<Entity>{
 	 * 
 	 * @param collisionData
 	 * 			CollisionData about the given collision.
+	 * @throws IllegalArgumentException
+	 * 			There is no valid collision point
 	 */
 	private void resolve(CollisionData collisionData) throws IllegalArgumentException{
 		if(collisionData.getCollisionType() == CollisionType.BOUNDARY){
@@ -186,7 +186,9 @@ public class World implements Container<Entity>{
 			boolean isOwnShip = false;
 			for(Entity e : collisionData.getColliders())
 				if(e instanceof Bullet && collisionData.getColliders().contains(((Bullet) e).getSource())){
-					((Bullet) e).getSource().addItem(e); //TODO LoadBullet
+					Bullet b = (Bullet)e;
+					b.setContainer(b.getSource());
+					b.getSource().loadBullet(b);
 					isOwnShip = true;
 				}
 			if(!isOwnShip)

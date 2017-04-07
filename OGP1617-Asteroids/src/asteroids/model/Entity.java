@@ -70,7 +70,8 @@ public abstract class Entity{
 	 * @post   The given container has this new Bullet as one of its
 	 *         items.
 	 *      	| (new container).hasAsItem(this)
-	 * @throws The new Bullet cannot have the given container as its container
+	 * @throws IllegalArgumentException
+	 * 			The new Bullet cannot have the given container as its container
 	 * 			| !canHaveAsContainer(container)
 	 * @throws IllegalArgumentException
 	 *         The given radius is not a valid radius for this Entity.
@@ -670,7 +671,7 @@ public abstract class Entity{
 	 *       | ! canHaveAsContainer(container)
 	 */
 	@Raw
-	protected void setContainer(Container<Entity> container){
+	public void setContainer(Container<Entity> container){
 		if(!canHaveAsContainer(container))
 			throw new IllegalArgumentException("Inappropriate Container!");
 		this.container = container;

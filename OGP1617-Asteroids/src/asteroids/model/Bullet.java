@@ -16,7 +16,7 @@ import be.kuleuven.cs.som.annotate.Raw;
 public class Bullet extends Entity{
 
 	/**
-	 * Initialize this new Bullet with given x, y, xVelocity, yVelocity, radius, mass and maxBoundaryCollision.
+	 * Initialize this new Bullet with given x, y, xVelocity, yVelocity, radius and maxBoundaryCollision.
 	 *
 	 * @param x
 	 *     		The x-position for this new Bullet.
@@ -28,22 +28,24 @@ public class Bullet extends Entity{
 	 *       	The y-velocity for this new Bullet.
 	 * @param radius
 	 *          The radius for this new Bullet.
-	 * @param mass
-	 * 			The mass for this new Bullet.
 	 * @param  maxBoundaryCollision
 	 *         The maxBoundaryCollisions for this new Bullet.
 	 * @effect This new Bullet is initialized as a new Entity with
-	 * 		   given x, y, xVelocity, yVelocity, radius and mass.
-	 * 			| super(x, y, xVelocity, yVelocity, radius, mass, container)
+	 * 		   given x, y, xVelocity, yVelocity, radius and mass
+	 * 		   corresponding to the radius of this Bullet.
+	 * 			| super(x, y, xVelocity, yVelocity, radius, 4.0/3.0*Math.PI*Math.pow(radius, 3)*BULLET_MASS_DENSITY, container)
 	 * @pre    The given maxBoundaryCollisions must be a valid maxBoundaryCollisions for any Bullet.
 	 *      	| isValidMaxBoundaryCollisions(maxBoundaryCollisions)
 	 * @post   The maxBoundaryCollisions of this new Bullet is equal to the given
 	 *         maxBoundaryCollisions.
 	 *       	| new.getMaxBoundaryCollisions() == maxBoundaryCollision
+	 * @post   If the given container is a Ship, the source of this bullet
+	 * 			is set to the given container.
+	 * 		 	| if(container instanceof Ship) then new.getSource() == container
 	 */
 	@Raw
-	public Bullet(double x, double y, double xVelocity, double yVelocity, double radius, double mass, Container<Entity> container, int maxBoundaryCollisions) throws IllegalArgumentException{
-		super(x, y, xVelocity, yVelocity, radius, mass, container);
+	public Bullet(double x, double y, double xVelocity, double yVelocity, double radius, Container<Entity> container, int maxBoundaryCollisions) throws IllegalArgumentException{
+		super(x, y, xVelocity, yVelocity, radius, 4.0/3.0*Math.PI*Math.pow(radius, 3)*BULLET_MASS_DENSITY, container);
 		this.maxBoundaryCollision = maxBoundaryCollisions;
 	}
 
@@ -61,21 +63,24 @@ public class Bullet extends Entity{
 	 *       	The y-velocity for this new Bullet.
 	 * @param radius
 	 *          The radius for this new Bullet.
-	 * @param mass
-	 * 			The mass for this new Bullet.
 	 * @effect This new Bullet is initialized as a new Entity with
 	 * 		   given x, y, xVelocity, yVelocity, radius and mass.
 	 * 			| this(x, y, xVelocity, yVelocity, radius, mass, container, DEFAULT_MAX_BOUNDARY_COLLISIONS)
 	 */
 	@Raw
-	public Bullet(double x, double y, double xVelocity, double yVelocity, double radius, double mass, Container<Entity> container) throws IllegalArgumentException{
-		this(x, y, xVelocity, yVelocity, radius, mass, container, DEFAULT_MAX_BOUNDARY_COLLISIONS);
+	public Bullet(double x, double y, double xVelocity, double yVelocity, double radius, Container<Entity> container) throws IllegalArgumentException{
+		this(x, y, xVelocity, yVelocity, radius, container, DEFAULT_MAX_BOUNDARY_COLLISIONS);
 	}
 
 	/**
 	 * The mininum radius for any Bullet in kilometres
 	 */
 	private static final double MIN_RADIUS = 1.0;
+	
+	/**
+	 * The mass density for any Bullet in kilograms per cubic kilometre.
+	 */
+	public static final double BULLET_MASS_DENSITY = 7.8 * Math.pow(10, 12);
 
 	@Basic
 	@Override
@@ -165,6 +170,28 @@ public class Bullet extends Entity{
 			return ((Ship) getContainer()).getPosition();
 		return super.getPosition();
 	}
+	
+	/**
+	 * Set the container of this Entity to the given container.
+	 * 
+	 * @param  container
+	 *         The new container for this Entity.
+	 * @post   The container of this Entity is the same as the
+	 *         given container.
+	 *       | new.getContainer() == container
+	 * @post   If the given container is a Ship, the source of this bullet
+	 * 			is set to the given container.
+	 * 		 | if(container instanceof Ship) then new.getSource() == container
+	 * @throws IllegalArgumentException
+	 *         This Entity cannot have the given container as its container.
+	 *       | ! canHaveAsContainer(container)
+	 */
+	@Override @Raw
+	public void setContainer(Container<Entity> container){
+		super.setContainer(container);
+		if(container instanceof Ship)
+			this.source = (Ship) container;
+	}
 
 	/**
 	 * Check whether this Bullet can have the given container as
@@ -198,10 +225,13 @@ public class Bullet extends Entity{
 	 * 		| else result == null
 	 */
 	public Ship getSource(){
-		if(getContainer() instanceof Ship)
-			return (Ship) getContainer();
-		return null;
+		return source;
 	}
+	
+	/**
+	 * Variable referencing the source of this Bullet
+	 */
+	private Ship source;
 
 	/**
 	 * Terminate this Bullet.
