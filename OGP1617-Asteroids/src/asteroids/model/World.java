@@ -124,17 +124,105 @@ public class World implements Container<Entity>{
 	 */
 	private static final double MAX_HEIGHT = Double.MAX_VALUE;
 	
+	/**
+	 * Method to evolve the state of this World with a given time delta
+	 * 
+	 * @param timeDelta
+	 * 			The amount of time to apply to the current state of this World.
+	 */
 	public void evolve(double timeDelta){
-		//TODO
+		CollisionData next = getNextCollision();
+		if(next.getTimeToCollision() > timeDelta){
+			advanceEntities(timeDelta);
+		}else{
+			advanceEntities(next.getTimeToCollision());
+			resolve(next);
+			evolve(timeDelta - next.getTimeToCollision());
+		}
 		
-		List<Entity> values = new ArrayList<>(entities.values());
-		entities.clear();
-		for(Entity entity : values)
-			entities.put(entity.getPosition(), entity);
+		
 	}
 	
 	/**
-	 * Check whether or not an entity with given position and raidus collides with the bounds of this World.
+	 * Advance the entities in this world with given timeDelta
+	 * @param timeDelta
+	 * 			The given time delta
+	 */
+	private void advanceEntities(double timeDelta){
+		List<Entity> values = new ArrayList<>(entities.values());
+		entities.clear();
+		for(Entity entity : values){
+			entity.move(timeDelta);
+			if(entity instanceof Ship && ((Ship) entity).getThrusterStatus())
+				((Ship) entity).thrust(timeDelta);
+			
+			entities.put(entity.getPosition(), entity);
+		}
+	}
+	
+	/**
+	 * Resolve a given collision appropriatly.
+	 * 
+	 * @param collisionData
+	 * 			CollisionData about the given collision.
+	 */
+	private void resolve(CollisionData collisionData) throws IllegalArgumentException{
+		if(collisionData.getCollisionType() == CollisionType.BOUNDARY){
+			assert collisionData.getColliders().size() == 1;
+			Entity collider = collisionData.getColliders().get(0);
+			if(isInRangeValue(0, collisionData.getCollisionPoint().getX(), 0.01) ||
+				isInRangeValue(getWidth(), collisionData.getCollisionPoint().getX(), 0.01)){
+				collider.setXVelocity(collider.getVelocity().getX() * -1.0);
+			}else if(isInRangeValue(0, collisionData.getCollisionPoint().getY(), 0.01) ||
+					isInRangeValue(getHeight(), collisionData.getCollisionPoint().getY(), 0.01)){
+				collider.setYVelocity(collider.getVelocity().getY() * -1.0);	
+			}else
+				throw new IllegalArgumentException();
+			
+			if(collider instanceof Bullet)
+				((Bullet)collider).incrementBoundaryCollisionCount();
+		}else if(collisionData.getCollisionType() == CollisionType.INTER_ENTITY){
+			assert collisionData.getColliders().size() == 2;
+			boolean isOwnShip = false;
+			for(Entity e : collisionData.getColliders())
+				if(e instanceof Bullet && collisionData.getColliders().contains(((Bullet) e).getSource())){
+					((Bullet) e).getSource().addItem(e); //TODO LoadBullet
+					isOwnShip = true;
+				}
+			if(!isOwnShip)
+				for(Entity e : collisionData.getColliders())
+					e.terminate();
+		}else if(collisionData.getCollisionType() == CollisionType.INTER_SHIP){
+			assert collisionData.getColliders().size() == 2;
+			Ship ei = (Ship) collisionData.getColliders().get(0);
+			Ship ej = (Ship) collisionData.getColliders().get(1);
+			double sigmaSq = Math.pow(ei.getRadius() + ej.getRadius(), 2);
+			double dx = ej.getPosition().getX() - ei.getPosition().getX();
+			double dy = ej.getPosition().getY() - ei.getPosition().getY();
+			double j = 2.0 * ei.getTotalMass() * ej.getTotalMass() * (ej.getVelocity().sub(ei.getVelocity()).dot(ej.getPosition().sub(ei.getPosition())))
+					/ (sigmaSq * (ei.getTotalMass() + ej.getTotalMass()) );
+			ei.setVelocity(ei.getVelocity().getX() + j * dx / ei.getTotalMass(), ei.getVelocity().getY() + j * dy / ei.getTotalMass());
+			ej.setVelocity(ej.getVelocity().getX() - j * dx / ej.getTotalMass(), ej.getVelocity().getY() - j * dy / ej.getTotalMass());
+		}
+	}
+	
+	/**
+	 * Check whether or not a given value is equal to a given target value, allowing 
+	 * a given error range, epsilon.
+	 * @param target
+	 * 		The target value.
+	 * @param value
+	 * 		The given value to check.
+	 * @param epsilon
+	 * 		The error range value.
+	 * @see implementation
+	 */
+	private boolean isInRangeValue(double target, double value, double epsilon){
+		return value <= target + epsilon && value >= target - epsilon;
+	}
+	
+	/**
+	 * Check whether or not an entity would collide with given position and radius with the bounds of this World.
 	 * @param position
 	 * 			The given position
 	 * @param radius
@@ -215,7 +303,9 @@ public class World implements Container<Entity>{
 			}
 			double collisionTime = current.getTimeToCollision(entity);
 			if(collisionTime < fCollisionInvCurrent.getTimeToCollision())
-				fCollisionInvCurrent = new CollisionData(collisionTime, current.getCollisionPosition(entity), CollisionType.INTER_ENTITY, Arrays.asList(new Entity[]{current, entity}));
+				fCollisionInvCurrent = new CollisionData(collisionTime, current.getCollisionPosition(entity),
+												current instanceof Ship && entity instanceof Ship ? CollisionType.INTER_SHIP : CollisionType.INTER_ENTITY,
+												Arrays.asList(new Entity[]{current, entity}));
 		}
 		remainingEntities.remove(current);
 		CollisionData recursiveResult = checkEntityCollisions(remainingEntities);

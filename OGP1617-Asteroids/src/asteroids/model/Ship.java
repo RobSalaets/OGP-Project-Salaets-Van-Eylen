@@ -337,7 +337,7 @@ public class Ship extends Entity implements Container<Entity>{
 	 * 			| then new.getVelocity().getLength() == getMaxVelocity()
 	 */
 	public void thrust(double timeDelta){
-		assert getThrusterStatus(); // TODO
+		assert getThrusterStatus();
 
 		if(getThrusterStatus()){
 			acceleration = this.getAcceleration();

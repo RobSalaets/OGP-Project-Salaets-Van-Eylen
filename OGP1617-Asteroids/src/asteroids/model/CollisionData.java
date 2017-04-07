@@ -32,11 +32,15 @@ public class CollisionData{
 	 * 		 | collisionType == CollisionType.BOUNDARY && colliders.size() != 1
 	 * @throws IllegalArgumentException
 	 * 		 | collisionType == CollisionType.INTER_ENTITY && colliders.size() != 2
+	 * @throws IllegalArgumentException
+	 * 		 | collisionType == CollisionType.INTER_SHIP && colliders.size() != 2
 	 */
 	public CollisionData(double timeToCollision, Vector2d collisionPoint, CollisionType collisionType, List<Entity> colliders) throws IllegalArgumentException{
 		if(collisionType == CollisionType.BOUNDARY && colliders.size() != 1)
 			throw new IllegalArgumentException();
 		if(collisionType == CollisionType.INTER_ENTITY && colliders.size() != 2)
+			throw new IllegalArgumentException();
+		if(collisionType == CollisionType.INTER_SHIP && colliders.size() != 2)
 			throw new IllegalArgumentException();
 		this.timeToCollision = timeToCollision;
 		this.collisionPoint = collisionPoint;

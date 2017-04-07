@@ -3,10 +3,53 @@ package asteroids.model;
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Raw;
 
+/**
+ * A Class representing a Bullet in the game.
+ * 
+ * @invar  The maxBoundaryCollisions of each Bullet must be a valid maxBoundaryCollisions for any
+ *         Bullet.
+ *       | isValidMaxBoundaryCollisions(getMaxBoundaryCollisions())
+ * @invar  The boundaryCollisionCount of each Bullet must be a valid boundaryCollisionCount for this
+ *         Bullet.
+ *       | canHaveAsBoundaryCollisionCount(getBoundaryCollisionCount())
+ */
 public class Bullet extends Entity{
 
 	/**
+	 * Initialize this new Bullet with given x, y, xVelocity, yVelocity, radius, mass and maxBoundaryCollision.
+	 *
+	 * @param x
+	 *     		The x-position for this new Bullet.
+	 * @param y
+	 *        	The y-position for this new Bullet.
+	 * @param xVelocity
+	 * 			The x-velocity for this new Bullet.
+	 * @param yVelocity
+	 *       	The y-velocity for this new Bullet.
+	 * @param radius
+	 *          The radius for this new Bullet.
+	 * @param mass
+	 * 			The mass for this new Bullet.
+	 * @param  maxBoundaryCollision
+	 *         The maxBoundaryCollisions for this new Bullet.
+	 * @effect This new Bullet is initialized as a new Entity with
+	 * 		   given x, y, xVelocity, yVelocity, radius and mass.
+	 * 			| super(x, y, xVelocity, yVelocity, radius, mass, container)
+	 * @pre    The given maxBoundaryCollisions must be a valid maxBoundaryCollisions for any Bullet.
+	 *      	| isValidMaxBoundaryCollisions(maxBoundaryCollisions)
+	 * @post   The maxBoundaryCollisions of this new Bullet is equal to the given
+	 *         maxBoundaryCollisions.
+	 *       	| new.getMaxBoundaryCollisions() == maxBoundaryCollision
+	 */
+	@Raw
+	public Bullet(double x, double y, double xVelocity, double yVelocity, double radius, double mass, Container<Entity> container, int maxBoundaryCollisions) throws IllegalArgumentException{
+		super(x, y, xVelocity, yVelocity, radius, mass, container);
+		this.maxBoundaryCollision = maxBoundaryCollisions;
+	}
+
+	/**
 	 * Initialize this new Bullet with given x, y, xVelocity, yVelocity, radius and mass.
+	 * The maxBoundaryCollisions is set to the constant DEFAULT_MAX_BOUNDARY_COLLISIONS.
 	 *
 	 * @param x
 	 *     		The x-position for this new Bullet.
@@ -22,11 +65,11 @@ public class Bullet extends Entity{
 	 * 			The mass for this new Bullet.
 	 * @effect This new Bullet is initialized as a new Entity with
 	 * 		   given x, y, xVelocity, yVelocity, radius and mass.
-	 * 			| super(x, y, xVelocity, yVelocity, radius, mass, container)
+	 * 			| this(x, y, xVelocity, yVelocity, radius, mass, container, DEFAULT_MAX_BOUNDARY_COLLISIONS)
 	 */
 	@Raw
 	public Bullet(double x, double y, double xVelocity, double yVelocity, double radius, double mass, Container<Entity> container) throws IllegalArgumentException{
-		super(x, y, xVelocity, yVelocity, radius, mass, container);
+		this(x, y, xVelocity, yVelocity, radius, mass, container, DEFAULT_MAX_BOUNDARY_COLLISIONS);
 	}
 
 	/**
@@ -38,6 +81,89 @@ public class Bullet extends Entity{
 	@Override
 	public double getMinRadius(){
 		return MIN_RADIUS;
+	}
+
+	/**
+	 * Return the boundaryCollisionCount of this Bullet.
+	 */
+	@Basic
+	@Raw
+	public int getBoundaryCollisionCount(){
+		return this.boundaryCollisionCount;
+	}
+
+	/**
+	 * Check whether the given boundaryCollisionCount is a valid boundaryCollisionCount for
+	 * this Bullet.
+	 *  
+	 * @param  boundaryCollisionCount
+	 *         The boundaryCollisionCount to check.
+	 * @see implementation
+	*/
+	public boolean canHaveAsBoundaryCollisionCount(int boundaryCollisionCount){
+		return boundaryCollisionCount >= 0 && boundaryCollisionCount < getMaxBoundaryCollisions();
+	}
+
+	/**
+	 * Increment the boundaryCollisionCount of this Bullet
+	 * 
+	 * @post | if(!canHaveAsBoundaryCollisionCount(getBoundaryCollisionCount())
+	 * 		 | then new.isTerminated()
+	 */
+	public void incrementBoundaryCollisionCount(){
+		this.boundaryCollisionCount += 1;
+		if(!canHaveAsBoundaryCollisionCount(getBoundaryCollisionCount()))
+			this.terminate();
+	}
+
+	/**
+	 * Variable registering the boundaryCollisionCount of this Bullet.
+	 */
+	private int boundaryCollisionCount;
+
+	/**
+	 * Return the maxBoundaryCollisions of this Bullet.
+	 */
+	@Basic
+	@Raw
+	public int getMaxBoundaryCollisions(){
+		return this.maxBoundaryCollision;
+	}
+
+	/**
+	 * Check whether the given maxBoundaryCollisions is a valid maxBoundaryCollisions for
+	 * any Bullet.
+	 *  
+	 * @param  maxBoundaryCollisions
+	 *         The maxBoundaryCollisions to check.
+	 * @see implementation
+	*/
+	public static boolean isValidMaxBoundaryCollisions(int maxBoundaryCollision){
+		return maxBoundaryCollision >= 0;
+	}
+
+	/**
+	 * Variable registering the maximum number of boundary collisions of this Bullet.
+	 */
+	private final int maxBoundaryCollision;
+
+	/**
+	 * Constant registering the default number of maximum boundary collisions of any Bullet.
+	 */
+	private static final int DEFAULT_MAX_BOUNDARY_COLLISIONS = 3;
+	
+	/**
+	 * Return the position of this Bullet
+	 * If this bullet is loaded by a Ship the position
+	 * of this bullet is equal to the position of the Ship
+	 * @return 	| if(getContainer() instanceof Ship) 
+	 * 			| then result.equals((Ship getContainer()).getPosition())
+	 */
+	@Override @Raw
+	public Vector2d getPosition(){
+		if(getContainer() instanceof Ship)
+			return ((Ship) getContainer()).getPosition();
+		return super.getPosition();
 	}
 
 	/**
