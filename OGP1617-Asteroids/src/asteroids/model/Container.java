@@ -8,7 +8,7 @@ package asteroids.model;
  */
 public interface Container<T extends Entity>{
 	
-	public boolean isInBounds(T item);
+	public boolean isInBounds(Vector2d position, double radius);
 	
 	/**
      * Check whether this container has the given item as one
@@ -35,7 +35,7 @@ public interface Container<T extends Entity>{
 	public void removeItem(T item);
 
 	/**
-	 * Return a boolean indicating whether or not this Container
+	 * Return whether or not this Container
 	 * is terminated.
 	 */
 	public boolean isTerminatedContainer();

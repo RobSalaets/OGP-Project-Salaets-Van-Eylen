@@ -1,5 +1,7 @@
 package asteroids.model;
 
+import java.util.Arrays;
+
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Immutable;
 import be.kuleuven.cs.som.annotate.Model;
@@ -9,7 +11,7 @@ import be.kuleuven.cs.som.annotate.Raw;
  * A Class to represent an Entity in the game
  * 
  * @invar The position of this Entity must be a valid position for this Entity. 
- * 			| isValidPosition(getPosition().getX(), getPosition().getY))
+ * 			| canHaveAsPosition(getPosition().getX(), getPosition().getY))
  * @invar The velocity components of this Entity must form a valid velocity for this Entity.
  * 			| canHaveAsVelocity(getXVelocity(), getYVelocity())
  * @invar  The radius of this Entity must be a valid radius for this Entity.
@@ -75,6 +77,7 @@ public abstract class Entity{
 	 *       	| ! canHaveAsRadius(radius)
 	 */
 	@Model
+	@Raw
 	protected Entity(double x, double y, double xVelocity, double yVelocity, double radius, double mass, Container<Entity> container) throws IllegalArgumentException{
 		if(!canHaveAsRadius(radius))
 			throw new IllegalArgumentException();
@@ -98,13 +101,26 @@ public abstract class Entity{
 	}
 
 	/**
-	 * Check whether the given position is a valid position for any Entity.
+	 * Check whether this Entity can have this position.
 	 * 
-	 * @param position
-	 *            The position to check.
-	 * @return | result == //TODO word canhaveas?
+	 * @param x
+	 * 			The x-position to check.
+	 * @param y
+	 * 			The y-position to check.
+	 * @return In all cases the given x and y must be finite values.
+ 	 *			If the container of this Entity is effective the position must be 
+	 * 			in the bounds specified by the container. Otherwise the position 
+	 * 			is unbounded.
+	 * 			| if(getContainer() != null)
+	 * 			| then result == getContainer().isInbounds(new Vector2d(x,y), getRadius())
+	 * 			|				&& Double.isFinite(x) && Double.isFinite(y)
+	 * 			| else result == Double.isFinite(x) && Double.isFinite(y)
 	 */
-	public static boolean isValidPosition(double x, double y){
+	public boolean canHaveAsPosition(double x, double y){
+		if(!Double.isFinite(x) || !Double.isFinite(y))
+			return false;
+		if(getContainer() != null)
+			return getContainer().isInBounds(new Vector2d(x, y), getRadius());
 		return true;
 	}
 
@@ -117,11 +133,11 @@ public abstract class Entity{
 	 * 			| new.getPosition().getX() == x
 	 * @throws IllegalArgumentException
 	 *             The given x-position does not form a valid position. 
-	 *        	| !isValidPosition(x, getPosition().getY())
+	 *        	| !canHaveAsPosition(x, getPosition().getY())
 	 */
 	@Raw
 	public void setXPosition(double x) throws IllegalArgumentException{
-		if(!isValidPosition(x, getPosition().getY()))
+		if(!canHaveAsPosition(x, getPosition().getY()))
 			throw new IllegalArgumentException();
 		this.position = new Vector2d(x, getPosition().getY());
 	}
@@ -135,11 +151,11 @@ public abstract class Entity{
 	 * 			| new.getPosition().getY() == y
 	 * @throws IllegalArgumentException
 	 *             The given y-position does not form a valid position. 
-	 *        	| !isValidPosition(getPosition().getX(), y)
+	 *        	| !canHaveAsPosition(getPosition().getX(), y)
 	 */
 	@Raw
 	public void setYPosition(double y) throws IllegalArgumentException{
-		if(!isValidPosition(getPosition().getX(), y))
+		if(!canHaveAsPosition(getPosition().getX(), y))
 			throw new IllegalArgumentException();
 		this.position = new Vector2d(position.getX(), y);
 	}
@@ -157,11 +173,11 @@ public abstract class Entity{
 	 * 			| new.getPosition().getY() == y
 	 * @throws IllegalArgumentException
 	 *             The given x and y do not form a valid position. 
-	 *        	| !isValidPosition(x, y)
+	 *        	| !canHaveAsPosition(x, y)
 	 */
 	@Raw
 	public void setPosition(double x, double y) throws IllegalArgumentException{
-		if(!isValidPosition(x, y))
+		if(!canHaveAsPosition(x, y))
 			throw new IllegalArgumentException();
 		this.position = new Vector2d(x, y);
 	}
@@ -428,33 +444,18 @@ public abstract class Entity{
 	}
 
 	/**
-	 * Checks if this Entity overlaps with another Entity.
+	 * Checks if this Entity (significantly) overlaps with another Entity.
 	 * 
 	 * @param  other
 	 * 			The other Entity
-	 * @return result == (this == other || getDistanceBetween(other) < 0.0)
+	 * @return result == (this == other || getDistanceBetween(other) <= 0.99 * (this.getRadius() + other.getRadius()))
 	 * @throws NullPointerException
 	 * 			| other == null
 	 */
 	public boolean overlaps(Entity other) throws NullPointerException{
 		if(other == null)
 			throw new NullPointerException();
-		return this == other || getDistanceBetween(other) < 0.0;
-	}
-
-	/**
-	 * Checks if this Entity significant overlaps with another Entity.
-	 * 
-	 * @param  other
-	 * 			The other Entity
-	 * @return result == (this == other || getDistanceBetween(other) <= 0.99 *(this.getRadius() + other.getRadius()))
-	 * @throws NullPointerException
-	 * 			| other == null
-	 */
-	public boolean significantOverlap(Entity other) throws NullPointerException{
-		if(other == null)
-			throw new NullPointerException();
-		return (this == other || getDistanceBetween(other) <= 0.99 * (this.getRadius() + other.getRadius()));
+		return this == other || getDistanceBetween(other) <= 0.99 * (this.getRadius() + other.getRadius());
 	}
 
 	/**
@@ -538,6 +539,82 @@ public abstract class Entity{
 		return thisCollisionPoint.mul(other.getRadius()).add(otherCollisionPoint.mul(this.getRadius())).mul(1.0 / sumRadii);
 	}
 
+	/**
+	 * Compute the point of collision and the time to collision of this Entity
+	 * with the bounds specified by a possible World container.
+	 * 
+	 * @return If the container of this Entity is a World, this entity
+	 * 			collides with the bounds of its World after the computed amount of time,
+	 * 			assuming the velocity remains unchanged.
+	 * 			| if( getContainer() instance of World)
+	 * 			| then (World getContainer()).isEntityColliding(getPosition().add(getVelocity().mul(result.getTimeToCollision())), getRadius)
+	 * @return If the container of this Entity is a World, this entity
+	 * 			collides with the bounds of its World on the computed position,
+	 * 			assuming the velocity remains unchanged.
+	 * 			| if( getContainer() instance of World)
+	 * 			| then getPosition().add(getVelocity().mul(result.getTimeToCollision())).sub(result.getCollisionPoint()).length() == getRadius()
+	 * @return If the container of this Entity is not a World or not effective
+	 * 			the computed time to collision is equal to POSITIVE_INFINITy and
+	 * 			the computed position is not effective.
+	 * 			| if(! getContainer() instanceof World)
+	 * 			| then result.equals(CollisionData.UNDEFINED_COLLISION)
+	 */
+	public CollisionData getBoundaryCollisionData(){
+		if(getContainer() instanceof World){
+			double width = ((World) getContainer()).getWidth();
+			double height = ((World) getContainer()).getHeight();
+			if(getVelocity().dot(Vector2d.X_AXIS) > 0.0){
+				double time = Vector2d.intersect(new Vector2d(getPosition().getX() + getRadius(), getPosition().getY()), getVelocity(), new Vector2d(width, 0), Vector2d.Y_AXIS);
+				if(time == Double.POSITIVE_INFINITY)
+					return CollisionData.UNDEFINED_COLLISION;
+				Vector2d intersect = new Vector2d(getPosition().getX() + getRadius(), getPosition().getY()).add(getVelocity().mul(time));
+				if(intersect.getY() >= getRadius() && intersect.getY() <= height - getRadius())
+					return new CollisionData(time, intersect, CollisionType.BOUNDARY, Arrays.asList(new Entity[]{this}));
+			}else{
+				double time = Vector2d.intersect(new Vector2d(getPosition().getX() - getRadius(), getPosition().getY()), getVelocity(), Vector2d.ZERO, Vector2d.Y_AXIS);
+				Vector2d intersect = new Vector2d(getPosition().getX() - getRadius(), getPosition().getY()).add(getVelocity().mul(time));
+				if(time == Double.POSITIVE_INFINITY)
+					return CollisionData.UNDEFINED_COLLISION;
+				if(intersect.getY() >= getRadius() && intersect.getY() <= height - getRadius())
+					return new CollisionData(time, intersect, CollisionType.BOUNDARY, Arrays.asList(new Entity[]{this}));
+			}
+			if(getVelocity().dot(Vector2d.Y_AXIS) > 0.0){
+				double time = Vector2d.intersect(new Vector2d(getPosition().getX(), getPosition().getY() + getRadius()), getVelocity(), new Vector2d(0, height), Vector2d.X_AXIS);
+				Vector2d intersect = new Vector2d(getPosition().getX(), getPosition().getY() + getRadius()).add(getVelocity().mul(time));
+				if(time == Double.POSITIVE_INFINITY)
+					return CollisionData.UNDEFINED_COLLISION;
+				if(intersect.getX() >= getRadius() && intersect.getX() <= width - getRadius())
+					return new CollisionData(time, intersect, CollisionType.BOUNDARY, Arrays.asList(new Entity[]{this}));
+			}else{
+				double time = Vector2d.intersect(new Vector2d(getPosition().getX(), getPosition().getY() - getRadius()), getVelocity(), Vector2d.ZERO, Vector2d.X_AXIS);
+				Vector2d intersect = new Vector2d(getPosition().getX(), getPosition().getY() + getRadius()).add(getVelocity().mul(time));
+				if(time == Double.POSITIVE_INFINITY)
+					return CollisionData.UNDEFINED_COLLISION;
+				if(intersect.getX() >= getRadius() && intersect.getX() <= width - getRadius())
+					return new CollisionData(time, intersect, CollisionType.BOUNDARY, Arrays.asList(new Entity[]{this}));
+			}
+		}
+		return CollisionData.UNDEFINED_COLLISION;
+	}
+
+	/**
+	 * Return the time to the collision (if any) with the bounds of the possible World container of this Entity
+	 * 
+	 * @effect | getBoundaryCollisionData().getTimeToCollision()
+	 */
+	public double getTimeToBoundaryCollision(){
+		return getBoundaryCollisionData().getTimeToCollision();
+	}
+
+	/**
+	 * Return the collision point (if any) with the bounds of the possible World container of this Entity
+	 * 
+	 * @effect | getBoundaryCollisionData().getCollsionPoint()
+	 */
+	public Vector2d getBoundaryCollisionPosition(){
+		return getBoundaryCollisionData().getCollisionPoint();
+	}
+
 	public abstract void terminate();
 
 	/**
@@ -603,8 +680,7 @@ public abstract class Entity{
 	 * Variable referencing the Container to which this Entity belongs.
 	 */
 	private Container<Entity> container = null;
-
-	
+  
 }
 
 

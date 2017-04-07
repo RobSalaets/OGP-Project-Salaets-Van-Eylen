@@ -1,14 +1,17 @@
 package asteroids.model;
 
+
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Immutable;
 import be.kuleuven.cs.som.annotate.Raw;
-
 
 /**
  * @invar  Each world can have its width as width .
@@ -46,25 +49,25 @@ public class World implements Container<Entity>{
 	 *       | new.getNbEntitys() == 0
 	 */
 	@Raw
-	public World(double width, double height) {
-		if (isValidWidth(width))
+	public World(double width, double height){
+		if(isValidWidth(width))
 			this.width = width;
-		else
-			this.width = 0.0;
-		if (isValidHeight(height))
+		else this.width = 0.0;
+		if(isValidHeight(height))
 			this.height = height;
-		else
-			this.height = 0.0;
+		else this.height = 0.0;
 	}
-	
+
 	/**
 	 * Return the width of this world.
 	 */
-	@Basic @Raw @Immutable
-	public double getWidth() {
+	@Basic
+	@Raw
+	@Immutable
+	public double getWidth(){
 		return this.width;
 	}
-	
+
 	/**
 	 * Check whether this world can have the given width as its width.
 	 *  
@@ -74,28 +77,30 @@ public class World implements Container<Entity>{
 	 *       | result == (0 < width && width < maxWidth)
 	*/
 	@Raw
-	public boolean isValidWidth(double width) {
+	public boolean isValidWidth(double width){
 		return (0 < width && width < MAX_WIDTH);
 	}
-	
+
 	/**
 	 * Variable registering the width of this world.
 	 */
 	private final double width;
-	
+
 	/**
 	 * The maximum upperbound for the width for any World.
 	 */
-	private static final double MAX_WIDTH = Double.MAX_VALUE ;
+	private static final double MAX_WIDTH = Double.MAX_VALUE;
 
 	/**
 	 * Return the height of this world.
 	 */
-	@Basic @Raw @Immutable
-	public double getHeight() {
+	@Basic
+	@Raw
+	@Immutable
+	public double getHeight(){
 		return this.height;
 	}
-	
+
 	/**
 	 * Check whether this world can have the given height as its height.
 	 *  
@@ -105,55 +110,174 @@ public class World implements Container<Entity>{
 	 *       | result == (0 < height && height < maxHeight)
 	*/
 	@Raw
-	public boolean isValidHeight(double height) {
+	public boolean isValidHeight(double height){
 		return (0 < height && height < MAX_HEIGHT);
 	}
-	
+
 	/**
 	 * Variable registering the height of this world.
 	 */
 	private final double height;
-	
+
 	/**
 	 * The maximum upperbound for the height for any World.
 	 */
-	private static final double MAX_HEIGHT = Double.MAX_VALUE ;
+	private static final double MAX_HEIGHT = Double.MAX_VALUE;
+	
+	public void evolve(double timeDelta){
+		//TODO
+		
+		List<Entity> values = new ArrayList<>(entities.values());
+		entities.clear();
+		for(Entity entity : values)
+			entities.put(entity.getPosition(), entity);
+	}
+	
+	/**
+	 * Check whether or not an entity with given position and raidus collides with the bounds of this World.
+	 * @param position
+	 * 			The given position
+	 * @param radius
+	 * 			The given radius
+	 * @see implementation
+	 */
+	public boolean isEntityColliding(Vector2d position, double radius){
+		return (position.getX() > radius * 0.99 && position.getX() < radius * 1.01) ||
+			   (position.getY() > radius * 0.99 && position.getY() < radius * 1.01) ||
+			   (getWidth() - position.getX() > radius * 0.99 && getWidth() - position.getX() < radius * 1.01) ||
+			   (getHeight() - position.getY() > radius * 0.99 && getHeight() - position.getY() < radius * 1.01);
+	}
+	
+	/**
+	 * Return the first occurring collision for this World.
+	 * 
+	 * @see implementation
+	 */
+	public CollisionData getNextCollision(){
+		CollisionData boundaryCase = getNextBoundaryCollision();
+		CollisionData entityCase = getNextEntityCollision();
+		return boundaryCase.getTimeToCollision() < entityCase.getTimeToCollision() ? boundaryCase : entityCase;
+	}
+	
+	/**
+	 * Return the first occurring boundary collision for this World.
+	 * 
+	 * @return  | if(entities.size() == 0)
+	 * 			| then result.equals(CollisionData.UNDEFINED_COLLISION)
+	 * @return  | for each entity in entities.values():
+	 * 			| 	result.getTimeToCollision() <= entity.getBoundaryCollision().getTimeToCollision()
+	 * @return  | if( ! result.getTimeToCollision().equals(CollisionData.UNDEFINED_COLLISION))
+	 * 			|  	result.getCollisionType() == CollisionType.BOUNDARY
+	 * @return  If no collision occurs the result equals CollisionData.UNDEFINED_COLLISION.
+	 */
+	public CollisionData getNextBoundaryCollision(){
+		CollisionData firstBoundaryCollision = CollisionData.UNDEFINED_COLLISION;
+		for(Entity e : entities.values()){
+			CollisionData boundaryCase = e.getBoundaryCollisionData();
+			if(boundaryCase.getTimeToCollision() < firstBoundaryCollision.getTimeToCollision())
+				firstBoundaryCollision = boundaryCase;
+		}
+		return firstBoundaryCollision;
+	}
+	
+	/**
+	 * Return the first ocurring collision between entities for this World.
+	 * 
+	 * @return  | if(entities.size() == 0)
+	 * 			| then result.equals(CollisionData.UNDEFINED_COLLISION)
+	 * @return  | for each entity1, entity2 in entities.values():
+	 * 			| 	result.getTimeToCollision() <= entity1.getTimeToCollision(entity2)
+	 * @return  | if( ! result.getTimeToCollision().equals(CollisionData.UNDEFINED_COLLISION))
+	 * 			|  	result.getCollisionType() == CollisionType.INTER_ENTITY
+	 * @return  If no collision occurs the result equals CollisionData.UNDEFINED_COLLISION.
+	 */
+	public CollisionData getNextEntityCollision(){
+		Set<Entity> unchecked = new HashSet<Entity>(entities.values());
+		return checkEntityCollisions(unchecked);
+	}
+	
+	/**
+	 * Method containing the recursive implementation of getNextEntityCollision()
+	 * 
+	 * @param remainingEntities
+	 * 			A set containing the unchecked entities
+	 * @see specification getNextEntityCollision()
+	 */
+	private CollisionData checkEntityCollisions(Set<Entity> remainingEntities){
+		Entity current = null;
+		CollisionData fCollisionInvCurrent = CollisionData.UNDEFINED_COLLISION;
+		if(remainingEntities.size() <= 1)
+			return fCollisionInvCurrent;
+		for(Entity entity : remainingEntities){
+			if(current == null){
+				current = entity;
+				continue;
+			}
+			double collisionTime = current.getTimeToCollision(entity);
+			if(collisionTime < fCollisionInvCurrent.getTimeToCollision())
+				fCollisionInvCurrent = new CollisionData(collisionTime, current.getCollisionPosition(entity), CollisionType.INTER_ENTITY, Arrays.asList(new Entity[]{current, entity}));
+		}
+		remainingEntities.remove(current);
+		CollisionData recursiveResult = checkEntityCollisions(remainingEntities);
+		return fCollisionInvCurrent.getTimeToCollision() < recursiveResult.getTimeToCollision() ? 
+				fCollisionInvCurrent : recursiveResult;
+	}
 
 	/**
 	 * Terminate this World.
 	 *
 	 * @post   This World  is terminated.
 	 *       | new.isTerminated()
-	 * @post   TODO...
-	 *       | ...
+	 * @post   If this World was not yet terminated, each Entity that belonged to this World
+	 * 		   is now unbounded and has no container.
+	 * 		 | if (! isTerminated())
+	 *       |   then for each enitty in entities: 
+	 *       		(new entity).getContainer() == null
+	 * @post   If this World was not yet terminated, the set of bullets of this World
+	 * 		   is now an empty set.
+	 * 		 | if(! isTerminated())
+	 * 		 |	 then new.getNbItems() == 0
 	 */
-	 public void terminate() {
-		 this.isTerminated = true;
-	 }
-	 
-	 /**
-	  * Return a boolean indicating whether or not this World
-	  * is terminated.
-	  */
-	 @Basic @Raw
-	 public boolean isTerminated() {
-		 return this.isTerminated;
-	 }
-	 
-	 /**
-	  * Variable registering whether this person is terminated.
-	  */
-	 private boolean isTerminated = false;
-
-	@Override
-	public boolean isInBounds(Entity item){
-		// TODO Auto-generated method stub
-		return false;
+	public void terminate(){
+		if(!isTerminated()){
+			for(Entity entity : new ArrayList<Entity>(entities.values())){
+				removeItem(entity);
+				entity.setContainer(null);
+			}
+			this.isTerminated = true;
+		}
 	}
 
-	@Override @Basic @Raw
+	/**
+	 * Return a boolean indicating whether or not this World
+	 * is terminated.
+	 */
+	@Basic
+	@Raw
+	public boolean isTerminated(){
+		return this.isTerminated;
+	}
+
+	/**
+	 * Variable registering whether this person is terminated.
+	 */
+	private boolean isTerminated = false;
+
+	/**
+	 * Return whether or not an Entity with given position and radius is within bounds of this World
+	 * @see implementation
+	 */
+	@Override
+	public boolean isInBounds(Vector2d position, double radius){
+		return (position.getX() >= radius * 0.99 && getWidth() - position.getX() >=  radius * 0.99) &&
+				(position.getY() >= radius * 0.99 && getHeight() - position.getY() >=  radius * 0.99);
+	}
+
+	@Override
+	@Basic
+	@Raw
 	public boolean hasAsItem(@Raw Entity item){
-		return entities.contains(item);
+		return entities.containsKey(item.getPosition());
 	}
 
 	/**
@@ -166,7 +290,8 @@ public class World implements Container<Entity>{
 	 *         and is a valid Entity for a World.
 	 *       | result == (item != null) && item.canHaveAsContainer(this);
 	 */
-	@Override @Raw
+	@Override
+	@Raw
 	public boolean canHaveAsItem(Entity item){
 		return item != null && item.canHaveAsContainer(this);
 	}
@@ -184,7 +309,7 @@ public class World implements Container<Entity>{
 	 */
 	@Override
 	public boolean hasProperItems(){
-		for(Entity entity : entities){
+		for(Entity entity : entities.values()){
 			if(!canHaveAsItem(entity))
 				return false;
 			if(entity.getContainer() != this)
@@ -193,7 +318,9 @@ public class World implements Container<Entity>{
 		return true;
 	}
 
-	@Override @Basic @Raw
+	@Override
+	@Basic
+	@Raw
 	public int getNbItems(){
 		return entities.size();
 	}
@@ -214,7 +341,7 @@ public class World implements Container<Entity>{
 	public void addItem(Entity item) throws IllegalArgumentException{
 		if(!canHaveAsItem(item) || item.getContainer() != this)
 			throw new IllegalArgumentException();
-		entities.add(item);
+		entities.put(item.getPosition(), item);
 	}
 
 	/**
@@ -230,33 +357,20 @@ public class World implements Container<Entity>{
 	 * 		   or the given Entity still references any World as its container.
 	 * 			| !this.hasAsItem(item) || item.getContainer() != null
 	 */
-	@Override @Raw
+	@Override
+	@Raw
 	public void removeItem(Entity item) throws IllegalArgumentException{
 		if(!this.hasAsItem(item) || item.getContainer() != null)
 			throw new IllegalArgumentException();
-		assert entities.remove(item);
+		assert entities.remove(item.getPosition(), item);
 	}
 
 	@Override
 	public boolean isTerminatedContainer(){
 		return this.isTerminated;
 	}
-	
-	/**
-	 * Variable referencing a set collecting all the entities
-	 * of this world.
-	 * 
-	 * @invar  The referenced set is effective.
-	 *       | entities != null
-	 * @invar  Each entity registered in the referenced set is
-	 *         effective and not yet terminated.
-	 *       | for each entity in entities:
-	 *       |   ( (entity != null) &&
-	 *       |     (! entity.isTerminated()) )
-	 */
-	private final Set<Entity> entities = new HashSet<Entity>();
-	
-	/**
+  
+  /**
 	 * Return a set of all the entities of this world.
 	 * 
 	 * @return The size of the resulting set is equal to the number of
@@ -264,7 +378,7 @@ public class World implements Container<Entity>{
 	 *       | result.size() == getNbEntities()
 	 */
 	public Set<Entity> getAllEntities() {
-		return new HashSet<Entity>(entities);
+		return new HashMap<Vector2d, Entity>(entities);
 	}
 	
 	/**
@@ -289,4 +403,22 @@ public class World implements Container<Entity>{
 		}
 		return false;
 	}
+
+	/**
+	 * Variable referencing a map collecting all the entities
+	 * of this world mapped by their position.
+	 * 
+	 * @invar  The referenced map is effective.
+	 *       | entities != null
+	 * @invar  Each entity registered in the referenced set is
+	 *         effective and not yet terminated.
+	 *       | for each {position, entity} in entities:
+	 *       |   ( (entity != null) &&
+	 *       |     (! entity.isTerminated()) )
+	 * @invar The Entities are mapped to their current position
+	 * 		 | for each {position, entity} in entities:
+	 *       |   entity.getPosition().equals(position)
+	 */
+	private final Map<Vector2d, Entity> entities = new HashMap<Vector2d, Entity>();
+
 }

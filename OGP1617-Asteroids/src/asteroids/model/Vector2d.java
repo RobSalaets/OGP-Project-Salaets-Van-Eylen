@@ -82,28 +82,28 @@ public class Vector2d{
 	 * Variable registering the y of this Vector2d.
 	 */
 	private final double y;
-	
+
 	/**
 	 * Variable referencing a vector with its components both zero.
 	 * 
 	 * @return | ZERO.equals(new Vector2d(0.0,0.0))
 	 */
 	public static final Vector2d ZERO = new Vector2d(0.0, 0.0);
-	
+
 	/**
 	 * Variable referencing a unit vector aligned to the x-axis.
 	 * 
 	 * @return | X_AXIS.equals(new Vector2d(1.0,0.0))
 	 */
 	public static final Vector2d X_AXIS = new Vector2d(1.0, 0.0);
-	
+
 	/**
 	 * Variable referencing a unit vector aligned to the y-axis.
 	 * 
 	 * @return | Y_AXIS.equals(new Vector2d(0.0,1.0))
 	 */
 	public static final Vector2d Y_AXIS = new Vector2d(0.0, 1.0);
-	
+
 	/**
 	 * Compute the componentwise sum of this vector and a given other vector
 	 * 
@@ -119,7 +119,7 @@ public class Vector2d{
 			throw new IllegalArgumentException();
 		return new Vector2d(this.getX() + other.getX(), this.getY() + other.getY());
 	}
-	
+
 	/**
 	 * Compute the componentwise subtraction of this vector and a given other vector
 	 * 
@@ -135,7 +135,7 @@ public class Vector2d{
 			throw new IllegalArgumentException();
 		return new Vector2d(this.getX() - other.getX(), this.getY() - other.getY());
 	}
-	
+
 	/**
 	 * Compute the componentwise multiplication of this vector and a given other vector
 	 * 
@@ -151,7 +151,7 @@ public class Vector2d{
 			throw new IllegalArgumentException();
 		return new Vector2d(this.getX() * other.getX(), this.getY() * other.getY());
 	}
-	
+
 	/**
 	 * Compute the componentwise multiplication of this vector and a given value
 	 * 
@@ -165,7 +165,7 @@ public class Vector2d{
 	public Vector2d mul(double value) throws IllegalArgumentException{
 		return new Vector2d(this.getX() * value, this.getY() * value);
 	}
-	
+
 	/**
 	 * Return this vectors euclidean length
 	 * 
@@ -174,7 +174,7 @@ public class Vector2d{
 	public double getLength(){
 		return Math.sqrt(getX() * getX() + getY() * getY());
 	}
-	
+
 	/**
 	 * Return this vectors euclidean length squared
 	 * 
@@ -183,7 +183,7 @@ public class Vector2d{
 	public double getLengthSquared(){
 		return getX() * getX() + getY() * getY();
 	}
-	
+
 	/**
 	 * Compute the dot product of this vector and a given other vector
 	 * 
@@ -198,7 +198,7 @@ public class Vector2d{
 			throw new IllegalArgumentException();
 		return this.getX() * other.getX() + this.getY() * other.getY();
 	}
-	
+
 	/**
 	 * Compute a vector with normalized components from this Vector2d
 	 * @return A vector form by this vectors components divided by this vectors length
@@ -210,15 +210,39 @@ public class Vector2d{
 		double length = getLength();
 		return new Vector2d(getX() / length, getY() / length);
 	}
-	
+
+	/**
+	 * Compute the alpha value of the intersection of two lines, given a point and direction
+	 * of each line. Where alpha the intersection value corresponding to the given first direction,
+	 * so originA added with directionA mulitplied by alpha results in the intersection point.
+	 * @param originA
+	 * 			A point on the first line
+	 * @param directionA
+	 * 			The direction of the first line
+	 * @param originB
+ * 				A point on the second line
+	 * @param directionB
+	 * 			The direction of the second line
+	 * @return	The intersection value
+	 * 			@see implementation
+	 */
+	public static double intersect(Vector2d originA, Vector2d directionA, Vector2d originB, Vector2d directionB){
+		double n = directionA.getX() * directionB.getY() - directionA.getY() * directionB.getX();
+		if(n == 0)
+			return Double.POSITIVE_INFINITY;
+		double alpha = -(originA.getX()*directionB.getY() - originA.getY() * directionB.getY()
+				- originB.getX() * directionB.getY() + originB.getY() * directionB.getX()) / n;
+		return alpha;
+	}
+
 	/**
 	 * Return the velocity components as an array
 	 * @return | result[0] == x && result[1] == y
 	 */
 	public double[] asArray(){
-		return new double[]{x, y};
+		return new double[] { x, y };
 	}
-	
+
 	/**
 	 * Check whether this vector is equal to the given object
 	 * @return | result == (other != null) && (this.getClass() == other.getClass()) 
@@ -230,10 +254,10 @@ public class Vector2d{
 			return false;
 		if(this.getClass() != other.getClass())
 			return false;
-		Vector2d otherVector = (Vector2d)other;
+		Vector2d otherVector = (Vector2d) other;
 		return getX() == otherVector.getX() && getY() == otherVector.getY();
 	}
-	
+
 	/**
 	 * Return the hash code for this vector
 	 */
