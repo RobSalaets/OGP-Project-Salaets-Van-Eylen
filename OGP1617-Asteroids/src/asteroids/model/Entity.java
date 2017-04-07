@@ -89,7 +89,8 @@ public abstract class Entity{
 		this.radius = radius;
 		this.setMass(mass);
 		setContainer(container);
-		container.addItem(this);
+		if(container != null)
+			container.addItem(this);
 	}
 
 	/**
@@ -494,7 +495,7 @@ public abstract class Entity{
 		if(other == null)
 			throw new NullPointerException();
 		if(this.overlaps(other))
-			throw new IllegalArgumentException();
+			/*throw new IllegalArgumentException();*/return Double.POSITIVE_INFINITY; //TODO handle
 
 		double sigmaSq = Math.pow(this.getRadius() + other.getRadius(), 2);
 		double rDotr = this.getPosition().sub(other.getPosition()).getLengthSquared();

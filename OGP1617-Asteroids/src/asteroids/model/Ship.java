@@ -502,6 +502,18 @@ public class Ship extends Entity implements Container<Entity>{
 			this.isTerminated = true;
 		}
 	}
+	
+	/**
+	 * Return a set of all bullets loaded on this Ship.
+	 * 
+	 * @return The size of the resulting set is equal to the number of
+	 *         bullets of this Ship.
+	 *       | result.size() == getNbEntities()
+	 */
+	@Basic
+	public Set<Bullet> getBullets(){
+		return new HashSet<Bullet>(bullets);
+	}
 
 	/**
 	 * Variable referencing a set collecting all the Bullets
@@ -544,16 +556,12 @@ public class Ship extends Entity implements Container<Entity>{
 	 * @throws IllegalArgumentExcetion
 	 * 			| for some bullet in bullets:
 	 * 			| 	!canHaveAsItem(bullet)
-	 * @throws IllegalArgumentExcetion
-	 * 			| for some bullet in bullets:
-	 * 			| 	bullet.getSource() != this
 	 */
-	public void loadBullet(Bullet... bullets) throws NullPointerException, IllegalArgumentException{
+	public void loadBullet(Bullet... bullets) throws NullPointerException{
 		if(bullets.length == 0)
 			throw new NullPointerException();
 		for (Bullet bullet : bullets){
-			if(bullet.getSource() != this)
-				throw new IllegalArgumentException();
+			bullet.setContainer(this);
 			addItem(bullet);
 		}
 	}

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import asteroids.part2.CollisionListener;
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Immutable;
 import be.kuleuven.cs.som.annotate.Raw;
@@ -142,6 +143,23 @@ public class World implements Container<Entity>{
 	}
 	
 	/**
+	 * Copy of evolve method with CollisionListener.
+	 * 
+	 * @see evolve(double timeDelta)
+	 */
+	public void evolve(double timeDelta, CollisionListener cl){
+		CollisionData next = getNextCollision();
+		if(next.getTimeToCollision() > timeDelta){
+			advanceEntities(timeDelta);
+		}else{
+			advanceEntities(next.getTimeToCollision());
+			cl.notify();
+			resolve(next);
+			evolve(timeDelta - next.getTimeToCollision(), cl);
+		}
+	}
+	
+	/**
 	 * Advance the entities in this world with given timeDelta
 	 * @param timeDelta
 	 * 			The given time delta
@@ -187,7 +205,6 @@ public class World implements Container<Entity>{
 			for(Entity e : collisionData.getColliders())
 				if(e instanceof Bullet && collisionData.getColliders().contains(((Bullet) e).getSource())){
 					Bullet b = (Bullet)e;
-					b.setContainer(b.getSource());
 					b.getSource().loadBullet(b);
 					isOwnShip = true;
 				}
@@ -333,8 +350,8 @@ public class World implements Container<Entity>{
 	public void terminate(){
 		if(!isTerminated()){
 			for(Entity entity : new ArrayList<Entity>(entities.values())){
-				removeItem(entity);
 				entity.setContainer(null);
+				removeItem(entity);
 			}
 			this.isTerminated = true;
 		}
@@ -462,15 +479,29 @@ public class World implements Container<Entity>{
 		return this.isTerminated;
 	}
   
-  /**
+    /**
 	 * Return a set of all the entities of this world.
 	 * 
 	 * @return The size of the resulting set is equal to the number of
 	 *         entities of this world.
 	 *       | result.size() == getNbEntities()
 	 */
-	public HashMap<Vector2d, Entity> getAllEntities() {
-		return new HashMap<Vector2d, Entity>(entities);
+	public Set<Entity> getAllEntities() {
+		return new HashSet<Entity>(entities.values());
+	}
+	
+	/**
+	 * Return an Entity at the given position,
+	 * otherwise the result is null.
+	 * @param position
+	 * 			The given position
+	 * @return  | if(entities.hasKey(position))
+	 * 			| then result.getPosition() == position
+	 * 			| else result == null
+	 * 
+	 */
+	public Entity getEntityAt(Vector2d position){
+		return entities.get(position);
 	}
 	
 	/**
@@ -481,9 +512,9 @@ public class World implements Container<Entity>{
 	 * @return False if and only if none of the entities from this world overlap with the given entity.
 	 * 		| 	for each other in entities:
 	 * 		|		if (entity.overlaps(other) == true)
-	 * 		|			result == true
+	 * 		|		the result == true
 	 * 		|	result == false
-	 * @throws NullPointerException
+	 * @throws NullPointerException //TODO
 	 * 		| entity == null
 	 */
 	public boolean overlapWithAnyEntity(Entity entity) throws NullPointerException{
