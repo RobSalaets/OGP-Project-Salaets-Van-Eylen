@@ -358,10 +358,7 @@ public class Ship extends Entity implements Container<Entity>{
 	public boolean isInBounds(Vector2d position, double radius){
 		return getRadius() - position.sub(getPosition()).getLength() > 0.99 * radius;
 	}
-
-	@Override
-	@Basic
-	@Raw
+  
 	public boolean hasAsItem(@Raw Entity item){
 		return bullets.contains(item);
 	}
@@ -373,13 +370,15 @@ public class Ship extends Entity implements Container<Entity>{
 	 * @param  item
 	 *         The Entity to check.
 	 * @return True if and only if the given Entity is effective
-	 *         and an instance of a Bullet and that Bullet is a valid Bullet for a Ship.
-	 *       | result == (item != null) && (item instanceof Bullet) && ((Bullet) item).canHaveAsContainer(this);
+	 *         and an instance of a Bullet and that Bullet is a valid Bullet for a Ship and 
+	 *         that the Bullet lies within the Ship.
+	 *       | result == (item != null) && (item instanceof Bullet) && ((Bullet) item).canHaveAsContainer(this)
+	 *       | && isInBounds(item.getPosition(), item.getRadius())
 	 */
 	@Override
 	@Raw
 	public boolean canHaveAsItem(Entity item){
-		return item != null && item instanceof Bullet && ((Bullet) item).canHaveAsContainer(this);
+		return item != null && item instanceof Bullet && ((Bullet) item).canHaveAsContainer(this) && isInBounds(item.getPosition(), item.getRadius());
 	}
 
 	/**
@@ -500,7 +499,7 @@ public class Ship extends Entity implements Container<Entity>{
 	 * 
 	 * @invar  The referenced set is effective.
 	 *       | bullets != null
-	 * @invar  Each Bullet registered in the referenced list is
+	 * @invar  Each Bullet registered in the referenced set is
 	 *         effective and not yet terminated.
 	 *       | for each bullet in bullets:
 	 *       |   ( (bullet != null) &&
@@ -513,5 +512,47 @@ public class Ship extends Entity implements Container<Entity>{
 	@Override
 	public boolean isTerminatedContainer(){
 		return this.isTerminated;
+	}
+	
+	/**
+	 * The initial bulletspeed for any bullet in kilometres per second.
+	 */
+	private static final double INITIAL_BULLETSPEED = 250.0;
+	
+	/**
+	 * 
+	 * @param bullets
+	 * 		An array of the bullets that need to be loaded on this Ship.
+	 * @post The number of bullets of this ship is incremented
+	 *         by the given amount of bullets.
+	 *       | new.getNbItems() == getNbItems() + bullets.length
+	 * @throws NullPointerException
+	 * 			| bullets.length == 0
+	 */
+	public void loadBullet(Bullet... bullets) throws NullPointerException{
+		if(bullets.length == 0)
+			throw new NullPointerException();
+		for (Bullet bullet : bullets) {
+			if (! bullet.isTerminated())
+			addItem(bullet);
+			}
+		}
+	
+	/**
+	 * 
+	 * @param bullet
+	 * 		The bullet to fire.
+	 * @post 
+	 */
+	public void fireBullet(Bullet bullet){
+		if ((this.getContainer() == null) || !isInBounds(bullet))
+			removeItem(bullet);
+		
+		bullet.setXPosition(this.getPosition().getX() + (this.getRadius()+bullet.getRadius()) * Math.cos(this.getOrientation()) );
+		bullet.setYPosition(this.getPosition().getY() + (this.getRadius()+bullet.getRadius()) * Math.sin(this.getOrientation()) );
+		bullet.setVelocity(INITIAL_BULLETSPEED * Math.cos(this.getOrientation()), INITIAL_BULLETSPEED * Math.sin(this.getOrientation()));
+		if (overlapWithAnyEntity(bullet))
+			collide
+		
 	}
 }

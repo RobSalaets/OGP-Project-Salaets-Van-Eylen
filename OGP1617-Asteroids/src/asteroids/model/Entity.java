@@ -444,7 +444,7 @@ public abstract class Entity{
 	}
 
 	/**
-	 * Checks if this Entities (significantly) overlaps with another Entity.
+	 * Checks if this Entity (significantly) overlaps with another Entity.
 	 * 
 	 * @param  other
 	 * 			The other Entity
@@ -680,7 +680,7 @@ public abstract class Entity{
 	 * Variable referencing the Container to which this Entity belongs.
 	 */
 	private Container<Entity> container = null;
-
+  
 }
 
 
