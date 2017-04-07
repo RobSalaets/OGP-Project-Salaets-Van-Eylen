@@ -525,34 +525,38 @@ public class Ship extends Entity implements Container<Entity>{
 	 * 		An array of the bullets that need to be loaded on this Ship.
 	 * @post The number of bullets of this ship is incremented
 	 *         by the given amount of bullets.
-	 *       | new.getNbItems() == getNbItems() + bullets.length
+	 *       	| new.getNbItems() == getNbItems() + bullets.length
+	 * @effect Each valid bullet is added to this Ship container.
+	 * 			| for each bullet in bullets:
+	 * 			| 	this.addItem(bullet)
 	 * @throws NullPointerException
 	 * 			| bullets.length == 0
+	 * @throws IllegalArgumentExcetion
+	 * 			| for some bullet in bullets:
+	 * 			| !canHaveAsItem(bullet)
 	 */
-	public void loadBullet(Bullet... bullets) throws NullPointerException{
+	public void loadBullet(Bullet... bullets) throws NullPointerException, IllegalArgumentException{ //TODO precondition?
 		if(bullets.length == 0)
 			throw new NullPointerException();
-		for (Bullet bullet : bullets) {
-			if (! bullet.isTerminated())
-			addItem(bullet);
-			}
-		}
-	
-	/**
-	 * 
-	 * @param bullet
-	 * 		The bullet to fire.
-	 * @post 
-	 */
-	public void fireBullet(Bullet bullet){
-		if ((this.getContainer() == null) || !isInBounds(bullet))
-			removeItem(bullet);
-		
-		bullet.setXPosition(this.getPosition().getX() + (this.getRadius()+bullet.getRadius()) * Math.cos(this.getOrientation()) );
-		bullet.setYPosition(this.getPosition().getY() + (this.getRadius()+bullet.getRadius()) * Math.sin(this.getOrientation()) );
-		bullet.setVelocity(INITIAL_BULLETSPEED * Math.cos(this.getOrientation()), INITIAL_BULLETSPEED * Math.sin(this.getOrientation()));
-		if (overlapWithAnyEntity(bullet))
-			collide
+		for (Bullet bullet : bullets)
+				addItem(bullet);
 		
 	}
+//	/**
+//	 * 
+//	 * @param bullet
+//	 * 		The bullet to fire.
+//	 * @post 
+//	 */
+//	public void fireBullet(Bullet bullet){
+//		if ((this.getContainer() == null) || !isInBounds(bullet))
+//			removeItem(bullet);
+//		
+//		bullet.setXPosition(this.getPosition().getX() + (this.getRadius()+bullet.getRadius()) * Math.cos(this.getOrientation()) );
+//		bullet.setYPosition(this.getPosition().getY() + (this.getRadius()+bullet.getRadius()) * Math.sin(this.getOrientation()) );
+//		bullet.setVelocity(INITIAL_BULLETSPEED * Math.cos(this.getOrientation()), INITIAL_BULLETSPEED * Math.sin(this.getOrientation()));
+//		if (overlapWithAnyEntity(bullet))
+//			collide
+//		
+//	}
 }

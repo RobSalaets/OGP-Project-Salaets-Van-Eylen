@@ -467,7 +467,7 @@ public class World implements Container<Entity>{
 	 *         entities of this world.
 	 *       | result.size() == getNbEntities()
 	 */
-	public Set<Entity> getAllEntities() {
+	public HashMap<Vector2d, Entity> getAllEntities() {
 		return new HashMap<Vector2d, Entity>(entities);
 	}
 	
@@ -487,7 +487,7 @@ public class World implements Container<Entity>{
 	public boolean overlapWithAnyEntity(Entity entity) throws NullPointerException{
 		if (entity == null)
 			throw new NullPointerException();
-		for (Entity other : entities) {
+		for (Entity other : entities.values()) {
 			if (entity.overlaps(other))
 				return true;
 		}
