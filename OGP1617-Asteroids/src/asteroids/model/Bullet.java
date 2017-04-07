@@ -33,7 +33,7 @@ public class Bullet extends Entity{
 	 * The mininum radius for any Bullet in kilometres
 	 */
 	private static final double MIN_RADIUS = 1.0;
-	
+
 	@Basic
 	@Override
 	public double getMinRadius(){

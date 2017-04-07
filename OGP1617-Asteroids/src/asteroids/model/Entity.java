@@ -428,7 +428,7 @@ public abstract class Entity{
 	}
 
 	/**
-	 * Checks if this Entities overlaps with another Entity.
+	 * Checks if this Entity overlaps with another Entity.
 	 * 
 	 * @param  other
 	 * 			The other Entity
@@ -604,6 +604,7 @@ public abstract class Entity{
 	 */
 	private Container<Entity> container = null;
 
+	
 }
 
 

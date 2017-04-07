@@ -1,6 +1,8 @@
 package asteroids.model;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import be.kuleuven.cs.som.annotate.Basic;
@@ -246,11 +248,45 @@ public class World implements Container<Entity>{
 	 * 
 	 * @invar  The referenced set is effective.
 	 *       | entities != null
-	 * @invar  Each entity registered in the referenced list is
+	 * @invar  Each entity registered in the referenced set is
 	 *         effective and not yet terminated.
 	 *       | for each entity in entities:
 	 *       |   ( (entity != null) &&
 	 *       |     (! entity.isTerminated()) )
 	 */
 	private final Set<Entity> entities = new HashSet<Entity>();
+	
+	/**
+	 * Return a set of all the entities of this world.
+	 * 
+	 * @return The size of the resulting set is equal to the number of
+	 *         entities of this world.
+	 *       | result.size() == getNbEntities()
+	 */
+	public Set<Entity> getAllEntities() {
+		return new HashSet<Entity>(entities);
+	}
+	
+	/**
+	 * Check whether the given entity overlaps with any entities in this world.
+	 * 
+	 * @param entity
+	 * 		The entity to check.
+	 * @return False if and only if none of the entities from this world overlap with the given entity.
+	 * 		| 	for each other in entities:
+	 * 		|		if (entity.overlaps(other) == true)
+	 * 		|			result == true
+	 * 		|	result == false
+	 * @throws NullPointerException
+	 * 		| entity == null
+	 */
+	public boolean overlapWithAnyEntity(Entity entity) throws NullPointerException{
+		if (entity == null)
+			throw new NullPointerException();
+		for (Entity other : entities) {
+			if (entity.overlaps(other))
+				return true;
+		}
+		return false;
+	}
 }
