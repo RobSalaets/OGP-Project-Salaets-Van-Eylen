@@ -557,21 +557,42 @@ public class Ship extends Entity implements Container<Entity>{
 			addItem(bullet);
 		}
 	}
-//	/**
-//	 * 
-//	 * @param bullet
-//	 * 		The bullet to fire.
-//	 * @post 
-//	 */
-//	public void fireBullet(Bullet bullet){
-//		if ((this.getContainer() == null) || !isInBounds(bullet))
-//			removeItem(bullet);
-//		
-//		bullet.setXPosition(this.getPosition().getX() + (this.getRadius()+bullet.getRadius()) * Math.cos(this.getOrientation()) );
-//		bullet.setYPosition(this.getPosition().getY() + (this.getRadius()+bullet.getRadius()) * Math.sin(this.getOrientation()) );
-//		bullet.setVelocity(INITIAL_BULLETSPEED * Math.cos(this.getOrientation()), INITIAL_BULLETSPEED * Math.sin(this.getOrientation()));
-//		if (overlapWithAnyEntity(bullet))
-//			collide
-//		
-//	}
+	/**
+	 * 
+	 * @param bullet
+	 * 		The bullet to fire.
+	 * @post If the the world from this ship is effective and the new position of the bullet is within the boundaries of the world
+	 * 		and the bullet doesn't overlap with any entities from this world at its new position, then the bullet will be added 
+	 * 		to the world and will be set to his new position and will be given the INITIAL_BULLETSPEED 
+	 * 		with respect for this ships current orientation. And the bullet will be removed from the ships.
+	 * 		| bullet.setContainer(this.getContainer())
+	 *		| this.getContainer().addItem(bullet)
+	 *		| this.removeItem(bullet)
+	 *		| bullet.setXPosition(this.getPosition().getX() + (this.getRadius()+bullet.getRadius()) * Math.cos(this.getOrientation()) )
+	 *		| bullet.setYPosition(this.getPosition().getY() + (this.getRadius()+bullet.getRadius()) * Math.sin(this.getOrientation()) )
+	 *		| bullet.setVelocity(INITIAL_BULLETSPEED * Math.cos(this.getOrientation()), INITIAL_BULLETSPEED * Math.sin(this.getOrientation()))
+	 * @post if the world from this ship is not effective or the new position of the bullet will be outside the world boundaries
+	 * 		then the bullet will be immediately removed from the ship and its bullets.
+	 * 		| if(getContainer() instanceof World)
+			| 	if ((this.getContainer() == null) || !((World) getContainer()).isInBounds(bullet.getPosition(),bullet.getRadius()))
+			| 		this.removeItem(bullet)
+			| 		bullet.setContainer(null)
+	 */
+	public void fireBullet(Bullet bullet){
+		if(getContainer() instanceof World)
+			if ((this.getContainer() == null) || !((World) getContainer()).isInBounds(bullet.getPosition(),bullet.getRadius()))
+			this.removeItem(bullet);
+			bullet.setContainer(null);
+			
+		bullet.setContainer(this.getContainer());
+		this.getContainer().addItem(bullet);
+		this.removeItem(bullet);
+		bullet.setXPosition(this.getPosition().getX() + (this.getRadius()+bullet.getRadius()) * Math.cos(this.getOrientation()) );
+		bullet.setYPosition(this.getPosition().getY() + (this.getRadius()+bullet.getRadius()) * Math.sin(this.getOrientation()) );
+		bullet.setVelocity(INITIAL_BULLETSPEED * Math.cos(this.getOrientation()), INITIAL_BULLETSPEED * Math.sin(this.getOrientation()));
+		if(getContainer() instanceof World)
+			if (((World) getContainer()).overlapWithAnyEntity(bullet))
+				//the collision
+		
+	}
 }
