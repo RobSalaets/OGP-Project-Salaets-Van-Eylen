@@ -470,7 +470,7 @@ public abstract class Entity{
 	 * @return   The calculated result is cannot be negative
 	 * 			| result >= 0.0
 	 * @return Starting from the current position of each Entity, when the current velocities 
-	 * 		   are applied for the calculated duration of time on both Entitys, their boundaries touch.
+	 * 		   are applied for the calculated duration of time on both Entities, their boundaries touch.
 	 * 		   In other words the distance between the center of this Entity and the other Entity will then 
 	 * 		   equal the sum of their radii. Assuming the calculated result is a finite value.
 	 * 			| let
@@ -515,8 +515,8 @@ public abstract class Entity{
 	 * @param other
 	 * 			The other Entity.
 	 * @return The x- and y-coordinate of the calculated collision position, if in the current
-	 * 		   state of the Entitys no collision will occur the result is null. The collision point
-	 * 		   lies on the connecting line between the Entitys. It's position on the line is determined
+	 * 		   state of the Entities no collision will occur the result is null. The collision point
+	 * 		   lies on the connecting line between the Entities. It's position on the line is determined
 	 * 		   by the radii of the Entities.
 	 * 		| let
 	 * 		| 	thisCollision = this.getPosition().add(this.getVelocity().mul(result))
@@ -652,7 +652,7 @@ public abstract class Entity{
 	 * 
 	 * @return True if and only if this Entity can have its container as its
 	 *         container, and if the container of this Entity is either not effective
-	 *         or if it has this Entity as one of its Entitys.
+	 *         or if it has this Entity as one of its Entities.
 	 *       | result == canHaveAsContainer(getContainer()) &&
 	 *       |   ((getContainer() == null) || getContainer().hasAsItem(this))
 	 */
