@@ -472,7 +472,7 @@ public class World implements Container<Entity>{
 	public void removeItem(Entity item) throws IllegalArgumentException{
 		if(!this.hasAsItem(item) || item.getContainer() != null)
 			throw new IllegalArgumentException();
-		assert entities.remove(item.getPosition(), item);
+		entities.remove(item.getPosition());
 	}
 
 	@Override

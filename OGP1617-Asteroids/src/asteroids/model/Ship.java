@@ -479,10 +479,10 @@ public class Ship extends Entity implements Container<Entity>{
 	 *       |   then (new getContainer()).getNbItems() ==
 	 *       |            getContainer().getNbItems() - 1
 	 * @post   If this Ship was not terminated, each Bullet that belonged to this Ship
-	 * 		   now belongs to the Container that contained this Ship.
+	 * 		   now has no container.
 	 * 		 | if (! isTerminated())
 	 *       |   then for each bullet in bullets: 
-	 *       		(new bullet).getContainer() == this.getContainer()
+	 *       		(new bullet).getContainer() == null
 	 * @post   If this Ship was not yet terminated, the set of bullets of this Ship
 	 * 		   is now an empty set.
 	 * 		 | if(! isTerminated())
@@ -498,8 +498,7 @@ public class Ship extends Entity implements Container<Entity>{
 			for(Bullet bullet : new ArrayList<Bullet>(bullets)){
 				bullet.setContainer(null);
 				removeItem(bullet);	
-				bullet.setContainer(oldContainer);
-//				oldContainer.addItem(bullet); //TODO
+				bullet.terminate();
 			}
 			this.isTerminated = true;
 		}
