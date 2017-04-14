@@ -163,12 +163,28 @@ public class Bullet extends Entity{
 	 * of this bullet is equal to the position of the Ship
 	 * @return 	| if(getContainer() instanceof Ship) 
 	 * 			| then result.equals((Ship getContainer()).getPosition())
+	 * 			| else result.equals(super.getPosition())
 	 */
 	@Override @Raw
 	public Vector2d getPosition(){
 		if(getContainer() instanceof Ship)
 			return ((Ship) getContainer()).getPosition();
 		return super.getPosition();
+	}
+	
+	/**
+	 * Return the velocity of this Bullet
+	 * If this bullet is loaded by a Ship the velocity
+	 * of this bullet is equal to the velocity of the Ship
+	 * @return 	| if(getContainer() instanceof Ship) 
+	 * 			| then result.equals((Ship getContainer()).getVelocity())
+	 * 			| else result.equals(super.getVelocity())
+	 */
+	@Override @Raw
+	public Vector2d getVelocity(){
+		if(getContainer() instanceof Ship)
+			return ((Ship) getContainer()).getVelocity();
+		return super.getVelocity();
 	}
 	
 	/**
@@ -244,12 +260,15 @@ public class Bullet extends Entity{
 	 *         is no longer one of the Entities for the Container to which
 	 *         this Bullet belonged.
 	 *       | if (! isTerminated())
-	 *       |   then ! (new getContainer()).hasAsItem(this))
+	 *       |   then ! new.getContainer().hasAsItem(this))
 	 * @post   If this Bullet was not yet terminated, the size of
 	 *         the container to which this Bullet belonged is decremented by 1.
 	 *       | if (! isTerminated())
-	 *       |   then (new getContainer()).getNbItems() ==
+	 *       |   then new.getContainer().getNbItems() ==
 	 *       |            getContainer().getNbItems() - 1
+	 * @post  If this Bullet was not yet terminated, the source of this Bullet
+	 * 		  is not effective.
+	 * 		 | new.getSource() == null
 	 */
 	public void terminate(){
 		if(!isTerminated()){
@@ -258,6 +277,7 @@ public class Bullet extends Entity{
 				setContainer(null);
 				oldContainer.removeItem(this);
 			}
+			this.source = null;
 			this.isTerminated = true;
 		}
 	}

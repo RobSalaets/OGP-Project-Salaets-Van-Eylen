@@ -265,4 +265,13 @@ public class Vector2d{
 	public int hashCode(){
 		return (int) (getX() * 31 + getY());
 	}
+	
+	/**
+	 * Return the string representation of this vector
+	 */
+	@Override
+	public String toString(){
+		return "(" + getX() + ", " + getY() + ")";
+	}
 }
+

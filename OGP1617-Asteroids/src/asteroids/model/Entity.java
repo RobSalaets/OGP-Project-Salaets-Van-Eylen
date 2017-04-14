@@ -495,7 +495,7 @@ public abstract class Entity{
 		if(other == null)
 			throw new NullPointerException();
 		if(this.overlaps(other))
-			throw new IllegalArgumentException(); //TODO handle
+			throw new IllegalArgumentException(); 
 
 		double sigmaSq = Math.pow(this.getRadius() + other.getRadius(), 2);
 		double rDotr = this.getPosition().sub(other.getPosition()).getLengthSquared();

@@ -155,7 +155,6 @@ public class World implements Container<Entity>{
 			advanceEntities(next.getTimeToCollision());
 //			cl.notify();
 			resolve(next);
-			System.out.println(timeDelta+  " " + next.getTimeToCollision());
 			evolve(timeDelta - next.getTimeToCollision(), cl);
 		}
 	}
@@ -185,7 +184,7 @@ public class World implements Container<Entity>{
 	 * @throws IllegalArgumentException
 	 * 			There is no valid collision point
 	 */
-	private void resolve(CollisionData collisionData) throws IllegalArgumentException{
+	void resolve(CollisionData collisionData) throws IllegalArgumentException{
 		if(collisionData.getCollisionType() == CollisionType.BOUNDARY){
 			assert collisionData.getColliders().size() == 1;
 			Entity collider = collisionData.getColliders().get(0);
@@ -445,11 +444,11 @@ public class World implements Container<Entity>{
 	 * @throws IllegalArgumentException
 	 * 		   The given Entity is cannot be an entity of this Worlds entities
 	 * 		   or does not reference this World as its container or overlaps with any other Entity.
-	 * 			| !canHaveAsItem(item) || (item.getContainer() != this) || overlapsWithAnyEntity(item)
+	 * 			| !canHaveAsItem(item) || (item.getContainer() != this) || overlapsWithAnyEntity(item).size() > 0
 	 */
 	@Override
 	public void addItem(Entity item) throws IllegalArgumentException{
-		if(!canHaveAsItem(item) || item.getContainer() != this || overlapsWithAnyEntity(item))
+		if(!canHaveAsItem(item) || item.getContainer() != this || overlapsWithAnyEntity(item).size() > 0)
 			throw new IllegalArgumentException();
 		entities.put(item.getPosition(), item);
 	}
@@ -539,24 +538,29 @@ public class World implements Container<Entity>{
 	}
 	
 	/**
-	 * Check whether the given entity overlaps with any other entity in this world.
+	 * Return the entities which the given entity overlaps with in this world.
 	 * 
 	 * @param entity
 	 * 		The entity to check.
-	 * @return False if and only if none of the other entities from this world overlap with the given entity.
-	 * 		| 	for each other in entities.values():
-	 * 		|		!entity.overlaps(other)
+	 * @return The resulting list is empty if the given entity is not associated with this World
+	 * 		| if(entity.getContainer() != this) then result.size() == 0
+	 * @return The resulting list contains entities that overlap with the given entity
+	 * 		| for each other in result:
+	 * 		|	entity.overlaps(other)
 	 * @throws NullPointerException
 	 * 		| entity == null
 	 */
-	public boolean overlapsWithAnyEntity(Entity entity) throws NullPointerException{
+	public List<Entity> overlapsWithAnyEntity(Entity entity) throws NullPointerException{
 		if (entity == null)
 			throw new NullPointerException();
-		for (Entity other : entities.values()) {
+		ArrayList<Entity> result = new ArrayList<>();
+		if(entity.getContainer() != this)
+			return result;
+		for (Entity other : entities.values())
 			if (entity.overlaps(other) && !entity.equals(other))
-				return true;
-		}
-		return false;
+				result.add(other);
+		
+		return result;
 	}
 
 	/**

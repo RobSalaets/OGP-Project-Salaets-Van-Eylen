@@ -315,8 +315,7 @@ public class Facade implements IFacade{
 
 	@Override
 	public void fireBullet(Ship ship) throws ModelException{
-		// TODO Auto-generated method stub
-
+		ship.fireBullet();
 	}
 
 	@Override

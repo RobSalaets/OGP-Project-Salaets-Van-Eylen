@@ -1,7 +1,9 @@
 package asteroids.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import be.kuleuven.cs.som.annotate.Basic;
@@ -272,7 +274,7 @@ public class Ship extends Entity implements Container<Entity>{
 	@Basic
 	public double getAcceleration(){
 		if(getThrusterStatus())
-			return this.getThrustForce() / this.getMass();
+			return this.getThrustForce() / this.getTotalMass();
 		return 0.0;
 	}
 
@@ -310,11 +312,6 @@ public class Ship extends Entity implements Container<Entity>{
 	}
 
 	/**
-	 * Variable registering the acceleration of this Ship.
-	 */
-	private double acceleration;
-
-	/**
 	 * Turn the Ship with a given angle, by adding the angle
 	 * to the current orientation.
 	 * 
@@ -346,7 +343,7 @@ public class Ship extends Entity implements Container<Entity>{
 		assert getThrusterStatus();
 
 		if(getThrusterStatus()){
-			acceleration = this.getAcceleration();
+			double acceleration = getAcceleration();
 			Vector2d newVel = new Vector2d(getVelocity().getX() + acceleration * Math.cos(getOrientation()) * timeDelta, getVelocity().getY() + acceleration * Math.sin(getOrientation()) * timeDelta);
 
 			if(!canHaveAsVelocity(newVel.getX(), newVel.getY()))
@@ -451,7 +448,7 @@ public class Ship extends Entity implements Container<Entity>{
 	public void removeItem(Entity item) throws IllegalArgumentException{
 		if(!(item instanceof Bullet) || !this.hasAsItem(item) || item.getContainer() != null)
 			throw new IllegalArgumentException();
-		assert bullets.remove((Bullet)item);
+		bullets.remove((Bullet)item);
 	}
 
 	@Override
@@ -555,54 +552,75 @@ public class Ship extends Entity implements Container<Entity>{
 	 * @throws NullPointerException
 	 * 			| bullets.length == 0
 	 * @throws IllegalArgumentExcetion
+	 * 			If any of the given bullets can not be an item of this Ship
 	 * 			| for some bullet in bullets:
 	 * 			| 	!canHaveAsItem(bullet)
 	 */
-	public void loadBullet(Bullet... bullets) throws NullPointerException{
+	public void loadBullet(Bullet... bullets) throws NullPointerException, IllegalArgumentException{
 		if(bullets.length == 0)
 			throw new NullPointerException();
 		for (Bullet bullet : bullets){
+			if(bullet.getContainer() != null){
+				Container<Entity> old = bullet.getContainer();
+				bullet.setContainer(null);
+				old.removeItem(bullet);
+			}
 			bullet.setContainer(this);
 			addItem(bullet);
 		}
 	}
+	
 	/**
+	 * Fire a bullet from the bullets of this Ship into the World that contains this Ship.
 	 * 
-	 * @param bullet
-	 * 		The bullet to fire.
-	 * @post If the the world from this ship is effective and the new position of the bullet is within the boundaries of the world
-	 * 		and the bullet doesn't overlap with any entities from this world at its new position, then the bullet will be added 
-	 * 		to the world and will be set to his new position and will be given the INITIAL_BULLETSPEED 
-	 * 		with respect for this ships current orientation. And the bullet will be removed from the ships.
-	 * 		| bullet.getContainer() == this.getContainer() &&
+	 * @post If the container of this Ship is a World, the ship has available bullets,
+	 *       the new position of the bullet is within the boundaries of the world
+	 * 		 and the bullet doesn't overlap with any entities from this world at its new position,
+	 * 		 then the bullet will be added and will be given the INITIAL_BULLETSPEED as its velocity
+	 * 		 with respect to this ships current orientation.
+	 * 		| if((getContainer() instanceof World) && (bullets.size() > 0) &&
+	 * 		|		???
+	 * 		| then bullet.getContainer() == this.getContainer() &&
 	 *		| new.getContainer().hasAsItem(bullet) &&
 	 *		| !this.hasAsItem(bullet) &&
 	 *		| bullet.getPosition() == (this.getPosition().getX() + (this.getRadius()+bullet.getRadius()) * Math.cos(this.getOrientation()),
 	 *		| 	this.getPosition().getY() + (this.getRadius()+bullet.getRadius()) * Math.sin(this.getOrientation()) ) &&
 	 *		| bullet.getVelocity() == 
 	 *		| 	(INITIAL_BULLETSPEED * Math.cos(this.getOrientation()), INITIAL_BULLETSPEED * Math.sin(this.getOrientation()))
-	 * @post If the world from this ship is not effective or the new position of the bullet will be outside the world boundaries
-	 * 		then the bullet will be immediately removed from the ship and its bullets.
-	 *		| 	if (getContainer() instanceof World && ((this.getContainer() == null) || 
-	 *		| 		!((World) getContainer()).isInBounds(bullet.getPosition(),bullet.getRadius())))
-	 *		| 	then !this.hasAsItem(bullet) &&
-	 *		| 		 bullet.getContainer() == null
+	 * @post If the new position of the bullet will be outside the world boundaries
+	 * 		 then the bullet shall be terminated.
+	 *		| 	if ((this.getContainer() == null) || 
+	 *		| 		!((World) getContainer()).isInBounds(bullet.getPosition(),bullet.getRadius()))
+	 *		| 	then (new bullet).isTerminated()
 	 */
-	public void fireBullet(Bullet bullet){
-		if(getContainer() instanceof World)
-			if ((this.getContainer() == null) || !((World) getContainer()).isInBounds(bullet.getPosition(),bullet.getRadius()))
-			this.removeItem(bullet);
-			bullet.setContainer(null);
-			
-		bullet.setContainer(this.getContainer());
-		this.getContainer().addItem(bullet);
-		this.removeItem(bullet);
-		bullet.setXPosition(this.getPosition().getX() + (this.getRadius()+bullet.getRadius()) * Math.cos(this.getOrientation()) );
-		bullet.setYPosition(this.getPosition().getY() + (this.getRadius()+bullet.getRadius()) * Math.sin(this.getOrientation()) );
-		bullet.setVelocity(INITIAL_BULLETSPEED * Math.cos(this.getOrientation()), INITIAL_BULLETSPEED * Math.sin(this.getOrientation()));
-		if(getContainer() instanceof World)
-			if (((World) getContainer()).overlapWithAnyEntity(bullet))
-				//the collision
+	public void fireBullet(){
+		if(!(getContainer() instanceof World) || bullets.size() == 0)
+			return;
+		World world = (World) getContainer();
+		Bullet bullet = bullets.iterator().next();
+		Vector2d newPosition = new Vector2d(this.getPosition().getX() + (this.getRadius()+bullet.getRadius()) * Math.cos(this.getOrientation()),
+											this.getPosition().getY() + (this.getRadius()+bullet.getRadius()) * Math.sin(this.getOrientation()));
 		
+		bullet.setContainer(null);
+		this.removeItem(bullet);
+		if(!world.isInBounds(newPosition, bullet.getRadius())){
+			bullet.terminate();
+			return;
+		}
+		bullet.setPosition(newPosition.getX(), newPosition.getY());
+		bullet.setVelocity(INITIAL_BULLETSPEED * Math.cos(getOrientation()), INITIAL_BULLETSPEED * Math.sin(getOrientation()));
+		
+		bullet.setContainer(world);
+		List<Entity> overlapping = world.overlapsWithAnyEntity(bullet);
+		bullet.setContainer(null);
+		
+		if (overlapping.size() > 0){
+			for(Entity e : overlapping)
+				world.resolve(new CollisionData(0.0, null, CollisionType.INTER_ENTITY, Arrays.asList(new Entity[]{bullet, e})));
+			return;
+		}else{
+			bullet.setContainer(world);
+			world.addItem(bullet);			
+		}
 	}
 }
