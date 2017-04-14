@@ -578,20 +578,30 @@ public class Ship extends Entity implements Container<Entity>{
 	 * 		 and the bullet doesn't overlap with any entities from this world at its new position,
 	 * 		 then the bullet will be added and will be given the INITIAL_BULLETSPEED as its velocity
 	 * 		 with respect to this ships current orientation.
-	 * 		| if((getContainer() instanceof World) && (bullets.size() > 0) &&
-	 * 		|		???
-	 * 		| then bullet.getContainer() == this.getContainer() &&
-	 *		| new.getContainer().hasAsItem(bullet) &&
-	 *		| !this.hasAsItem(bullet) &&
-	 *		| bullet.getPosition() == (this.getPosition().getX() + (this.getRadius()+bullet.getRadius()) * Math.cos(this.getOrientation()),
-	 *		| 	this.getPosition().getY() + (this.getRadius()+bullet.getRadius()) * Math.sin(this.getOrientation()) ) &&
-	 *		| bullet.getVelocity() == 
-	 *		| 	(INITIAL_BULLETSPEED * Math.cos(this.getOrientation()), INITIAL_BULLETSPEED * Math.sin(this.getOrientation()))
-	 * @post If the new position of the bullet will be outside the world boundaries
+	 * 		| let 
+	 * 		|	newPosition = new Vector2d(this.getPosition().getX() + (this.getRadius()+bullet.getRadius()) * Math.cos(this.getOrientation()),
+	 *		|								this.getPosition().getY() + (this.getRadius()+bullet.getRadius()) * Math.sin(this.getOrientation()))
+	 * 		| for one bullet in bullets:
+	 * 		| 	if((getContainer() instanceof World) && (bullets.size() > 0) &&
+	 * 		|		getContainer().overlapsWithAnyEntity().size() == 0 && getContainer().isInBounds(newPosition, bullet.getRadius())
+	 * 		| 	then 	bullet.getContainer() == this.getContainer() &&
+	 *		|			this.getContainer().hasAsItem(bullet) && !new.hasAsItem(bullet) &&
+	 *		|			bullet.getPosition().equals(newPosition) &&
+	 *		| 			bullet.getVelocity() == new Vector2d(INITIAL_BULLETSPEED * Math.cos(this.getOrientation()),
+	 *		|												 INITIAL_BULLETSPEED * Math.sin(this.getOrientation()))
+	 * @post If the new position of the bullet is outside the world boundaries
 	 * 		 then the bullet shall be terminated.
-	 *		| 	if ((this.getContainer() == null) || 
-	 *		| 		!((World) getContainer()).isInBounds(bullet.getPosition(),bullet.getRadius()))
+	 * 		| let 
+	 * 		|	newPosition = new Vector2d(this.getPosition().getX() + (this.getRadius()+bullet.getRadius()) * Math.cos(this.getOrientation()),
+	 *		|								this.getPosition().getY() + (this.getRadius()+bullet.getRadius()) * Math.sin(this.getOrientation()))
+	 * 		| for one bullet in bullets:
+	 *		| 	if (getContainer() instanceof World && getContainer().isInBounds(newPosition, bullet.getRadius()))
 	 *		| 	then (new bullet).isTerminated()
+	 * @post If the new position of the bullet results in an overlapping with other entities,
+	 * 		 both the bullet and the other entitie(s) shall be terminated.
+	 * 		| for one bullet in bullets:
+	 * 		| 	for each entity in getContainer().overlapsWithAnyEntity(bullet):
+	 * 		|		(new entity).isTerminated() && (new bullet).isTerminated()
 	 */
 	public void fireBullet(){
 		if(!(getContainer() instanceof World) || bullets.size() == 0)
