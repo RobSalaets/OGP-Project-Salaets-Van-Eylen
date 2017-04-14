@@ -451,7 +451,7 @@ public class Ship extends Entity implements Container<Entity>{
 	public void removeItem(Entity item) throws IllegalArgumentException{
 		if(!(item instanceof Bullet) || !this.hasAsItem(item) || item.getContainer() != null)
 			throw new IllegalArgumentException();
-		assert bullets.remove((Bullet) item);
+		assert bullets.remove((Bullet)item);
 	}
 
 	@Override
@@ -496,8 +496,10 @@ public class Ship extends Entity implements Container<Entity>{
 				oldContainer.removeItem(this);
 			}
 			for(Bullet bullet : new ArrayList<Bullet>(bullets)){
+				bullet.setContainer(null);
 				removeItem(bullet);	
 				bullet.setContainer(oldContainer);
+//				oldContainer.addItem(bullet); //TODO
 			}
 			this.isTerminated = true;
 		}

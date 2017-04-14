@@ -56,4 +56,11 @@ public class Part2TestPartial {
 		assertEquals(0, facade.getShipVelocity(ship)[1], EPSILON);
 	}
 
+	@Test
+	public void testBoundary() throws ModelException{
+		World world = facade.createWorld(1000, 1000);
+		Ship ship = facade.createShip(500, 500, 0, -10, 100, 0, 1.1E18);
+		facade.addShipToWorld(world, ship);
+		facade.evolve(world, 45, null);
+	}
 }

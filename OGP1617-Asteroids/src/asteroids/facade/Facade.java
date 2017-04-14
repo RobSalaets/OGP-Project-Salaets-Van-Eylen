@@ -125,7 +125,10 @@ public class Facade implements IFacade{
 
 	@Override
 	public void setThrusterActive(Ship ship, boolean active) throws ModelException{
-		ship.thrustOn();
+		if(active)
+			ship.thrustOn();
+		else
+			ship.thrustOff();
 	}
 
 	@Override
@@ -225,14 +228,12 @@ public class Facade implements IFacade{
 
 	@Override
 	public Set<? extends Ship> getWorldShips(World world) throws ModelException{
-		// TODO Auto-generated method stub
-		return null;
+		return world.getShips();
 	}
 
 	@Override
 	public Set<? extends Bullet> getWorldBullets(World world) throws ModelException{
-		// TODO Auto-generated method stub
-		return null;
+		return world.getBullets();
 	}
 
 	@Override
@@ -373,7 +374,11 @@ public class Facade implements IFacade{
 		try{
 			if(collisionListener == null)
 				world.evolve(dt);
-			else world.evolve(dt, collisionListener);
+			else{
+//				synchronized(collisionListener){
+					world.evolve(dt, collisionListener);
+//				}
+			}
 		}catch (IllegalArgumentException e){
 			throw new ModelException(e);
 		}

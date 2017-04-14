@@ -230,8 +230,8 @@ public class Vector2d{
 		double n = directionA.getX() * directionB.getY() - directionA.getY() * directionB.getX();
 		if(n == 0)
 			return Double.POSITIVE_INFINITY;
-		double alpha = -(originA.getX()*directionB.getY() - originA.getY() * directionB.getY()
-				- originB.getX() * directionB.getY() + originB.getY() * directionB.getX()) / n;
+		double alpha = (directionB.getX() * originA.getY() - directionB.getY() * originA.getX()
+						- directionB.getX() * originB.getY() + directionB.getY() * originB.getX()) / n;
 		return alpha;
 	}
 

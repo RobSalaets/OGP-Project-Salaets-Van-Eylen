@@ -450,14 +450,14 @@ public abstract class Entity{
 	 * 
 	 * @param  other
 	 * 			The other Entity
-	 * @return result == (this == other || getDistanceBetween(other) <= 0.99 * (this.getRadius() + other.getRadius()))
+	 * @return result == (this == other || this.getPosition().sub(other.getPosition()).getLength() <= 0.99 * (this.getRadius() + other.getRadius()))
 	 * @throws NullPointerException
 	 * 			| other == null
 	 */
 	public boolean overlaps(Entity other) throws NullPointerException{
 		if(other == null)
 			throw new NullPointerException();
-		return this == other || getDistanceBetween(other) <= 0.99 * (this.getRadius() + other.getRadius());
+		return this == other || this.getPosition().sub(other.getPosition()).getLength() <= 0.99 * (this.getRadius() + other.getRadius());
 	}
 
 	/**
@@ -495,7 +495,7 @@ public abstract class Entity{
 		if(other == null)
 			throw new NullPointerException();
 		if(this.overlaps(other))
-			/*throw new IllegalArgumentException();*/return Double.POSITIVE_INFINITY; //TODO handle
+			throw new IllegalArgumentException(); //TODO handle
 
 		double sigmaSq = Math.pow(this.getRadius() + other.getRadius(), 2);
 		double rDotr = this.getPosition().sub(other.getPosition()).getLengthSquared();
@@ -504,6 +504,8 @@ public abstract class Entity{
 		double d = vDotr * vDotr - vDotv * (rDotr - sigmaSq);
 		if(vDotr >= 0 || d <= 0)
 			return Double.POSITIVE_INFINITY;
+		else if(-(vDotr + Math.sqrt(d)) / vDotv < 9 * Math.pow(10, -18))
+			return -(vDotr + Math.sqrt(d)) / vDotv;
 		else return -(vDotr + Math.sqrt(d)) / vDotv;
 	}
 
@@ -567,33 +569,33 @@ public abstract class Entity{
 			double height = ((World) getContainer()).getHeight();
 			if(getVelocity().dot(Vector2d.X_AXIS) > 0.0){
 				double time = Vector2d.intersect(new Vector2d(getPosition().getX() + getRadius(), getPosition().getY()), getVelocity(), new Vector2d(width, 0), Vector2d.Y_AXIS);
-				if(time == Double.POSITIVE_INFINITY)
-					return CollisionData.UNDEFINED_COLLISION;
-				Vector2d intersect = new Vector2d(getPosition().getX() + getRadius(), getPosition().getY()).add(getVelocity().mul(time));
-				if(intersect.getY() >= getRadius() && intersect.getY() <= height - getRadius())
-					return new CollisionData(time, intersect, CollisionType.BOUNDARY, Arrays.asList(new Entity[]{this}));
+				if(time != Double.POSITIVE_INFINITY){	
+					Vector2d intersect = new Vector2d(getPosition().getX() + getRadius(), getPosition().getY()).add(getVelocity().mul(time));
+					if(intersect.getY() >= getRadius() && intersect.getY() <= height - getRadius())
+						return new CollisionData(time, intersect, CollisionType.BOUNDARY, Arrays.asList(new Entity[]{this}));
+				}
 			}else{
 				double time = Vector2d.intersect(new Vector2d(getPosition().getX() - getRadius(), getPosition().getY()), getVelocity(), Vector2d.ZERO, Vector2d.Y_AXIS);
-				Vector2d intersect = new Vector2d(getPosition().getX() - getRadius(), getPosition().getY()).add(getVelocity().mul(time));
-				if(time == Double.POSITIVE_INFINITY)
-					return CollisionData.UNDEFINED_COLLISION;
-				if(intersect.getY() >= getRadius() && intersect.getY() <= height - getRadius())
-					return new CollisionData(time, intersect, CollisionType.BOUNDARY, Arrays.asList(new Entity[]{this}));
+				if(time != Double.POSITIVE_INFINITY){	
+					Vector2d intersect = new Vector2d(getPosition().getX() - getRadius(), getPosition().getY()).add(getVelocity().mul(time));
+					if(intersect.getY() >= getRadius() && intersect.getY() <= height - getRadius())
+						return new CollisionData(time, intersect, CollisionType.BOUNDARY, Arrays.asList(new Entity[]{this}));					
+				}
 			}
 			if(getVelocity().dot(Vector2d.Y_AXIS) > 0.0){
 				double time = Vector2d.intersect(new Vector2d(getPosition().getX(), getPosition().getY() + getRadius()), getVelocity(), new Vector2d(0, height), Vector2d.X_AXIS);
-				Vector2d intersect = new Vector2d(getPosition().getX(), getPosition().getY() + getRadius()).add(getVelocity().mul(time));
-				if(time == Double.POSITIVE_INFINITY)
-					return CollisionData.UNDEFINED_COLLISION;
-				if(intersect.getX() >= getRadius() && intersect.getX() <= width - getRadius())
-					return new CollisionData(time, intersect, CollisionType.BOUNDARY, Arrays.asList(new Entity[]{this}));
+				if(time != Double.POSITIVE_INFINITY){	
+					Vector2d intersect = new Vector2d(getPosition().getX(), getPosition().getY() + getRadius()).add(getVelocity().mul(time));
+					if(intersect.getX() >= getRadius() && intersect.getX() <= width - getRadius())
+						return new CollisionData(time, intersect, CollisionType.BOUNDARY, Arrays.asList(new Entity[]{this}));
+				}
 			}else{
 				double time = Vector2d.intersect(new Vector2d(getPosition().getX(), getPosition().getY() - getRadius()), getVelocity(), Vector2d.ZERO, Vector2d.X_AXIS);
-				Vector2d intersect = new Vector2d(getPosition().getX(), getPosition().getY() + getRadius()).add(getVelocity().mul(time));
-				if(time == Double.POSITIVE_INFINITY)
-					return CollisionData.UNDEFINED_COLLISION;
-				if(intersect.getX() >= getRadius() && intersect.getX() <= width - getRadius())
-					return new CollisionData(time, intersect, CollisionType.BOUNDARY, Arrays.asList(new Entity[]{this}));
+				if(time != Double.POSITIVE_INFINITY){	
+					Vector2d intersect = new Vector2d(getPosition().getX(), getPosition().getY() - getRadius()).add(getVelocity().mul(time));
+					if(intersect.getX() >= getRadius() && intersect.getX() <= width - getRadius())
+						return new CollisionData(time, intersect, CollisionType.BOUNDARY, Arrays.asList(new Entity[]{this}));
+				}
 			}
 		}
 		return CollisionData.UNDEFINED_COLLISION;
