@@ -1,5 +1,6 @@
 package asteroids.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import be.kuleuven.cs.som.annotate.Basic;
@@ -48,7 +49,7 @@ public class CollisionData{
 		this.colliders = colliders;
 	}
 	
-	public static final CollisionData UNDEFINED_COLLISION = new CollisionData(Double.POSITIVE_INFINITY, null, CollisionType.UNDEFINED, null);
+	public static final CollisionData UNDEFINED_COLLISION = new CollisionData(Double.POSITIVE_INFINITY, Vector2d.ZERO, CollisionType.UNDEFINED, new ArrayList<Entity>());
 
 	/**
 	 * Return the timeToCollision of this CollisionData.

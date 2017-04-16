@@ -350,7 +350,8 @@ public class Facade implements IFacade{
 	@Override
 	public double[] getPositionCollisionEntity(Object entity1, Object entity2) throws ModelException{
 		try{
-			return ((Entity) entity1).getCollisionPosition((Entity) entity2).asArray();
+			Vector2d result = ((Entity) entity1).getCollisionPosition((Entity) entity2);
+			return result == null ? null : result.asArray();
 		}catch (IllegalArgumentException e){
 			throw new ModelException(e);
 		}catch (NullPointerException e){

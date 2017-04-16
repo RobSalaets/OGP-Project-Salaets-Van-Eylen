@@ -605,7 +605,7 @@ public class Ship extends Entity implements Container<Entity>{
 	 * 		| for one bullet in bullets:
 	 *		| 	if (getContainer() instanceof World && getContainer().isInBounds(newPosition, bullet.getRadius()))
 	 *		| 	then (new bullet).isTerminated()
-	 * @post If the new position of the bullet results in an overlapping with other entities,
+	 * @post If the new position of the bullet results in an overlap with other entities,
 	 * 		 both the bullet and the other entitie(s) shall be terminated.
 	 * 		| for one bullet in bullets:
 	 * 		| 	for each entity in getContainer().overlapsWithAnyEntity(bullet):

@@ -487,15 +487,22 @@ public abstract class Entity{
 	 * 			|    in
 	 * 			| 	   thisCollision.sub(otherCollision).getLength() > this.getRadius() + other.getRadius()
 	 * @throws NullPointerException
+	 * 			The other entity is ineffective
 	 * 			| other == null
 	 * @throws IllegalArgumentException 
+	 * 			The entities overlap
 	 * 			| this.overlaps(other)
+	 * @throws IllegalArgumentException 
+	 * 			The container of this Entity and the given Entity does not match
+	 * 			| this.getContainer() != other.getContainer()
 	 */
 	public double getTimeToCollision(Entity other) throws NullPointerException, IllegalArgumentException{
 		if(other == null)
 			throw new NullPointerException();
 		if(this.overlaps(other))
 			throw new IllegalArgumentException(); 
+		if(this.getContainer() != other.getContainer())
+			throw new IllegalArgumentException();
 
 		double sigmaSq = Math.pow(this.getRadius() + other.getRadius(), 2);
 		double rDotr = this.getPosition().sub(other.getPosition()).getLengthSquared();
@@ -529,11 +536,11 @@ public abstract class Entity{
 	 * 			| other == null
 	 * @throws IllegalArgumentException
 	 * 			| this.overlaps(other)
+	 * @throws IllegalArgumentException 
+	 * 			The container of this Entity and the given Entity does not match
+	 * 			| this.getContainer() != other.getContainer()
 	 */
 	public Vector2d getCollisionPosition(Entity other) throws NullPointerException, IllegalArgumentException{
-		if(other == null)
-			throw new NullPointerException();
-
 		double timeTilCollision = getTimeToCollision(other);
 		if(timeTilCollision == Double.POSITIVE_INFINITY)
 			return null;

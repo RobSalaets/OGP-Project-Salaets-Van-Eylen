@@ -2,6 +2,7 @@ package asteroids.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.HashSet;
@@ -440,13 +441,80 @@ public class Part2TestSuite{
 		new Bullet(200, 500, -50, 0, 50, world1);
 		Bullet unBoundedBullet = new Bullet(2000, -5000, 500, 0, 50, null);
 		Bullet loadedBullet = new Bullet(0, 0, 500, 0, 50, new Ship(500, 105, 5, 0, 0, 100, 20e20, world1, 100e20));
-		assertEquals(CollisionType.UNDEFINED, stationaryShip.getBoundaryCollisionData().getCollisionType());
-		assertEquals(CollisionType.UNDEFINED, world1.getNextEntityCollision().getCollisionType());
-		assertEquals(CollisionType.UNDEFINED, unBoundedBullet.getBoundaryCollisionData().getCollisionType());
-		assertEquals(CollisionType.UNDEFINED, loadedBullet.getBoundaryCollisionData().getCollisionType());
+		assertEquals(CollisionData.UNDEFINED_COLLISION, stationaryShip.getBoundaryCollisionData());
+		assertEquals(CollisionData.UNDEFINED_COLLISION, world1.getNextEntityCollision());
+		assertEquals(CollisionData.UNDEFINED_COLLISION, unBoundedBullet.getBoundaryCollisionData());
+		assertEquals(CollisionData.UNDEFINED_COLLISION, loadedBullet.getBoundaryCollisionData());
 	}
 	
-	//reload collision TODO
+	@Test
+	public void testCollisionBulletSource() throws ModelException{
+		World world1 = facade.createWorld(1000, 1000);
+		Ship ship = new Ship(500, 500, 0, 0, 0, 100, 20e20, world1, 100e20);
+		Bullet bullet = new Bullet(0, 0, 450, 0, 50, ship);
+		assertEquals(world1.getNextCollision(), CollisionData.UNDEFINED_COLLISION);
+		ship.fireBullet();
+		assertTrue(world1.hasAsItem(bullet));
+		world1.evolve(world1.getNextBoundaryCollision().getTimeToCollision() + EPSILON);
+		CollisionData cd = world1.getNextCollision();
+		assertTrue(cd.getColliders().contains(ship));
+		assertTrue(cd.getColliders().contains(bullet));
+		assertEquals(ship, bullet.getSource());
+		world1.evolve(cd.getTimeToCollision() + EPSILON);
+		assertTrue(!world1.hasAsItem(bullet));
+		assertTrue(ship.hasAsItem(bullet));
+		assertTrue(!ship.isTerminated());
+		assertTrue(!bullet.isTerminated());
+	}
+	
+	@Test
+	public void testTimeToCollisionNoCollision() throws ModelException{
+		Ship ship1 = facade.createShip(200.0, 300.0, 10.0, -10.0, 100.0, 0.0, 8e18);
+		Ship ship2 = facade.createShip(400.0, 300.0, 10.0, -10.0, 100.0, 0.0, 8e18);
+		World world = facade.createWorld(5000, 5000);
+		facade.addShipToWorld(world, ship1);
+		facade.addShipToWorld(world, ship2);
+		double timeDuration = facade.getTimeCollisionEntity(ship1, ship2);
+		assertEquals(Double.POSITIVE_INFINITY, timeDuration, EPSILON);
+	}
+
+	@Test(expected = ModelException.class)
+	public void testTimeToCollisionNullCase() throws ModelException{
+		Ship ship1 = facade.createShip(200.0, 300.0, 10.0, -10.0, 200.0, 0.0, 8e16);
+		Bullet bullet1 = null;
+		facade.getTimeCollisionEntity(ship1, bullet1);
+	}
+
+	@Test(expected = ModelException.class)
+	public void testTimeToCollisionOverlappingShips() throws ModelException{
+		Ship ship1 = facade.createShip(200.0, 300.0, 10.0, -10.0, 200.0, 0.0, 8e16);
+		Ship ship2 = facade.createShip(205.0, 300.0, 10.0, -10.0, 200.0, 0.0, 8e16);
+		facade.getTimeCollisionEntity(ship1, ship2);
+	}
+	
+	@Test(expected = ModelException.class)
+	public void testCollisionPositionNullCase() throws ModelException{
+		Ship ship1 = facade.createShip(200.0, 300.0, 10.0, -10.0, 200.0, 0.0, 8e16);
+		Ship ship2 = null;
+		facade.getPositionCollisionEntity(ship1, ship2);
+	}
+	
+	@Test
+	public void testCollisionPositionNoCollision() throws ModelException{
+		Ship ship1 = facade.createShip(200.0, 300.0, 10.0, -10.0, 100.0, 0.0, 8e18);
+		Ship ship2 = facade.createShip(500.0, 300.0, 10.0, -10.0, 100.0, 0.0, 8e18);
+		World world = facade.createWorld(5000, 5000);
+		facade.addShipToWorld(world, ship1);
+		facade.addShipToWorld(world, ship2);
+		assertNull(facade.getPositionCollisionEntity(ship1, ship2));
+	}
+	
+	@Test(expected = ModelException.class)
+	public void testCollisionPositionOverlappingShips() throws ModelException{
+		Ship ship1 = facade.createShip(300.0, 300.0, 10.0, -10.0, 200.0, 0.0, 8e18);
+		Ship ship2 = facade.createShip(500.0, 300.0, 10.0, -10.0, 200.0, 0.0, 8e18);
+		facade.getCollisionPosition(ship1, ship2);
+	}
 	
 	@Test
 	public void testLoadNormalBullets() throws ModelException{

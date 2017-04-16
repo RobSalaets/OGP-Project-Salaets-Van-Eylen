@@ -157,10 +157,17 @@ public class World implements Container<Entity>{
 		}else{
 			advanceEntities(next.getTimeToCollision());
 			if(next.getCollisionType() == CollisionType.INTER_ENTITY){
+				boolean showCollision = true;
+				for(Entity e : next.getColliders())
+					if(e instanceof Bullet && ((Bullet) e).getSource() != null
+					&& next.getColliders().contains(((Bullet) e).getSource()))
+						showCollision = false;
 				synchronized(cl){
-					cl.notify();
-					cl.objectCollision(next.getColliders().get(0), next.getColliders().get(1),
-							next.getCollisionPoint().getX(), next.getCollisionPoint().getY());
+					if(showCollision){
+						cl.notify();
+						cl.objectCollision(next.getColliders().get(0), next.getColliders().get(1),
+								next.getCollisionPoint().getX(), next.getCollisionPoint().getY());
+					}
 				}
 			}
 			
@@ -398,7 +405,7 @@ public class World implements Container<Entity>{
 	@Basic
 	@Raw
 	public boolean hasAsItem(@Raw Entity item){
-		return entities.containsKey(item.getPosition());
+		return entities.containsValue(item);
 	}
 
 	/**
