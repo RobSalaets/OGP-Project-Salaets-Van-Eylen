@@ -142,6 +142,8 @@ public class Facade implements IFacade{
 			return new Bullet(x, y, xVelocity, yVelocity, radius, null);
 		}catch (IllegalArgumentException ex){
 			throw new ModelException(ex);
+		}catch(AssertionError ex){
+			throw new ModelException(ex);
 		}
 	}
 

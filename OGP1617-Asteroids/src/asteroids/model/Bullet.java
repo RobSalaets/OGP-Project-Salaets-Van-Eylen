@@ -16,7 +16,7 @@ import be.kuleuven.cs.som.annotate.Raw;
 public class Bullet extends Entity{
 
 	/**
-	 * Initialize this new Bullet with given x, y, xVelocity, yVelocity, radius and maxBoundaryCollision.
+	 * Initialize this new Bullet with given x, y, xVelocity, yVelocity, radius, container and maxBoundaryCollision.
 	 *
 	 * @param x
 	 *     		The x-position for this new Bullet.
@@ -28,6 +28,8 @@ public class Bullet extends Entity{
 	 *       	The y-velocity for this new Bullet.
 	 * @param radius
 	 *          The radius for this new Bullet.
+	 * @param container
+	 * 			The container for this new Bullet.
 	 * @param  maxBoundaryCollision
 	 *         The maxBoundaryCollisions for this new Bullet.
 	 * @effect This new Bullet is initialized as a new Entity with
@@ -46,11 +48,12 @@ public class Bullet extends Entity{
 	@Raw
 	public Bullet(double x, double y, double xVelocity, double yVelocity, double radius, Container<Entity> container, int maxBoundaryCollisions) throws IllegalArgumentException{
 		super(x, y, xVelocity, yVelocity, radius, 4.0/3.0*Math.PI*Math.pow(radius, 3)*BULLET_MASS_DENSITY, container);
+		assert isValidMaxBoundaryCollisions(maxBoundaryCollisions);
 		this.maxBoundaryCollision = maxBoundaryCollisions;
 	}
 
 	/**
-	 * Initialize this new Bullet with given x, y, xVelocity, yVelocity, radius and mass.
+	 * Initialize this new Bullet with given x, y, xVelocity, yVelocity, radius, container and mass.
 	 * The maxBoundaryCollisions is set to the constant DEFAULT_MAX_BOUNDARY_COLLISIONS.
 	 *
 	 * @param x
@@ -63,6 +66,8 @@ public class Bullet extends Entity{
 	 *       	The y-velocity for this new Bullet.
 	 * @param radius
 	 *          The radius for this new Bullet.
+	 * @param container
+	 * 			The container for this new Bullet.
 	 * @effect This new Bullet is initialized as a new Entity with
 	 * 		   given x, y, xVelocity, yVelocity, radius and mass.
 	 * 			| this(x, y, xVelocity, yVelocity, radius, mass, container, DEFAULT_MAX_BOUNDARY_COLLISIONS)
@@ -155,7 +160,7 @@ public class Bullet extends Entity{
 	/**
 	 * Constant registering the default number of maximum boundary collisions of any Bullet.
 	 */
-	private static final int DEFAULT_MAX_BOUNDARY_COLLISIONS = 3;
+	public static final int DEFAULT_MAX_BOUNDARY_COLLISIONS = 3;
 	
 	/**
 	 * Return the position of this Bullet

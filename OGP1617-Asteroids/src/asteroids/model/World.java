@@ -278,6 +278,8 @@ public class World implements Container<Entity>{
 	
 	/**
 	 * Return the first occurring boundary collision for this World.
+	 * Assuming the course of an entity does not get obstructed until 
+	 * the colliding boundary.
 	 * 
 	 * @return  | if(entities.size() == 0)
 	 * 			| then result.equals(CollisionData.UNDEFINED_COLLISION)
@@ -424,7 +426,7 @@ public class World implements Container<Entity>{
 	 *         the World to which they are attached.
 	 *       | for each entity in entities:
 	 *       |   if (hasAsItem(entity))
-	 *       |     then canHaveAsItem(entity) && (entity.getContainer() == this) 
+	 *       |     then canHaveAsItem(entity) && (entity.getContainer() == this) && overlapsWithAnyEntity(entity).size() == 0
 	 */
 	@Override
 	public boolean hasProperItems(){

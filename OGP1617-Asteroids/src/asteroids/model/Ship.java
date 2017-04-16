@@ -327,21 +327,23 @@ public class Ship extends Entity implements Container<Entity>{
 	/**
 	 * Adjust the velocity of this Ship to the current orientation, with its current acceleration
 	 * and a given timeDelta.
-	 * @post  For an active thruster and a positive acceleration, the Ship's velocity is updated
+	 * @post  For an active thruster and a positive acceleration and a positive timeDelta, the Ship's velocity is updated
 	 * 	  	  with respect to the current orientation and given timeDelta.
-	 * 			| if (getThrusterStatus())
+	 * 			| if (getThrusterStatus() && timeDelta > 0)
 	 *			| then new.getVelocity().equals(new Vector2d(getVelocity().getX() + getAcceleration() * Math.cos(getOrientation()) * timeDelta,
 	 *														 getVelocity().getY() + getAcceleration() * Math.sin(getOrientation()) * timeDelta))
-	 * @post  For an acceleration that results in a velocity exceeding the maximum velocity, 
+	 * @post  For an acceleration that results in a velocity exceeding the maximum velocity and a positive timeDelta, 
 	 * 		  the velocity direction remains unchanged and the total velocity
 	 * 		  is set to the maximum velocity.
-	 * 			| if(!canHaveAsVelocity(getVelocity().getX() + getAcceleration() * Math.cos(getOrientation()) * timeDelta,
+	 * 			| if(getThrusterState() && timeDelta > 0 &&
+	 * 			|	!canHaveAsVelocity(getVelocity().getX() + getAcceleration() * Math.cos(getOrientation()) * timeDelta,
 	 *			|						getVelocity().getY() + getAcceleration() * Math.sin(getOrientation()) * timeDelta)
 	 * 			| then new.getVelocity().getLength() == getMaxVelocity()
 	 */
 	public void thrust(double timeDelta){
 		assert getThrusterStatus();
-
+		if(timeDelta <= 0.0)
+			return;
 		if(getThrusterStatus()){
 			double acceleration = getAcceleration();
 			Vector2d newVel = new Vector2d(getVelocity().getX() + acceleration * Math.cos(getOrientation()) * timeDelta, getVelocity().getY() + acceleration * Math.sin(getOrientation()) * timeDelta);

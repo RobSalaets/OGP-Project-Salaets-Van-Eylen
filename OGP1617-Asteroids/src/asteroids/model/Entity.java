@@ -446,6 +446,7 @@ public abstract class Entity{
 
 	/**
 	 * Checks if this Entity (significantly) overlaps with another Entity.
+	 * The entities need not be in the same container.
 	 * 
 	 * @param  other
 	 * 			The other Entity
@@ -456,7 +457,7 @@ public abstract class Entity{
 	public boolean overlaps(Entity other) throws NullPointerException{
 		if(other == null)
 			throw new NullPointerException();
-		return this == other || this.getPosition().sub(other.getPosition()).getLength() <= 0.99 * (this.getRadius() + other.getRadius());
+		return this == other || (this.getPosition().sub(other.getPosition()).getLength() <= 0.99 * (this.getRadius() + other.getRadius()));
 	}
 
 	/**
@@ -682,7 +683,7 @@ public abstract class Entity{
 	/**
 	 * Variable referencing the Container to which this Entity belongs.
 	 */
-	private Container<Entity> container = null;
+	private Container<Entity> container;
   
 }
 

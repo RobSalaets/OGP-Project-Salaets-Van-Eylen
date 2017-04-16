@@ -124,7 +124,7 @@ public class CollisionData{
 			return false;
 		CollisionData otherData = (CollisionData) other;
 		return getTimeToCollision() == otherData.getTimeToCollision() &&
-				getCollisionPoint() == otherData.getCollisionPoint() && getCollisionType() == otherData.getCollisionType();
+				getCollisionPoint().equals(otherData.getCollisionPoint()) && getCollisionType().equals(otherData.getCollisionType());
 	}
 
 	/**
