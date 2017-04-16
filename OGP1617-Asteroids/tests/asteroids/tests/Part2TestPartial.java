@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import asteroids.model.Bullet;
+import asteroids.model.Entity;
 import asteroids.model.Ship;
 import asteroids.model.World;
 import asteroids.facade.Facade;
@@ -298,8 +299,55 @@ public class Part2TestPartial {
 	
 	@Test
 	public void testGetEntities_Ships_Bullets() throws ModelException{
+		World world = facade.createWorld(1000, 1000);
+		Ship ship = facade.createShip(500, 500, 10, 5, 50, 0, 1.0E20);
+		facade.addShipToWorld(world, ship);
+		Bullet bullet1 = facade.createBullet(200, 200, 10, 5, 20);
+		Bullet bullet2 = facade.createBullet(700, 700, 10, 5, 30);
+		facade.addBulletToWorld(world, bullet1);
+		facade.addBulletToWorld(world, bullet2);
+		Set<Bullet> bullets = new HashSet<Bullet>();
+		bullets.add(bullet1);
+		bullets.add(bullet2);
+		Set<Ship> ships = new HashSet<Ship>();
+		ships.add(ship);
+		Set<Entity> entities = new HashSet<Entity>();
+		entities.add(ship);
+		entities.add(bullet1);
+		entities.add(bullet2);
+		assertEquals(bullets,world.getBullets());
+		assertEquals(ships,world.getShips());
+		assertEquals(entities,world.getAllEntities());
 		
-	}
+		}
+
+	@Test
+	public void testGetEntities_Ships_Bullets_WhenBulletsAreLoaded() throws ModelException{
+		World world = facade.createWorld(1000, 1000);
+		Ship ship = facade.createShip(500, 500, 10, 5, 50, 0, 1.0E20);
+		facade.addShipToWorld(world, ship);
+		Bullet bullet1 = facade.createBullet(200, 200, 10, 5, 20);
+		Bullet bullet2 = facade.createBullet(700, 700, 10, 5, 30);
+		Bullet bullet3 = facade.createBullet(500, 500, 10, 5, 20);
+		Bullet bullet4 = facade.createBullet(500, 500, 10, 5, 30);
+		facade.addBulletToWorld(world, bullet1);
+		facade.addBulletToWorld(world, bullet2);
+		facade.loadBulletOnShip(ship, bullet3);
+		facade.loadBulletOnShip(ship, bullet4);
+		Set<Bullet> bullets = new HashSet<Bullet>();
+		bullets.add(bullet1);
+		bullets.add(bullet2);
+		Set<Ship> ships = new HashSet<Ship>();
+		ships.add(ship);
+		Set<Entity> entities = new HashSet<Entity>();
+		entities.add(ship);
+		entities.add(bullet1);
+		entities.add(bullet2);
+		assertEquals(bullets,world.getBullets());
+		assertEquals(ships,world.getShips());
+		assertEquals(entities,world.getAllEntities());
+		
+		}
 
 	
 }
