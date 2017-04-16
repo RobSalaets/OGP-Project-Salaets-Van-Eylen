@@ -288,7 +288,13 @@ public class Facade implements IFacade{
 
 	@Override
 	public void loadBulletOnShip(Ship ship, Bullet bullet) throws ModelException{
-		ship.loadBullet(bullet);
+		try{
+			ship.loadBullet(bullet);
+		}catch (NullPointerException ex){
+			throw new ModelException(ex);
+		}catch (IllegalArgumentException ex){
+			throw new ModelException(ex);
+		}
 	}
 
 	@Override

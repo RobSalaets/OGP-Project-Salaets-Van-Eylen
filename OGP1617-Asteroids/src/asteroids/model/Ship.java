@@ -626,9 +626,7 @@ public class Ship extends Entity implements Container<Entity>{
 		bullet.setPosition(newPosition.getX(), newPosition.getY());
 		bullet.setVelocity(INITIAL_BULLETSPEED * Math.cos(getOrientation()), INITIAL_BULLETSPEED * Math.sin(getOrientation()));
 		
-		bullet.setContainer(world);
 		List<Entity> overlapping = world.overlapsWithAnyEntity(bullet);
-		bullet.setContainer(null);
 		
 		if (overlapping.size() > 0){
 			for(Entity e : overlapping)
