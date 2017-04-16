@@ -551,10 +551,14 @@ public class Ship extends Entity implements Container<Entity>{
 	 * 			| 	this.addItem(bullet)
 	 * @throws NullPointerException
 	 * 			| bullets.length == 0
-	 * @throws IllegalArgumentExcetion
+	 * @throws IllegalArgumentException
 	 * 			If any of the given bullets can not be an item of this Ship
 	 * 			| for some bullet in bullets:
 	 * 			| 	!canHaveAsItem(bullet)
+	 * @throws IllegalArgumeentException
+	 * 			If the given bullet(s) has a current container and the container
+	 * 			is not this Ships world container.
+	 * 			| ! ( bullet.getContainer() instanceof World && bullet.getContainer() == getContainer())
 	 */
 	public void loadBullet(Bullet... bullets) throws NullPointerException, IllegalArgumentException{
 		if(bullets.length == 0)
@@ -562,6 +566,8 @@ public class Ship extends Entity implements Container<Entity>{
 		for (Bullet bullet : bullets){
 			if(bullet.getContainer() != null){
 				Container<Entity> old = bullet.getContainer();
+				if(!(old instanceof World) || old != this.getContainer())
+					throw new IllegalArgumentException();
 				bullet.setContainer(null);
 				old.removeItem(bullet);
 			}

@@ -352,13 +352,12 @@ public abstract class Entity{
 	}
 
 	/**
-	 * Return the lowest possible massDensity for this Entity.
+	 * Return the lowest possible massDensity for any Entity.
 	 * 
 	 * @return 
 	 * 			| 1.42 * Math.pow(10, 12)
 	 */
-	@Model
-	protected static double getLowestMassDensity(){
+	public static double getLowestMassDensity(){
 		return 1.42 * Math.pow(10, 12);
 	}
 
@@ -551,7 +550,7 @@ public abstract class Entity{
 	 * 			collides with the bounds of its World after the computed amount of time,
 	 * 			assuming the velocity remains unchanged.
 	 * 			| if( getContainer() instance of World)
-	 * 			| then (World getContainer()).isEntityColliding(getPosition().add(getVelocity().mul(result.getTimeToCollision())), getRadius)
+	 * 			| then (World getContainer()).isEntityCollidingBounds(getPosition().add(getVelocity().mul(result.getTimeToCollision())), getRadius)
 	 * @return If the container of this Entity is a World, this entity
 	 * 			collides with the bounds of its World on the computed position,
 	 * 			assuming the velocity remains unchanged.

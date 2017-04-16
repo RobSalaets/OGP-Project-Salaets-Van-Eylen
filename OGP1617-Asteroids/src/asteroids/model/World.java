@@ -75,22 +75,17 @@ public class World implements Container<Entity>{
 	 * @param  Width
 	 *         The width to check.
 	 * @return 
-	 *       | result == (0 < width && width < maxWidth)
+	 *       | result == (0 <= width && width <= MAX_BOUNDARY)
 	*/
 	@Raw
 	public boolean isValidWidth(double width){
-		return (0 < width && width < MAX_WIDTH);
+		return (0 <= width && width <= MAX_BOUNDARY);
 	}
 
 	/**
 	 * Variable registering the width of this world.
 	 */
 	private final double width;
-
-	/**
-	 * The maximum upperbound for the width for any World.
-	 */
-	private static final double MAX_WIDTH = Double.MAX_VALUE;
 
 	/**
 	 * Return the height of this world.
@@ -108,11 +103,11 @@ public class World implements Container<Entity>{
 	 * @param  height
 	 *         The height to check.
 	 * @return 
-	 *       | result == (0 < height && height < maxHeight)
+	 *       | result == (0 <= height && height <= MAX_BOUNDARY)
 	*/
 	@Raw
 	public boolean isValidHeight(double height){
-		return (0 < height && height < MAX_HEIGHT);
+		return (0 <= height && height <= MAX_BOUNDARY);
 	}
 
 	/**
@@ -121,17 +116,21 @@ public class World implements Container<Entity>{
 	private final double height;
 
 	/**
-	 * The maximum upperbound for the height for any World.
+	 * The maximum upperbound for the width and height for any World.
 	 */
-	private static final double MAX_HEIGHT = Double.MAX_VALUE;
+	private static final double MAX_BOUNDARY = Double.MAX_VALUE;
 	
 	/**
 	 * Method to evolve the state of this World with a given time delta
 	 * 
 	 * @param timeDelta
 	 * 			The amount of time to apply to the current state of this World.
+	 * @throws IllegalArgumentException
+	 * 			| timeDelta < 0.0
 	 */
-	public void evolve(double timeDelta){
+	public void evolve(double timeDelta) throws IllegalArgumentException{
+		if(timeDelta < 0.0)
+			throw new IllegalArgumentException();
 		CollisionData next = getNextCollision();
 		if(next.getTimeToCollision() > timeDelta){
 			advanceEntities(timeDelta);
@@ -146,14 +145,25 @@ public class World implements Container<Entity>{
 	 * Copy of evolve method with CollisionListener.
 	 * 
 	 * @see evolve(double timeDelta)
+	 * @throws IllegalArgumentException
+	 * 			| timeDelta < 0.0 || cl == null
 	 */
-	public void evolve(double timeDelta, CollisionListener cl){
+	public void evolve(double timeDelta, CollisionListener cl) throws IllegalArgumentException{
+		if(timeDelta < 0.0 || cl == null)
+			throw new IllegalArgumentException();
 		CollisionData next = getNextCollision();
 		if(next.getTimeToCollision() > timeDelta){
 			advanceEntities(timeDelta);
 		}else{
 			advanceEntities(next.getTimeToCollision());
-//			cl.notify();
+			if(next.getCollisionType() == CollisionType.INTER_ENTITY){
+				synchronized(cl){
+					cl.notify();
+					cl.objectCollision(next.getColliders().get(0), next.getColliders().get(1),
+							next.getCollisionPoint().getX(), next.getCollisionPoint().getY());
+				}
+			}
+			
 			resolve(next);
 			evolve(timeDelta - next.getTimeToCollision(), cl);
 		}
@@ -248,7 +258,7 @@ public class World implements Container<Entity>{
 	 * 			The given radius
 	 * @see implementation
 	 */
-	public boolean isEntityColliding(Vector2d position, double radius){
+	public boolean isEntityCollidingBounds(Vector2d position, double radius){
 		return (position.getX() > radius * 0.99 && position.getX() < radius * 1.01) ||
 			   (position.getY() > radius * 0.99 && position.getY() < radius * 1.01) ||
 			   (getWidth() - position.getX() > radius * 0.99 && getWidth() - position.getX() < radius * 1.01) ||
@@ -423,6 +433,8 @@ public class World implements Container<Entity>{
 				return false;
 			if(entity.getContainer() != this)
 				return false;
+			if(overlapsWithAnyEntity(entity).size() > 0)
+				return false;
 		}
 		return true;
 	}
@@ -454,7 +466,7 @@ public class World implements Container<Entity>{
 	}
 
 	/**
-	 * Remove the given item from the set of entities of this World.
+	 * Remove the given item from the entities of this World.
 	 * 
 	 * @param  item
 	 *         The Entity to be removed.
@@ -539,11 +551,11 @@ public class World implements Container<Entity>{
 	
 	/**
 	 * Return the entities which the given entity overlaps with in this world.
+	 * This function is used an entity not yet in the entities of this world,
+	 * otherwise this function should always return an empty list.
 	 * 
 	 * @param entity
 	 * 		The entity to check.
-	 * @return The resulting list is empty if the given entity is not associated with this World
-	 * 		| if(entity.getContainer() != this) then result.size() == 0
 	 * @return The resulting list contains entities that overlap with the given entity
 	 * 		| for each other in result:
 	 * 		|	entity.overlaps(other)
@@ -554,8 +566,6 @@ public class World implements Container<Entity>{
 		if (entity == null)
 			throw new NullPointerException();
 		ArrayList<Entity> result = new ArrayList<>();
-		if(entity.getContainer() != this)
-			return result;
 		for (Entity other : entities.values())
 			if (entity.overlaps(other) && !entity.equals(other))
 				result.add(other);
