@@ -426,7 +426,7 @@ public class Ship extends Entity implements Container<Entity>{
 	 */
 	@Override
 	public void addItem(Entity item) throws IllegalArgumentException{
-		if(!canHaveAsItem(item) || item.getContainer() != this)
+		if(!canHaveAsItem(item) || item.getContainer() != this || hasAsItem(item))
 			throw new IllegalArgumentException();
 		bullets.add((Bullet) item);
 	}
@@ -574,7 +574,6 @@ public class Ship extends Entity implements Container<Entity>{
 				old.removeItem(bullet);
 			}
 			bullet.setContainer(this);
-			addItem(bullet);
 			bullet.resetBoundaryCollisionCount();
 		}
 	}
@@ -635,9 +634,8 @@ public class Ship extends Entity implements Container<Entity>{
 			for(Entity e : overlapping)
 				world.resolve(new CollisionData(0.0, null, CollisionType.INTER_ENTITY, Arrays.asList(new Entity[]{bullet, e})));
 			return;
-		}else{
-			bullet.setContainer(world);
-			world.addItem(bullet);			
-		}
+		}else
+			bullet.setContainer(world);			
+		
 	}
 }

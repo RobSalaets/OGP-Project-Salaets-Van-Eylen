@@ -415,13 +415,16 @@ public class World implements Container<Entity>{
 	 * @param  item
 	 *         The Entity to check.
 	 * @return True if and only if the given Entity is effective and this World is a valid container
-	 * 			for the Entity and the Entity is in the bounds of this World.
+	 * 			for the Entity and the Entity is in the bounds of this World and
+	 * 			references this World as its container and does not overlap with any other Entity of this World.
 	 *       | result == (item != null) && item.canHaveAsContainer(this) && isInBounds(item.getPosition(), item.getRadius())
+	 *       | 				&& overlapsWithAnyEntity(item).size() == 0
 	 */
 	@Override
 	@Raw
 	public boolean canHaveAsItem(Entity item){
-		return item != null && item.canHaveAsContainer(this) && isInBounds(item.getPosition(), item.getRadius());
+		return item != null && item.canHaveAsContainer(this) && isInBounds(item.getPosition(), item.getRadius())
+				&& overlapsWithAnyEntity(item).size() == 0;
 	}
 
 	/**
@@ -463,13 +466,12 @@ public class World implements Container<Entity>{
 	 * @post   This World has the given Entity as one of its entities.
 	 * 			| new.hasAsItem(item)
 	 * @throws IllegalArgumentException
-	 * 		   The given Entity is cannot be an entity of this Worlds entities
-	 * 		   or does not reference this World as its container or overlaps with any other Entity.
-	 * 			| !canHaveAsItem(item) || (item.getContainer() != this) || overlapsWithAnyEntity(item).size() > 0
+	 * 		   The given Entity is cannot be an entity of this Worlds entities.
+	 * 			| !canHaveAsItem(item) || hasAsItem(item) || item.getContainer() != this 
 	 */
 	@Override
 	public void addItem(Entity item) throws IllegalArgumentException{
-		if(!canHaveAsItem(item) || item.getContainer() != this || overlapsWithAnyEntity(item).size() > 0)
+		if(!canHaveAsItem(item) || item.getContainer() != this || hasAsItem(item) )
 			throw new IllegalArgumentException();
 		entities.put(item.getPosition(), item);
 	}

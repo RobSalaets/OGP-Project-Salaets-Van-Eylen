@@ -242,7 +242,6 @@ public class Facade implements IFacade{
 	public void addShipToWorld(World world, Ship ship) throws ModelException{
 		try{
 			ship.setContainer(world);
-			world.addItem(ship);
 		}catch (IllegalArgumentException e){
 			throw new ModelException(e);
 		}
@@ -262,7 +261,6 @@ public class Facade implements IFacade{
 	public void addBulletToWorld(World world, Bullet bullet) throws ModelException{
 		try{
 			bullet.setContainer(world);
-			world.addItem(bullet);
 		}catch (IllegalArgumentException e){
 			throw new ModelException(e);
 		}

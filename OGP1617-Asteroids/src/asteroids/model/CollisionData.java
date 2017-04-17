@@ -49,7 +49,7 @@ public class CollisionData{
 		this.colliders = colliders;
 	}
 	
-	public static final CollisionData UNDEFINED_COLLISION = new CollisionData(Double.POSITIVE_INFINITY, Vector2d.ZERO, CollisionType.UNDEFINED, new ArrayList<Entity>());
+	public static final CollisionData UNDEFINED_COLLISION = new CollisionData(Double.POSITIVE_INFINITY, Vector2d.ZERO , CollisionType.UNDEFINED, new ArrayList<Entity>());
 
 	/**
 	 * Return the timeToCollision of this CollisionData.

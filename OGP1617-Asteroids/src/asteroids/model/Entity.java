@@ -89,8 +89,6 @@ public abstract class Entity{
 		this.radius = radius;
 		this.setMass(mass);
 		setContainer(container);
-		if(container != null)
-			container.addItem(this);
 	}
 
 	/**
@@ -676,15 +674,19 @@ public abstract class Entity{
 	 * @post   The container of this Entity is the same as the
 	 *         given container.
 	 *       | new.getContainer() == container
+	 * @effect Adds this Entity to the container.
+	 * 		 | container.addItem(this)
 	 * @throws IllegalArgumentException
 	 *         This Entity cannot have the given container as its container.
 	 *       | ! canHaveAsContainer(container)
 	 */
 	@Raw
-	public void setContainer(Container<Entity> container){
+	public void setContainer(Container<Entity> container) throws IllegalArgumentException{
 		if(!canHaveAsContainer(container))
-			throw new IllegalArgumentException("Inappropriate Container!");
+			throw new IllegalArgumentException();
 		this.container = container;
+		if(container != null)
+			container.addItem(this);
 	}
 
 	/**

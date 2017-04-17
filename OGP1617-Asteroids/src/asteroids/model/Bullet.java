@@ -44,6 +44,8 @@ public class Bullet extends Entity{
 	 * @post   If the given container is a Ship, the source of this bullet
 	 * 			is set to the given container.
 	 * 		 	| if(container instanceof Ship) then new.getSource() == container
+	 * @throws AssertionError
+	 * 			| !isValidMaxBoundaryCollisions(maxBoundaryCollisions)
 	 */
 	@Raw
 	public Bullet(double x, double y, double xVelocity, double yVelocity, double radius, Container<Entity> container, int maxBoundaryCollisions) throws IllegalArgumentException{

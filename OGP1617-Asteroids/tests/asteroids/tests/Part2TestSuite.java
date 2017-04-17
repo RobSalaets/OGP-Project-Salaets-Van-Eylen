@@ -33,6 +33,11 @@ public class Part2TestSuite{
 		facade = new Facade();
 	}
 
+	private static void assertEqualsVector(Vector2d target, Vector2d actual, double range){
+		assertEquals(target.getX(), actual.getX(), range);
+		assertEquals(target.getY(), actual.getY(), range);
+	}
+
 	@Test
 	public void testCreateWorld() throws ModelException{
 		World world = facade.createWorld(1000, 800);
@@ -580,7 +585,6 @@ public class Part2TestSuite{
 		bullets.add(bullet3);
 		bullets.add(bullet4);
 		facade.loadBulletsOnShip(ship, bullets);
-		ship.setContainer(null);
 		facade.fireBullet(ship);
 		assertEquals(ship, bullet1.getContainer());
 		assertEquals(ship, bullet2.getContainer());
@@ -683,7 +687,6 @@ public class Part2TestSuite{
 		assertEquals(bullets, world.getBullets());
 		assertEquals(ships, world.getShips());
 		assertEquals(entities, world.getAllEntities());
-
 	}
 
 	@Test
@@ -711,12 +714,160 @@ public class Part2TestSuite{
 		assertEquals(bullets, world.getBullets());
 		assertEquals(ships, world.getShips());
 		assertEquals(entities, world.getAllEntities());
+	}
 
+	@Test
+	public void testContainerAssociationByConstructor() throws ModelException{
+		World worldContainer = facade.createWorld(10000, 10000);
+		Ship shipContainer = facade.createShip(500, 500, 0, 0, 200, 0, 15e20);
+		assertTrue(worldContainer.hasProperItems());
+		assertTrue(shipContainer.hasProperItems());
+		Bullet bulletItem = new Bullet(200, 200, 200, 200, 5, worldContainer);
+		Bullet bulletItem2 = new Bullet(200, 200, 200, 200, 5, shipContainer);
+		Ship shipItem = new Ship(800, 800, 800, 800, 3, 30, 12e18, worldContainer, 1);
+		assertTrue(worldContainer.hasProperItems());
+		assertTrue(shipContainer.hasProperItems());
+		assertTrue(worldContainer.hasAsItem(bulletItem));
+		assertTrue(worldContainer.hasAsItem(shipItem));
+		assertTrue(shipContainer.hasAsItem(bulletItem2));
 	}
 	
-	private static void assertEqualsVector(Vector2d target, Vector2d actual, double range){
-		assertEquals(target.getX(), actual.getX(), range);
-		assertEquals(target.getY(), actual.getY(), range);
+	@Test
+	public void testContainerAddItem() throws ModelException{
+		World worldContainer = facade.createWorld(10000, 10000);
+		Ship shipContainer = facade.createShip(500, 500, 0, 0, 200, 0, 15e20);
+		Bullet bulletItem = new Bullet(200, 200, 200, 200, 5, null);
+		Bullet bulletItem2 = new Bullet(200, 200, 200, 200, 5, null);
+		Ship shipItem = new Ship(800, 800, 800, 800, 3, 30, 12e18, null, 1);
+		facade.addShipToWorld(worldContainer, shipItem);
+		facade.loadBulletOnShip(shipContainer, bulletItem);
+		facade.loadBulletOnShip(shipContainer, bulletItem2);
+		assertTrue(worldContainer.hasProperItems());
+		assertTrue(shipContainer.hasProperItems());
+		assertTrue(shipContainer.hasAsItem(bulletItem));
+		assertTrue(worldContainer.hasAsItem(shipItem));
+		assertTrue(shipContainer.hasAsItem(bulletItem2));
 	}
-
+	
+	@Test(expected = ModelException.class)
+	public void testContainerAddItemNull() throws ModelException{
+		World worldContainer = facade.createWorld(10000, 10000);
+		try{
+			worldContainer.addItem(null);
+		}catch(IllegalArgumentException ex){
+			throw new ModelException(ex);
+		}
+	}
+	
+	@Test(expected = ModelException.class)
+	public void testContainerAddItemTerminated() throws ModelException{
+		World worldContainer = facade.createWorld(10000, 10000);
+		Bullet bullet = new Bullet(200, 200, 200, 200, 5, worldContainer);
+		bullet.terminate();
+		facade.addBulletToWorld(worldContainer, bullet);
+	}
+	
+	@Test(expected = ModelException.class)
+	public void testContainerAddItemWorldTerminated() throws ModelException{
+		World worldContainer = facade.createWorld(10000, 10000);
+		Bullet bullet = new Bullet(200, 200, 200, 200, 5, worldContainer);
+		worldContainer.terminate();
+		facade.addBulletToWorld(worldContainer, bullet);
+	}
+	
+	@Test(expected = ModelException.class)
+	public void testContainerAddItemOutOfBounds() throws ModelException{
+		World worldContainer = facade.createWorld(10000, 10000);
+		Bullet bullet = new Bullet(-1, -2, 200, 200, 5, null);
+		facade.addBulletToWorld(worldContainer, bullet);
+	}
+	
+	@Test(expected = ModelException.class)
+	public void testContainerAddItemInvalidType() throws ModelException{
+		Ship shipContainer = facade.createShip(500, 500, 0, 0, 200, 0, 15e20);
+		Ship shipItem = facade.createShip(500, 500, 0, 0, 200, 0, 15e20);
+		try{
+			shipItem.setContainer(shipContainer);		
+		}catch(IllegalArgumentException ex){
+			throw new ModelException(ex);
+		}
+	}
+	
+	@Test(expected = ModelException.class)
+	public void testContainerAddItemOverlapping() throws ModelException{
+		World worldContainer = facade.createWorld(10000, 10000);
+		new Bullet(500, 500, 200, 200, 5, worldContainer);
+		Ship shipItem = facade.createShip(500, 500, 0, 0, 200, 0, 15e20);
+		facade.addShipToWorld(worldContainer, shipItem);
+	}
+	
+	@Test(expected = ModelException.class)
+	public void testContainerAddItemSame() throws ModelException{
+		World worldContainer = facade.createWorld(10000, 10000);
+		Bullet bullet = new Bullet(500, 500, 200, 200, 5, worldContainer);
+		facade.addBulletToWorld(worldContainer, bullet);
+	}
+	
+	@Test
+	public void testContainerRemoveItem() throws ModelException{
+		World worldContainer = facade.createWorld(10000, 10000);
+		Ship shipContainer = facade.createShip(500, 500, 0, 0, 200, 0, 15e20);
+		Bullet bulletItem = new Bullet(200, 200, 200, 200, 5, worldContainer);
+		Bullet bulletItem2 = new Bullet(200, 200, 200, 200, 5, shipContainer);
+		Ship shipItem = new Ship(800, 800, 800, 800, 3, 30, 12e18, worldContainer, 1);
+		facade.addShipToWorld(worldContainer, shipContainer);
+		assertTrue(worldContainer.hasProperItems());
+		assertTrue(shipContainer.hasProperItems());
+		bulletItem.setContainer(null);
+		shipItem.setContainer(null);
+		shipContainer.setContainer(null);
+		worldContainer.removeItem(bulletItem);
+		worldContainer.removeItem(shipItem);
+		worldContainer.removeItem(shipContainer);
+		assertTrue(worldContainer.hasProperItems());
+		assertTrue(!worldContainer.hasAsItem(bulletItem));
+		assertTrue(!worldContainer.hasAsItem(shipItem));
+		assertTrue(!worldContainer.hasAsItem(shipContainer));
+		assertTrue(shipContainer.hasAsItem(bulletItem2));
+		bulletItem2.setContainer(null);
+		shipContainer.removeItem(bulletItem2);
+		assertTrue(shipContainer.hasProperItems());
+		assertTrue(!shipContainer.hasAsItem(bulletItem2));
+	}
+	
+	@Test(expected = ModelException.class)
+	public void testContainerRemoveItemNull() throws ModelException{
+		World worldContainer = facade.createWorld(10000, 10000);
+		try{
+			worldContainer.removeItem(null);			
+		}catch(IllegalArgumentException ex){
+			throw new ModelException(ex);
+		}
+	}
+	
+	@Test(expected = ModelException.class)
+	public void testContainerRemoveItemHasContainer() throws ModelException{
+		World worldContainer = facade.createWorld(10000, 10000);
+		Bullet bulletItem = new Bullet(200, 200, 200, 200, 5, worldContainer);
+		try{
+			worldContainer.removeItem(bulletItem);			
+		}catch(IllegalArgumentException ex){
+			throw new ModelException(ex);
+		}
+	}
+	
+	@Test(expected = ModelException.class)
+	public void testContainerRemoveItemHasOtherContainer() throws ModelException{
+		World worldContainer = facade.createWorld(10000, 10000);
+		Ship shipContainer = facade.createShip(500, 500, 0, 0, 200, 0, 15e20);
+		Bullet bulletItem = new Bullet(200, 200, 200, 200, 5, shipContainer);
+		try{
+			worldContainer.removeItem(bulletItem);			
+		}catch(IllegalArgumentException ex){
+			throw new ModelException(ex);
+		}
+	}
+	
+	
+	//TODO: terminate, inbounds
 }
