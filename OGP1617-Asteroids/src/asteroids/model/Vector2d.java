@@ -214,7 +214,7 @@ public class Vector2d{
 	/**
 	 * Compute the alpha value of the intersection of two lines, given a point and direction
 	 * of each line. Where alpha the intersection value corresponding to the given first direction,
-	 * so originA added with directionA mulitplied by alpha results in the intersection point.
+	 * so originA added with directionA multiplied by alpha results in the intersection point.
 	 * @param originA
 	 * 			A point on the first line
 	 * @param directionA
