@@ -15,17 +15,17 @@ import be.kuleuven.cs.som.annotate.Immutable;
 import be.kuleuven.cs.som.annotate.Raw;
 
 /**
- * @invar  Each world can have its width as width .
- *       | canHaveAsWidth(this.getWidth())
- * @invar  Each world can have its height as height .
- *       | canHaveAsHeight(this.getHeight())
+ * @invar  Each world has a valid width .
+ *       | isValidWidth(this.getWidth())
+ * @invar  Each world has a valid height .
+ *       | isValidHeight(this.getHeight())
  * @invar  Each world must have proper entities.
  *       | hasProperItems()       
  */
 public class World implements Container<Entity>{
 
 	/**
-	 * Initialize this new world as a non-terminated world with given width and height
+	 * Initialize this new World as a non-terminated world with given width and height
 	 * with no entities yet
 	 * 
 	 * @param  width
