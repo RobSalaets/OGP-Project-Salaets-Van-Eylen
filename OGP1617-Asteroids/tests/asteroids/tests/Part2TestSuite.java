@@ -868,6 +868,105 @@ public class Part2TestSuite{
 		}
 	}
 	
+	@Test
+	public void testTerminateBullet() throws ModelException{
+		World worldContainer = facade.createWorld(10000, 10000);
+		Ship shipContainer = facade.createShip(500, 500, 0, 0, 200, 0, 15e20);
+		Bullet bulletItem = new Bullet(200, 200, 200, 200, 5, worldContainer);
+		Bullet bulletItem2 = new Bullet(200, 200, 200, 200, 5, shipContainer);
+		bulletItem.terminate();
+		bulletItem2.terminate();
+		assertTrue(bulletItem.isTerminated());
+		assertNull(bulletItem.getContainer());
+		assertNull(bulletItem.getSource());
+		assertTrue(!worldContainer.hasAsItem(bulletItem));
+		assertEquals(0, worldContainer.getNbItems());
+		assertTrue(bulletItem2.isTerminated());
+		assertNull(bulletItem2.getContainer());
+		assertNull(bulletItem2.getSource());
+		assertTrue(!shipContainer.hasAsItem(bulletItem2));
+		assertEquals(0, shipContainer.getNbItems());
+	}
 	
-	//TODO: terminate, inbounds
+	@Test
+	public void testTerminateShip() throws ModelException{
+		World worldContainer = facade.createWorld(10000, 10000);
+		Ship ship = new Ship(800, 800, 800, 800, 3, 30, 12e18, worldContainer, 1);
+		Bullet bulletItem = new Bullet(200, 200, 200, 200, 5, ship);
+		Bullet bulletItem2 = new Bullet(200, 200, 200, 200, 5, ship);
+		ship.terminate();
+		assertTrue(ship.isTerminated());
+		assertTrue(ship.isTerminatedContainer());
+		assertNull(ship.getContainer());
+		assertTrue(!worldContainer.hasAsItem(ship));
+		assertEquals(0, worldContainer.getNbItems());
+		assertTrue(!ship.hasAsItem(bulletItem));
+		assertTrue(!ship.hasAsItem(bulletItem2));
+		assertEquals(0, ship.getNbItems());
+		assertTrue(!worldContainer.isTerminated());
+		for(Bullet b : ship.getBullets())
+			assertTrue(!b.isTerminated());
+	}
+	
+	@Test
+	public void testTerminateWorld() throws ModelException{
+		World worldContainer = facade.createWorld(10000, 10000);
+		Ship ship = new Ship(800, 800, 800, 800, 3, 30, 12e18, worldContainer, 1);
+		Bullet bulletItem = new Bullet(200, 200, 200, 200, 5, worldContainer);
+		new Bullet(200, 200, 200, 200, 5, ship);
+		worldContainer.terminate();
+		assertTrue(worldContainer.isTerminated());
+		assertTrue(worldContainer.isTerminatedContainer());
+		assertEquals(0, worldContainer.getNbItems());
+		assertTrue(!worldContainer.hasAsItem(bulletItem));
+		assertTrue(!worldContainer.hasAsItem(ship));
+		assertNull(ship.getContainer());
+		assertNull(bulletItem.getContainer());
+		assertTrue(!ship.isTerminated());
+		assertTrue(!bulletItem.isTerminated());
+	}
+	
+	@Test
+	public void testBoundsWorld() throws ModelException{
+		World worldContainer = facade.createWorld(10000, 10000);
+		assertTrue(worldContainer.isInBounds(new Vector2d(50,50), 50));
+		assertTrue(worldContainer.isInBounds(new Vector2d(9950,9950), 50));
+		assertTrue(!worldContainer.isInBounds(Vector2d.ZERO, 5));
+		assertTrue(!worldContainer.isInBounds(new Vector2d(15000, 500), 2e6));
+	}
+	
+	@Test
+	public void testBoundsShip() throws ModelException{
+		Ship shipContainer = facade.createShip(500, 500, 0, 0, 200, 0, 15e20);
+		assertTrue(shipContainer.isInBounds(new Vector2d(500,500), 200));
+		assertTrue(shipContainer.isInBounds(new Vector2d(600,500), 100));
+		assertTrue(!shipContainer.isInBounds(Vector2d.ZERO, 5));
+		assertTrue(!shipContainer.isInBounds(new Vector2d(500, 500), 2e6));
+	}
+	
+	@Test
+	public void testIsCollidingBounds() throws ModelException{
+		World worldContainer = facade.createWorld(10000, 10000);
+		Ship ship = new Ship(800, 800, 800, 800, 3, 30, 12e18, worldContainer, 1);
+		worldContainer.evolve(worldContainer.getNextBoundaryCollision().getTimeToCollision());
+		assertTrue(worldContainer.isEntityCollidingBounds(ship.getPosition(), ship.getRadius()));
+		worldContainer.evolve(1);
+		assertTrue(!worldContainer.isEntityCollidingBounds(ship.getPosition(), ship.getRadius()));
+	}
+	
+	@Test
+	public void testVector2d() throws ModelException{
+		Vector2d a = new Vector2d(1, 2.2);
+		assertEqualsVector(new Vector2d(0, Math.PI + 2.2), a.add(new Vector2d(-1,Math.PI)), EPSILON);
+		assertEqualsVector(new Vector2d(-5, 4.4), a.mul(new Vector2d(-5, 2)), EPSILON);
+		assertEqualsVector(new Vector2d(0.1, 0.22), a.mul(0.1), EPSILON);
+		assertEqualsVector(new Vector2d(6, 0.2), a.sub(new Vector2d(-5, 2)), EPSILON);
+		assertEqualsVector(new Vector2d(Math.cos(Math.PI / 6), Math.sin(Math.PI / 6)), new Vector2d(Math.sqrt(3), 1).normalize(), EPSILON);
+		assertEquals(1, a.dot(Vector2d.X_AXIS), EPSILON);
+		assertEquals(Math.sqrt(1 + 2.2 * 2.2), a.getLength(), EPSILON);
+		assertEquals(1 + 2.2 * 2.2, a.getLengthSquared(), EPSILON);
+		assertEquals(-1, Vector2d.intersect(a, Vector2d.X_AXIS, Vector2d.ZERO, Vector2d.Y_AXIS), EPSILON);
+		assertEquals(1, Vector2d.intersect(new Vector2d(2,3), new Vector2d(1,2), new Vector2d(4,6), new Vector2d(1, 1)), EPSILON);
+	}
+	
 }
