@@ -461,6 +461,7 @@ public class Part2TestSuite{
 		assertTrue(cd.getColliders().contains(bullet));
 		assertEquals(ship, bullet.getSource());
 		world1.evolve(cd.getTimeToCollision() + EPSILON);
+		assertEquals(0, bullet.getBoundaryCollisionCount());
 		assertTrue(!world1.hasAsItem(bullet));
 		assertTrue(ship.hasAsItem(bullet));
 		assertTrue(!ship.isTerminated());

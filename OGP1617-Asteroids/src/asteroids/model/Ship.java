@@ -575,6 +575,7 @@ public class Ship extends Entity implements Container<Entity>{
 			}
 			bullet.setContainer(this);
 			addItem(bullet);
+			bullet.resetBoundaryCollisionCount();
 		}
 	}
 	

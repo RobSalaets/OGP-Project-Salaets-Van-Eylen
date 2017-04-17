@@ -115,15 +115,26 @@ public class Bullet extends Entity{
 	}
 
 	/**
-	 * Increment the boundaryCollisionCount of this Bullet
+	 * Increment the boundaryCollisionCount of this Bullet.
 	 * 
 	 * @post | if(!canHaveAsBoundaryCollisionCount(getBoundaryCollisionCount())
 	 * 		 | then new.isTerminated()
+	 * 		 | else new.getBoundaryCollisionCount() == this.getBoundaryCollisionCount() + 1
 	 */
 	public void incrementBoundaryCollisionCount(){
-		this.boundaryCollisionCount += 1;
+		this.boundaryCollisionCount++;
 		if(!canHaveAsBoundaryCollisionCount(getBoundaryCollisionCount()))
 			this.terminate();
+	}
+
+	/**
+	 * Reset the boundaryCollisionCount of this Bullet to 0.
+	 * 
+	 * @post | if(!isTerminated()) then getBoundaryCollisionCount() == 0
+	 */
+	public void resetBoundaryCollisionCount(){
+		if(!isTerminated())
+			this.boundaryCollisionCount = 0;
 	}
 
 	/**
