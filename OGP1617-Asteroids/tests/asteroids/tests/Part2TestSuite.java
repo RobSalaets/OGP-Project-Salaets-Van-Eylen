@@ -171,6 +171,20 @@ public class Part2TestSuite{
 	}
 	
 	@Test
+	public void testShipTotalMassAfterFiringABullet() throws ModelException{
+		World world = facade.createWorld(1000, 1000);
+		Ship ship = facade.createShip(200.0, 300.0, 10.0, -10.0, 20.0, 3.0, 20e20);
+		facade.addShipToWorld(world, ship);
+		Bullet bullet = new Bullet(0, 0, 0, 0, 16, null);
+		assertNotNull(ship);
+		assertNotNull(bullet);
+		facade.loadBulletOnShip(ship, bullet);
+		assertEquals(20e20 + bullet.getMass(), ship.getTotalMass(), EPSILON);
+		facade.fireBullet(ship);
+		assertEquals(20e20,ship.getTotalMass(),EPSILON);
+	}
+	
+	@Test
 	public void testShipAcceleration() throws ModelException{
 		Ship ship = facade.createShip(200.0, 300.0, 10.0, -10.0, 20.0, 3.0, 20e20);
 		Bullet bullet = new Bullet(0, 0, 0, 0, 16, null);
