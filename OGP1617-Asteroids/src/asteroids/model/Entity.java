@@ -58,12 +58,9 @@ public abstract class Entity{
 	 *       	| new.getRadius() == radius
 	 * @post If given mass is greater than the lowest possible mass, the mass is equal to the given mass.
 	 * 		 Otherwise the mass is set to the lowest possible mass.
-	 * 			| let 
-	 * 			| 	lowestMass = 4.0 / 3.0 * Math.PI * Math.pow(radius, 3) * getLowestMassDensity()
-	 * 			| in
-	 * 			|   if (mass > lowestMass) 
+	 * 			|   if (mass > 4.0 / 3.0 * Math.PI * Math.pow(radius, 3) * getLowestMassDensity()) 
 	 *       	|   then new.getMass() == mass
-	 *       	|   else new.getMass() == lowestMass
+	 *       	|   else new.getMass() == 4.0 / 3.0 * Math.PI * Math.pow(radius, 3) * getLowestMassDensity()
 	 * @post   The container of this new Entity is the same as the
 	 *         given container.
 	 *       	| new.getContainer() == container
@@ -123,43 +120,7 @@ public abstract class Entity{
 			return getContainer().isInBounds(new Vector2d(x, y), getRadius());
 		return true;
 	}
-
-	/**
-	 * Set the x-position of this Entity to the given x.
-	 * 
-	 * @param  x
-	 *            The new x-position for this Entity.
-	 * @post   The x-position of this new Entity is equal to the given x. 
-	 * 			| new.getPosition().getX() == x
-	 * @throws IllegalArgumentException
-	 *             The given x-position does not form a valid position. 
-	 *        	| !canHaveAsPosition(x, getPosition().getY())
-	 */
-	@Raw
-	public void setXPosition(double x) throws IllegalArgumentException{
-		if(!canHaveAsPosition(x, getPosition().getY()))
-			throw new IllegalArgumentException();
-		this.position = new Vector2d(x, getPosition().getY());
-	}
-
-	/**
-	 * Set the y-position of this Entity to the given y.
-	 * 
-	 * @param  y
-	 *            The new y-position for this Entity.
-	 * @post   The y-position of this new Entity is equal to the given y. 
-	 * 			| new.getPosition().getY() == y
-	 * @throws IllegalArgumentException
-	 *             The given y-position does not form a valid position. 
-	 *        	| !canHaveAsPosition(getPosition().getX(), y)
-	 */
-	@Raw
-	public void setYPosition(double y) throws IllegalArgumentException{
-		if(!canHaveAsPosition(getPosition().getX(), y))
-			throw new IllegalArgumentException();
-		this.position = new Vector2d(position.getX(), y);
-	}
-
+	
 	/**
 	 * Set the position of this Entity to the given x and y.
 	 * 
@@ -171,6 +132,9 @@ public abstract class Entity{
 	 * 			| new.getPosition().getX() == x
 	 * @post   The y-position of this new Entity is equal to the given y. 
 	 * 			| new.getPosition().getY() == y
+	 * @post 	If this entity is associated with a World, the entity is mapped to the new position.
+	 * 			| if(getContainer() instanceof World)
+	 * 			| then (World getContainer()).getEntityAt(new.getPosition()) == this
 	 * @throws IllegalArgumentException
 	 *             The given x and y do not form a valid position. 
 	 *        	| !canHaveAsPosition(x, y)
@@ -179,7 +143,10 @@ public abstract class Entity{
 	public void setPosition(double x, double y) throws IllegalArgumentException{
 		if(!canHaveAsPosition(x, y))
 			throw new IllegalArgumentException();
+		Vector2d oldPos = getPosition();
 		this.position = new Vector2d(x, y);
+		if(getContainer() instanceof World)
+			((World) getContainer()).updateEntityEntry(oldPos, this);
 	}
 
 	/**
@@ -260,7 +227,7 @@ public abstract class Entity{
 			this.velocity = new Vector2d(xVelocity, yVelocity);
 		}
 	}
-
+	
 	/**
 	 * Variable referencing the velocity vector of this Entity in kilometers/second.
 	 */
@@ -305,7 +272,6 @@ public abstract class Entity{
 	 */
 	@Basic
 	@Raw
-	@Immutable
 	public double getRadius(){
 		return this.radius;
 	}
@@ -348,40 +314,20 @@ public abstract class Entity{
 	public double getMassDensity(){
 		return this.mass / (4.0 / 3.0 * Math.PI * Math.pow(getRadius(), 3));
 	}
-
-	/**
-	 * Return the lowest possible massDensity for any Entity.
-	 * 
-	 * @return 
-	 * 			| 1.42 * Math.pow(10, 12)
-	 */
-	public static double getLowestMassDensity(){
-		return 1.42 * Math.pow(10, 12);
-	}
-
-	/**
-	 * Return the lowest possible mass for this Entity.
-	 * 
-	 * @return 
-	 * 			| 4.0 / 3.0 * Math.PI * Math.pow(getRadius(), 3) * getLowestMassDensity()
-	 */
-	@Model
-	protected double getLowestMass(){
-		return 4.0 / 3.0 * Math.PI * Math.pow(getRadius(), 3) * getLowestMassDensity();
-	}
-
+	
 	/**
 	 * Check whether this Entity can have the given mass as its mass.
 	 *  
 	 * @param  mass
 	 *         The mass to check.
-	 * @return 
-	 *       | result == mass > getLowestMass()
-	*/
-	@Raw
-	public boolean canHaveAsMass(double mass){
-		return mass > getLowestMass();
-	}
+	 */
+	public abstract boolean canHaveAsMass(double mass);
+	
+	
+	/**
+	 * Return the lowest possible massDensity for any Ship.
+	 */
+	public abstract double getLowestMassDensity();
 
 	/**
 	 * Set the mass of this Entity to the given mass.
@@ -396,13 +342,13 @@ public abstract class Entity{
 	 * @post   If the given amss is not a valid mass for this Entity
 	 * 		   the mass of this Entity is equal to the lowest possible mass.
 	 * 		 | if (!canHaveAsMass(mass))
-	 *       |   then new.getMass() == getLowestMass()
+	 *       |   then new.getMass() == 4.0 / 3.0 * Math.PI * Math.pow(getRadius(), 3) * getLowestMassDensity()
 	 */
 	@Raw
 	public void setMass(double mass){
 		if(canHaveAsMass(mass))
 			this.mass = mass;
-		else this.mass = getLowestMass();
+		else this.mass = 4.0 / 3.0 * Math.PI * Math.pow(getRadius(), 3) * getLowestMassDensity();
 	}
 
 	/**
@@ -415,6 +361,11 @@ public abstract class Entity{
 	 * with respect to this Entity's current velocity.
 	 * @param  timeDelta
 	 * 			The amount of time the Entity moves with current velocity
+	 * @post	This entity moves with respect to the current velocity for a
+	 * 			positive timeDelta.
+	 * 			| if(timeDelta >= 0.0)
+	 * 			| then new.getPosition().equals(new Vector2d(getPosition().getX() + timeDelta * getVelocity().getX(),
+	 * 			|											 getPosition().getY() + timeDelta * getVelocity().getY())
 	 * @throws IllegalArgumentException
 	 * 			The timedelta cannot be less than zero
 	 * 			| timeDelta < 0.0

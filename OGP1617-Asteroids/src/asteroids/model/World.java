@@ -183,14 +183,30 @@ public class World implements Container<Entity>{
 	 */
 	private void advanceEntities(double timeDelta){
 		List<Entity> values = new ArrayList<>(entities.values());
-		entities.clear();
 		for(Entity entity : values){
 			entity.move(timeDelta);
 			if(entity instanceof Ship && ((Ship) entity).getThrusterStatus())
 				((Ship) entity).thrust(timeDelta);
-			
-			entities.put(entity.getPosition(), entity);
 		}
+	}
+	
+	/**
+	 * Update a given Entity in this Worlds entity collection
+	 * 
+	 * @param oldPos
+	 * 		The position this Entity is stil mapped to.
+	 * @param entity
+	 * 		The given Entity with a new position
+	 * @post	| new.getAllEntities().get(entity.getPosition()) == entity
+	 * @throws IllegalArgumentException
+	 * 			| !hasAsItem(entity) ||
+	 * 			| !(getAllEntities().containsKey(oldPos) && getAllEntities().containsValue(entity))
+	 */
+	public void updateEntityEntry(Vector2d oldPos, Entity entity) throws IllegalArgumentException{
+		if(hasAsItem(entity) && entities.remove(oldPos, entity))
+			entities.put(entity.getPosition(), entity);
+		else
+			throw new IllegalArgumentException();
 	}
 	
 	/**

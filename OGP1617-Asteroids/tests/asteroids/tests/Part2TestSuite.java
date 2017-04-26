@@ -61,6 +61,7 @@ public class Part2TestSuite{
 	public void testEvolveShipWithActiveThruster() throws ModelException{
 		World world = facade.createWorld(5000, 5000);
 		Ship ship = facade.createShip(100, 120, 10, 0, 50, Math.PI, 1.1E18);
+		ship = new Ship(100, 120, 10, 0,  Math.PI, 50, 1.1E18, 1.1e21);
 		facade.addShipToWorld(world, ship);
 		facade.setThrusterActive(ship, true);
 		assertEquals(1000.0, facade.getShipAcceleration(ship), EPSILON);
@@ -134,7 +135,7 @@ public class Part2TestSuite{
 	public void testCreateEntityMassTooLow() throws ModelException{
 		Ship ship = facade.createShip(200.0, 300.0, 10.0, -10.0, 500.0, 0.0, 1e8);
 		assertNotNull(ship);
-		assertEquals(Ship.getLowestMassDensity() * 4.0 / 3.0 * Math.PI * Math.pow(500, 3), ship.getMass(), EPSILON);
+		assertEquals(ship.getLowestMassDensity() * 4.0 / 3.0 * Math.PI * Math.pow(500, 3), ship.getMass(), EPSILON);
 
 	}
 
