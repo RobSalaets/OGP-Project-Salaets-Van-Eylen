@@ -64,14 +64,14 @@ public abstract class Entity{
 	 * 			|   if (mass > lowestMass) 
 	 *       	|   then new.getMass() == mass
 	 *       	|   else new.getMass() == lowestMass
-	 * @post   The container of this new Bullet is the same as the
+	 * @post   The container of this new Entity is the same as the
 	 *         given container.
 	 *       	| new.getContainer() == container
-	 * @post   The given container has this new Bullet as one of its
+	 * @post   The given container has this new Entity as one of its
 	 *         items.
 	 *      	| (new container).hasAsItem(this)
 	 * @throws IllegalArgumentException
-	 * 			The new Bullet cannot have the given container as its container
+	 * 			The new Entity cannot have the given container as its container
 	 * 			| !canHaveAsContainer(container)
 	 * @throws IllegalArgumentException
 	 *         The given radius is not a valid radius for this Entity.
@@ -459,7 +459,7 @@ public abstract class Entity{
 	}
 
 	/**
-	 * Calculate the time before collision with the given other Ship, assuming the velocities
+	 * Calculate the time before collision with the given other Entity, assuming the velocities
 	 * of both Entities do not change. If in the current state no collision will occur,
 	 * the time to collision is considered infinite.
 	 * 
@@ -622,6 +622,63 @@ public abstract class Entity{
 	 */
 	public Vector2d getBoundaryCollisionPosition(){
 		return getBoundaryCollisionData().getCollisionPoint();
+	}
+	
+	/**
+	 * Resolve given collision case appropriatly
+	 * 
+	 * @param collisionData
+	 * 			The given collision case
+	 * @throws IllegalArgumentException
+	 * 			| !(collisionData.getCollisionType() == CollisionType.BOUNDARY) ||
+	 * 			| !(collisionData.getCollisionType() == CollisionType.INTER_ENTITY)
+	 */
+	public abstract void resolve(CollisionData collisionData) throws IllegalArgumentException;
+	
+	/**
+	 * Resolve a given boundary collision case, by reflecting the velocity
+	 * vector of this Entity on the bounds of its World.
+	 * 
+	 * @param collisionData
+	 * 		The given collision case
+	 * @post The x or y component of the velocity vector of this Entity 
+	 * 		 has an opposing sign.
+	 * 		| new.getVelocity().getX() == this.getVelocity().getX() * (-1.0) ^
+	 * 		| new.getVelocity().getY() == this.getVelocity().getY() * (-1.0)
+	 * @throws IllegalStateException
+	 * 		This Entity has no World container
+	 * 		| !(getContainer() instanceof World)
+	 * @throws IllegalArgumentExeption
+	 * 		The given collisionData has an invalid collisionPoint
+	 * 		| !(collisionData.getCollisionPoint().isXInRangeOf(0, 0.01) ||
+	 *		|	collisionData.getCollisionPoint().isXInRangeOf((World getContainer()).getWidth(), 0.01) ||
+	 *		|	collisionData.getCollisionPoint().isYInRangeOf(0, 0.01) ||
+	 *		|	collisionData.getCollisionPoint().isYInRangeOf((World getContainer()).getHeight(), 0.01)
+	 */
+	public void resolveBoundaryCollision(CollisionData collisionData) throws IllegalStateException, IllegalArgumentException{
+		if(!(getContainer() instanceof World))
+			throw new IllegalStateException();
+		World world = (World) getContainer();
+		if(collisionData.getCollisionPoint().isXInRangeOf(0, 0.01) ||
+			collisionData.getCollisionPoint().isXInRangeOf(world.getWidth(), 0.01))
+			setXVelocity(getVelocity().getX() * -1.0);
+		else if(collisionData.getCollisionPoint().isYInRangeOf(0, 0.01) ||
+				collisionData.getCollisionPoint().isYInRangeOf(world.getHeight(), 0.01))
+			setYVelocity(getVelocity().getY() * -1.0);
+		else
+			throw new IllegalArgumentException();
+		
+		
+	}
+	
+	public void resolveBounceCollision(Entity other, double thisMass, double otherMass){
+		double sigmaSq = Math.pow(this.getRadius() + other.getRadius(), 2);
+		double dx = other.getPosition().getX() - this.getPosition().getX();
+		double dy = other.getPosition().getY() - this.getPosition().getY();
+		double j = 2.0 * thisMass * otherMass * (other.getVelocity().sub(this.getVelocity()).dot(other.getPosition().sub(this.getPosition())))
+				/ (sigmaSq * (thisMass + otherMass) );
+		this.setVelocity(this.getVelocity().getX() + j * dx / thisMass, this.getVelocity().getY() + j * dy / thisMass);
+		other.setVelocity(other.getVelocity().getX() - j * dx / otherMass, other.getVelocity().getY() - j * dy / otherMass);
 	}
 
 	public abstract void terminate();

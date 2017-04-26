@@ -166,7 +166,7 @@ public class Ship extends Entity implements Container<Entity>{
 	/**
 	 * The mininum radius for any Ship in kilometres
 	 */
-	private static final double MIN_RADIUS = 10.0;
+	public static final double MIN_RADIUS = 10.0;
 
 	@Basic
 	@Override
@@ -207,7 +207,7 @@ public class Ship extends Entity implements Container<Entity>{
 	public boolean canHaveAsContainer(Container<Entity> container){
 		if(this.isTerminated())
 			return container == null;
-		return (container == null) ||  ((container instanceof World) && (!container.isTerminatedContainer()));
+		return (container == null) ||  ((container instanceof World) && (!container.isTerminated()));
 	}
 
 	/**
@@ -256,9 +256,9 @@ public class Ship extends Entity implements Container<Entity>{
 	private double thrustForce;
 
 	/**
-	 * Static constant variable registering the default thrust force of this Ship.
+	 * Static constant variable registering the default thrust force of this Ship in kg * km / s^2.
 	 */
-	public static final double DEFAULT_THRUST_FORCE = 1.1 * Math.pow(10, 21);
+	public static final double DEFAULT_THRUST_FORCE = 1.1 * Math.pow(10, 18);
 
 	/**
 	 * Return the acceleration of this ship.
@@ -352,6 +352,44 @@ public class Ship extends Entity implements Container<Entity>{
 				newVel = getVelocity().normalize().mul(getMaxVelocity());
 
 			setVelocity(newVel.getX(), newVel.getY());
+		}
+	}
+	
+	
+	/**
+	 * Resolve given collision case appropriatly
+	 * 
+	 * @param collisionData
+	 * 			The given collision case
+	 * @effect 	If the collisionType is BOUNDARY the boundary collision is resolved
+	 * 			| if(collisionData.getCollisionType() == CollisionType.BOUNDARY) 
+	 * 			| then resolveBoundaryCollision(collisionData)
+	 * @effect 	If the collisionType is INTER_ENTITY and the other entity is a Ship,
+	 * 			the collision will be handled so the entities bounce off each other.
+	 * 			| if(collisionData.getCollisionType() == CollisionType.INTER_ENTITY && 
+	 * 			|	 collisionData.getOther(this) instanceof Ship) 
+	 * 			| then resolveBounceCollision(collisionData.getOther(this), getTotalMass(),
+	 * 			|								 collisionData.getOther(this).getTotalMass())
+	 * @effect 	If the collisionType is INTER_ENTITY and the other entity is not a Ship,
+	 * 			the collision will be resolved by the other entity.
+	 * 			| if(collisionData.getCollisionType() == CollisionType.INTER_ENTITY && 
+	 * 			|		!collisionData.getOther(this) instanceof Ship) 
+	 * 			| then collisionData.getOther(this).resolve(collisionData)
+	 * @throws IllegalArgumentException
+	 * 			| !(collisionData.getCollisionType() == CollisionType.BOUNDARY ||
+	 * 			| 	collisionData.getCollisionType() == CollisionType.INTER_ENTITY)
+	 */
+	@Override
+	public void resolve(CollisionData collisionData) throws IllegalArgumentException{
+		if(collisionData.getCollisionType() == CollisionType.BOUNDARY){
+			resolveBoundaryCollision(collisionData);
+		}else if(collisionData.getCollisionType() == CollisionType.INTER_ENTITY){
+			Entity other = collisionData.getOther(this);
+			if(other instanceof Ship)
+				resolveBounceCollision(other, getTotalMass(), ((Ship) other).getTotalMass());
+			else other.resolve(collisionData); //specifics are passed to asteroid, planetoid, bullet TODO remove
+		}else{
+			throw new IllegalArgumentException();
 		}
 	}
 
@@ -528,13 +566,6 @@ public class Ship extends Entity implements Container<Entity>{
 	 *       |     (! bullet.isTerminated()) )
 	 */
 	private final Set<Bullet> bullets = new HashSet<Bullet>();
-
-	@Basic
-	@Raw
-	@Override
-	public boolean isTerminatedContainer(){
-		return this.isTerminated;
-	}
 	
 	/**
 	 * The initial bulletspeed for any bullet in kilometres per second.
@@ -557,7 +588,7 @@ public class Ship extends Entity implements Container<Entity>{
 	 * 			If any of the given bullets can not be an item of this Ship
 	 * 			| for some bullet in bullets:
 	 * 			| 	!canHaveAsItem(bullet)
-	 * @throws IllegalArgumeentException
+	 * @throws IllegalArgumentException
 	 * 			If the given bullet(s) has a current container and the container
 	 * 			is not this Ships world container.
 	 * 			| ! ( bullet.getContainer() instanceof World && bullet.getContainer() == getContainer())
@@ -632,7 +663,7 @@ public class Ship extends Entity implements Container<Entity>{
 		
 		if (overlapping.size() > 0){
 			for(Entity e : overlapping)
-				world.resolve(new CollisionData(0.0, null, CollisionType.INTER_ENTITY, Arrays.asList(new Entity[]{bullet, e})));
+				new CollisionData(0.0, null, CollisionType.INTER_ENTITY, Arrays.asList(new Entity[]{bullet, e})).resolve();
 			return;
 		}else
 			bullet.setContainer(world);			

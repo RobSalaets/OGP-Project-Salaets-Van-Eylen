@@ -7,5 +7,5 @@ import be.kuleuven.cs.som.annotate.Value;
  */
 @Value
 public enum CollisionType {
-	BOUNDARY, INTER_ENTITY, INTER_SHIP, UNDEFINED
+	BOUNDARY, INTER_ENTITY, UNDEFINED
 }

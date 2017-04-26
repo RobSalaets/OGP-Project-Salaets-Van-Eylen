@@ -72,6 +72,32 @@ public class Vector2d{
 	public boolean canHaveAsComponent(double comp){
 		return Double.isFinite(comp);
 	}
+	
+	/**
+	 * Check whether or the x-component is equal to a given target value, allowing 
+	 * a given error range.
+	 * @param target
+	 * 		The target value.
+	 * @param error
+	 * 		The error range value.
+	 * @see implementation
+	 */
+	public boolean isXInRangeOf(double target, double error){
+		return getX() <= target + error && getX() >= target - error;
+	}
+	
+	/**
+	 * Check whether or the y-component is equal to a given target value, allowing 
+	 * a given error range.
+	 * @param target
+	 * 		The target value.
+	 * @param error
+	 * 		The error range value.
+	 * @see implementation
+	 */
+	public boolean isYInRangeOf(double target, double error){
+		return getY() <= target + error && getY() >= target - error;
+	}
 
 	/**
 	 * Variable registering the x of this Vector2d.

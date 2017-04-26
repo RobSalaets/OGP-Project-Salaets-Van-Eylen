@@ -41,8 +41,6 @@ public class CollisionData{
 			throw new IllegalArgumentException();
 		if(collisionType == CollisionType.INTER_ENTITY && colliders.size() != 2)
 			throw new IllegalArgumentException();
-		if(collisionType == CollisionType.INTER_SHIP && colliders.size() != 2)
-			throw new IllegalArgumentException();
 		this.timeToCollision = timeToCollision;
 		this.collisionPoint = collisionPoint;
 		this.collisionType = collisionType;
@@ -113,7 +111,33 @@ public class CollisionData{
 	private final List<Entity> colliders;
 	
 	/**
+	 * For a given colliding Entity return the other colliding Entity.
+	 * 
+	 * @param entity
+	 * 		The given Entity
+	 * @return The other entity
+	 * 			| getColliders().get((getColliders().indexOf(entity) + 1) % 2);
+	 * @throws IllegalArgumentException
+	 * 			| !getColliders().contains(entity) || getColliders().size() == 1
+	 */
+	public Entity getOther(Entity entity) throws IllegalArgumentException{
+		if(!getColliders().contains(entity) || getColliders().size() == 1)
+			throw new IllegalArgumentException();
+		return getColliders().get((getColliders().indexOf(entity) + 1) % 2);
+	}
+	
+	/**
+	 * Resolve this collision appropriatly.
+	 * 
+	 * @see implementation
+	 */
+	public void resolve(){
+		getColliders().get(0).resolve(this);
+	}
+	
+	/**
 	 * Check whether this CollisionData is equal to the given object
+	 * 
 	 * @return | result == (other != null) && (this.getClass() == other.getClass()) 
 	 * 		   | && this.getTimeToCollision() == (CollisionData other).getTimeToCollision() && this.getCollisionPoint() == (CollisionData other).getCollisionPoint()
 	 */

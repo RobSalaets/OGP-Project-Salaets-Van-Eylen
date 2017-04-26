@@ -38,6 +38,6 @@ public interface Container<T extends Entity>{
 	 * Return whether or not this Container
 	 * is terminated.
 	 */
-	public boolean isTerminatedContainer();
+	public boolean isTerminated();
 	
 }

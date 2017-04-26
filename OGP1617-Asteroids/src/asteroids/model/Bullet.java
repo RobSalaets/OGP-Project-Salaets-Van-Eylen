@@ -82,7 +82,7 @@ public class Bullet extends Entity{
 	/**
 	 * The mininum radius for any Bullet in kilometres
 	 */
-	private static final double MIN_RADIUS = 1.0;
+	public static final double MIN_RADIUS = 1.0;
 	
 	/**
 	 * The mass density for any Bullet in kilograms per cubic kilometre.
@@ -176,6 +176,56 @@ public class Bullet extends Entity{
 	public static final int DEFAULT_MAX_BOUNDARY_COLLISIONS = 3;
 	
 	/**
+	 * Resolve given collision case appropriatly
+	 * 
+	 * @param collisionData
+	 * 			The given collision case
+	 * @effect 	| if(collisionData.getCollisionType() == CollisionType.BOUNDARY) 
+	 * 			| then resolveBoundaryCollision(collisionData) TODO check if legit
+	 * @effect 	| if(collisionData.getCollisionType() == CollisionType.INTER_ENTITY && 
+	 * 			|		collisionData.getColliders().contains(getSource())) 
+	 * 			| then getSource().loadBullet(this)
+	 * @post 	| if(collisionData.getCollisionType() == CollisionType.INTER_ENTITY && 
+	 * 			|		!collisionData.getColliders().contains(getSource())) 
+	 * 			| then for each entity in collisionData.getColliders():
+	 * 			|			entity.isTerminated()
+	 * @throws IllegalArgumentException
+	 * 			| !(collisionData.getCollisionType() == CollisionType.BOUNDARY ||
+	 * 			| 	collisionData.getCollisionType() == CollisionType.INTER_ENTITY)
+	 */
+	@Override
+	public void resolve(CollisionData collisionData) throws IllegalArgumentException {
+		if(collisionData.getCollisionType() == CollisionType.BOUNDARY)
+			resolveBoundaryCollision(collisionData);
+		else if(collisionData.getCollisionType() == CollisionType.INTER_ENTITY){
+			Entity other = collisionData.getOther(this);
+			if(other instanceof Ship && other == getSource())
+				getSource().loadBullet(this);
+			else{
+				this.terminate();
+				other.terminate();
+			}
+		}else
+			throw new IllegalArgumentException();
+		
+	}
+	
+	/**
+	 * Resolve a given boundary collision case, by reflecting the velocity
+	 * vector of this Entity on the bounds of its World.
+	 * 
+	 * @param collisionData
+	 * 		The given collision case
+	 * @effect 	| super.resolveBoundaryCollision(collisionData)
+	 * @effect  | incrementBoundaryCollisionCount()
+	 */
+	@Override
+	public void resolveBoundaryCollision(CollisionData collisionData) throws IllegalStateException, IllegalArgumentException{
+		super.resolveBoundaryCollision(collisionData);
+		incrementBoundaryCollisionCount();
+	}
+	
+	/**
 	 * Return the position of this Bullet
 	 * If this bullet is loaded by a Ship the position
 	 * of this bullet is equal to the position of the Ship
@@ -247,7 +297,7 @@ public class Bullet extends Entity{
 	public boolean canHaveAsContainer(Container<Entity> container){
 		if(this.isTerminated())
 			return container == null;
-		return (container == null) || ((container instanceof World || container instanceof Ship) && (!container.isTerminatedContainer()));
+		return (container == null) || ((container instanceof World || container instanceof Ship) && (!container.isTerminated()));
 	}
 
 	/**
