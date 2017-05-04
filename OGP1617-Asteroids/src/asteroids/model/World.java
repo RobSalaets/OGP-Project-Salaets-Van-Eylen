@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import asteroids.part2.CollisionListener;
 import be.kuleuven.cs.som.annotate.Basic;
@@ -126,17 +127,17 @@ public class World implements Container<Entity>{
 	 * @param timeDelta
 	 * 			The amount of time to apply to the current state of this World.
 	 * @throws IllegalArgumentException
-	 * 			| timeDelta < 0.0
+	 * 			| timeDelta < 0.0 || timeDelta == Double.NaN
 	 */
 	public void evolve(double timeDelta) throws IllegalArgumentException{
-		if(timeDelta < 0.0)
+		if(timeDelta < 0.0 || timeDelta == Double.NaN)
 			throw new IllegalArgumentException();
 		CollisionData next = getNextCollision();
 		if(next.getTimeToCollision() > timeDelta){
 			advanceEntities(timeDelta);
 		}else{
 			advanceEntities(next.getTimeToCollision());
-			resolve(next);
+			next.resolve();
 			evolve(timeDelta - next.getTimeToCollision());
 		}
 	}
@@ -146,10 +147,10 @@ public class World implements Container<Entity>{
 	 * 
 	 * @see evolve(double timeDelta)
 	 * @throws IllegalArgumentException
-	 * 			| timeDelta < 0.0 || cl == null
+	 * 			| timeDelta < 0.0 || timeDelta == Double.NaN || cl == null
 	 */
 	public void evolve(double timeDelta, CollisionListener cl) throws IllegalArgumentException{
-		if(timeDelta < 0.0 || cl == null)
+		if(timeDelta < 0.0 || timeDelta == Double.NaN || cl == null)
 			throw new IllegalArgumentException();
 		CollisionData next = getNextCollision();
 		if(next.getTimeToCollision() > timeDelta){
@@ -160,7 +161,7 @@ public class World implements Container<Entity>{
 				boolean showCollision = true;
 				for(Entity e : next.getColliders())
 					if(e instanceof Bullet && ((Bullet) e).getSource() != null
-					&& next.getColliders().contains(((Bullet) e).getSource()))
+					&& next.getOther(e) == ((Bullet) e).getSource())
 						showCollision = false;
 				synchronized(cl){
 					if(showCollision){
@@ -170,8 +171,7 @@ public class World implements Container<Entity>{
 					}
 				}
 			}
-			
-			resolve(next);
+			next.resolve();
 			evolve(timeDelta - next.getTimeToCollision(), cl);
 		}
 	}
@@ -183,78 +183,30 @@ public class World implements Container<Entity>{
 	 */
 	private void advanceEntities(double timeDelta){
 		List<Entity> values = new ArrayList<>(entities.values());
-		entities.clear();
 		for(Entity entity : values){
 			entity.move(timeDelta);
 			if(entity instanceof Ship && ((Ship) entity).getThrusterStatus())
 				((Ship) entity).thrust(timeDelta);
-			
-			entities.put(entity.getPosition(), entity);
 		}
 	}
 	
 	/**
-	 * Resolve a given collision appropriatly.
+	 * Update a given Entity in this Worlds entity collection
 	 * 
-	 * @param collisionData
-	 * 			CollisionData about the given collision.
+	 * @param oldPos
+	 * 		The position this Entity is stil mapped to.
+	 * @param entity
+	 * 		The given Entity with a new position
+	 * @post	| new.getAllEntities().get(entity.getPosition()) == entity
 	 * @throws IllegalArgumentException
-	 * 			There is no valid collision point
+	 * 			| !hasAsItem(entity) ||
+	 * 			| !(getAllEntities().containsKey(oldPos) && getAllEntities().containsValue(entity))
 	 */
-	void resolve(CollisionData collisionData) throws IllegalArgumentException{
-		if(collisionData.getCollisionType() == CollisionType.BOUNDARY){
-			assert collisionData.getColliders().size() == 1;
-			Entity collider = collisionData.getColliders().get(0);
-			if(isInRangeValue(0, collisionData.getCollisionPoint().getX(), 0.01) ||
-				isInRangeValue(getWidth(), collisionData.getCollisionPoint().getX(), 0.01)){
-				collider.setXVelocity(collider.getVelocity().getX() * -1.0);
-			}else if(isInRangeValue(0, collisionData.getCollisionPoint().getY(), 0.01) ||
-					isInRangeValue(getHeight(), collisionData.getCollisionPoint().getY(), 0.01)){
-				collider.setYVelocity(collider.getVelocity().getY() * -1.0);	
-			}else
-				throw new IllegalArgumentException();
-			
-			if(collider instanceof Bullet)
-				((Bullet)collider).incrementBoundaryCollisionCount();
-		}else if(collisionData.getCollisionType() == CollisionType.INTER_ENTITY){
-			assert collisionData.getColliders().size() == 2;
-			boolean isOwnShip = false;
-			for(Entity e : collisionData.getColliders())
-				if(e instanceof Bullet && collisionData.getColliders().contains(((Bullet) e).getSource())){
-					Bullet b = (Bullet)e;
-					b.getSource().loadBullet(b);
-					isOwnShip = true;
-				}
-			if(!isOwnShip)
-				for(Entity e : collisionData.getColliders())
-					e.terminate();
-		}else if(collisionData.getCollisionType() == CollisionType.INTER_SHIP){
-			assert collisionData.getColliders().size() == 2;
-			Ship ei = (Ship) collisionData.getColliders().get(0);
-			Ship ej = (Ship) collisionData.getColliders().get(1);
-			double sigmaSq = Math.pow(ei.getRadius() + ej.getRadius(), 2);
-			double dx = ej.getPosition().getX() - ei.getPosition().getX();
-			double dy = ej.getPosition().getY() - ei.getPosition().getY();
-			double j = 2.0 * ei.getTotalMass() * ej.getTotalMass() * (ej.getVelocity().sub(ei.getVelocity()).dot(ej.getPosition().sub(ei.getPosition())))
-					/ (sigmaSq * (ei.getTotalMass() + ej.getTotalMass()) );
-			ei.setVelocity(ei.getVelocity().getX() + j * dx / ei.getTotalMass(), ei.getVelocity().getY() + j * dy / ei.getTotalMass());
-			ej.setVelocity(ej.getVelocity().getX() - j * dx / ej.getTotalMass(), ej.getVelocity().getY() - j * dy / ej.getTotalMass());
-		}
-	}
-	
-	/**
-	 * Check whether or not a given value is equal to a given target value, allowing 
-	 * a given error range, epsilon.
-	 * @param target
-	 * 		The target value.
-	 * @param value
-	 * 		The given value to check.
-	 * @param epsilon
-	 * 		The error range value.
-	 * @see implementation
-	 */
-	private boolean isInRangeValue(double target, double value, double epsilon){
-		return value <= target + epsilon && value >= target - epsilon;
+	public void updateEntityEntry(Vector2d oldPos, Entity entity) throws IllegalArgumentException{
+		if(hasAsItem(entity) && entities.remove(oldPos, entity))
+			entities.put(entity.getPosition(), entity);
+		else
+			throw new IllegalArgumentException();
 	}
 	
 	/**
@@ -342,8 +294,8 @@ public class World implements Container<Entity>{
 			double collisionTime = current.getTimeToCollision(entity);
 			if(collisionTime < fCollisionInvCurrent.getTimeToCollision())
 				fCollisionInvCurrent = new CollisionData(collisionTime, current.getCollisionPosition(entity),
-												current instanceof Ship && entity instanceof Ship ? CollisionType.INTER_SHIP : CollisionType.INTER_ENTITY,
-												Arrays.asList(new Entity[]{current, entity}));
+														CollisionType.INTER_ENTITY,
+														Arrays.asList(new Entity[]{current, entity}));
 		}
 		remainingEntities.remove(current);
 		CollisionData recursiveResult = checkEntityCollisions(remainingEntities);
@@ -416,9 +368,10 @@ public class World implements Container<Entity>{
 	 *         The Entity to check.
 	 * @return True if and only if the given Entity is effective and this World is a valid container
 	 * 			for the Entity and the Entity is in the bounds of this World and
-	 * 			references this World as its container and does not overlap with any other Entity of this World.
+	 * 			references this World as its container and does not overlap with any other Entity of this World,
+	 * 			and if the current container is not an instance of World.
 	 *       | result == (item != null) && item.canHaveAsContainer(this) && isInBounds(item.getPosition(), item.getRadius())
-	 *       | 				&& overlapsWithAnyEntity(item).size() == 0
+	 *       | 				&& overlapsWithAnyEntity(item).size() == 0 && !(item.getContainer() instanceof World)
 	 */
 	@Override
 	@Raw
@@ -471,7 +424,7 @@ public class World implements Container<Entity>{
 	 */
 	@Override
 	public void addItem(Entity item) throws IllegalArgumentException{
-		if(!canHaveAsItem(item) || item.getContainer() != this || hasAsItem(item) )
+		if(!canHaveAsItem(item) || item.getContainer() != this || hasAsItem(item))
 			throw new IllegalArgumentException();
 		entities.put(item.getPosition(), item);
 	}
@@ -486,20 +439,15 @@ public class World implements Container<Entity>{
 	 *       | ! new.hasAsItem(item)
 	 * @throws IllegalArgumentException
 	 * 		   The World does not have the given Entity as one of its entities
-	 * 		   or the given Entity still references any World as its container.
-	 * 			| !this.hasAsItem(item) || item.getContainer() != null
+	 * 		   or the given Entity still references any World as its container or the given Entity is null.
+	 * 			| !this.hasAsItem(item) || item.getContainer() != null || item == null
 	 */
 	@Override
 	@Raw
 	public void removeItem(Entity item) throws IllegalArgumentException{
-		if(!this.hasAsItem(item) || item.getContainer() != null)
+		if(!this.hasAsItem(item) || item.getContainer() != null || item == null)
 			throw new IllegalArgumentException();
 		entities.remove(item.getPosition());
-	}
-
-	@Override
-	public boolean isTerminatedContainer(){
-		return this.isTerminated;
 	}
   
     /**
@@ -524,11 +472,7 @@ public class World implements Container<Entity>{
 	 * 		 | 	this.hasAsItem(ship)
 	*/
 	public Set<Ship> getShips(){
-		Set<Ship> result = new HashSet<Ship>();
-		for(Entity e : entities.values())
-			if(e instanceof Ship)
-				result.add((Ship) e);
-		return result;
+		return entities.values().stream().filter(e -> e instanceof Ship).map(e->(Ship)e).collect(Collectors.toSet());
 	}
 	
 	/**
@@ -539,11 +483,41 @@ public class World implements Container<Entity>{
 	 * 		 | 	this.hasAsItem(bullet)
 	*/
 	public Set<Bullet> getBullets(){
-		Set<Bullet> result = new HashSet<Bullet>();
-		for(Entity e : entities.values())
-			if(e instanceof Bullet)
-				result.add((Bullet) e);
-		return result;
+		return entities.values().stream().filter(e -> e instanceof Bullet).map(e->(Bullet)e).collect(Collectors.toSet());
+	}
+	
+	/**
+	* Return a set of all the minor planets of this world.
+	* 
+	* @return Each minor planet in the resulting set is an item of this World.
+	 * 		 | for each mPlanet in result:
+	 * 		 | 	this.hasAsItem(mPlanet)
+	*/
+	public Set<MinorPlanet> getMinorPlanets(){
+//		return entities.values().stream().filter(e -> e instanceof MinorPlanet).map(e->(MinorPlanet)e).collect(Collectors.toSet());
+		return null;
+	}
+	
+	/**
+	* Return a set of all the asteroids of this world.
+	* 
+	* @return Each asteroid in the resulting set is an item of this World.
+	 * 		 | for each asteroid in result:
+	 * 		 | 	this.hasAsItem(asteroid)
+	*/
+	public Set<Asteroid> getAsteroids(){
+		return entities.values().stream().filter(e -> e instanceof Asteroid).map(e->(Asteroid)e).collect(Collectors.toSet());
+	}
+	
+	/**
+	* Return a set of all the planetoids of this world.
+	* 
+	* @return Each planetoid in the resulting set is an item of this World.
+	 * 		 | for each planetoid in result:
+	 * 		 | 	this.hasAsItem(planetoid)
+	*/
+	public Set<Planetoid> getPlanetoids(){
+		return entities.values().stream().filter(e -> e instanceof Planetoid).map(e->(Planetoid)e).collect(Collectors.toSet());
 	}
 	
 	/**

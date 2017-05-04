@@ -58,20 +58,17 @@ public abstract class Entity{
 	 *       	| new.getRadius() == radius
 	 * @post If given mass is greater than the lowest possible mass, the mass is equal to the given mass.
 	 * 		 Otherwise the mass is set to the lowest possible mass.
-	 * 			| let 
-	 * 			| 	lowestMass = 4.0 / 3.0 * Math.PI * Math.pow(radius, 3) * getLowestMassDensity()
-	 * 			| in
-	 * 			|   if (mass > lowestMass) 
+	 * 			|   if (mass > 4.0 / 3.0 * Math.PI * Math.pow(radius, 3) * getLowestMassDensity()) 
 	 *       	|   then new.getMass() == mass
-	 *       	|   else new.getMass() == lowestMass
-	 * @post   The container of this new Bullet is the same as the
+	 *       	|   else new.getMass() == 4.0 / 3.0 * Math.PI * Math.pow(radius, 3) * getLowestMassDensity()
+	 * @post   The container of this new Entity is the same as the
 	 *         given container.
 	 *       	| new.getContainer() == container
-	 * @post   The given container has this new Bullet as one of its
+	 * @post   The given container has this new Entity as one of its
 	 *         items.
 	 *      	| (new container).hasAsItem(this)
 	 * @throws IllegalArgumentException
-	 * 			The new Bullet cannot have the given container as its container
+	 * 			The new Entity cannot have the given container as its container
 	 * 			| !canHaveAsContainer(container)
 	 * @throws IllegalArgumentException
 	 *         The given radius is not a valid radius for this Entity.
@@ -107,59 +104,18 @@ public abstract class Entity{
 	 * 			The x-position to check.
 	 * @param y
 	 * 			The y-position to check.
-	 * @return In all cases the given x and y must be finite values.
- 	 *			If the container of this Entity is effective the position must be 
+	 * @return If the container of this Entity is effective the position must be 
 	 * 			in the bounds specified by the container. Otherwise the position 
 	 * 			is unbounded.
 	 * 			| if(getContainer() != null)
 	 * 			| then result == getContainer().isInbounds(new Vector2d(x,y), getRadius())
-	 * 			|				&& Double.isFinite(x) && Double.isFinite(y)
-	 * 			| else result == Double.isFinite(x) && Double.isFinite(y)
 	 */
 	public boolean canHaveAsPosition(double x, double y){
-		if(!Double.isFinite(x) || !Double.isFinite(y))
-			return false;
 		if(getContainer() != null)
 			return getContainer().isInBounds(new Vector2d(x, y), getRadius());
 		return true;
 	}
-
-	/**
-	 * Set the x-position of this Entity to the given x.
-	 * 
-	 * @param  x
-	 *            The new x-position for this Entity.
-	 * @post   The x-position of this new Entity is equal to the given x. 
-	 * 			| new.getPosition().getX() == x
-	 * @throws IllegalArgumentException
-	 *             The given x-position does not form a valid position. 
-	 *        	| !canHaveAsPosition(x, getPosition().getY())
-	 */
-	@Raw
-	public void setXPosition(double x) throws IllegalArgumentException{
-		if(!canHaveAsPosition(x, getPosition().getY()))
-			throw new IllegalArgumentException();
-		this.position = new Vector2d(x, getPosition().getY());
-	}
-
-	/**
-	 * Set the y-position of this Entity to the given y.
-	 * 
-	 * @param  y
-	 *            The new y-position for this Entity.
-	 * @post   The y-position of this new Entity is equal to the given y. 
-	 * 			| new.getPosition().getY() == y
-	 * @throws IllegalArgumentException
-	 *             The given y-position does not form a valid position. 
-	 *        	| !canHaveAsPosition(getPosition().getX(), y)
-	 */
-	@Raw
-	public void setYPosition(double y) throws IllegalArgumentException{
-		if(!canHaveAsPosition(getPosition().getX(), y))
-			throw new IllegalArgumentException();
-		this.position = new Vector2d(position.getX(), y);
-	}
-
+	
 	/**
 	 * Set the position of this Entity to the given x and y.
 	 * 
@@ -171,6 +127,9 @@ public abstract class Entity{
 	 * 			| new.getPosition().getX() == x
 	 * @post   The y-position of this new Entity is equal to the given y. 
 	 * 			| new.getPosition().getY() == y
+	 * @post 	If this entity is associated with a World, the entity is mapped to the new position.
+	 * 			| if(getContainer() instanceof World)
+	 * 			| then (World getContainer()).getEntityAt(new.getPosition()) == this
 	 * @throws IllegalArgumentException
 	 *             The given x and y do not form a valid position. 
 	 *        	| !canHaveAsPosition(x, y)
@@ -179,7 +138,10 @@ public abstract class Entity{
 	public void setPosition(double x, double y) throws IllegalArgumentException{
 		if(!canHaveAsPosition(x, y))
 			throw new IllegalArgumentException();
+		Vector2d oldPos = getPosition();
 		this.position = new Vector2d(x, y);
+		if(getContainer() instanceof World)
+			((World) getContainer()).updateEntityEntry(oldPos, this);
 	}
 
 	/**
@@ -260,7 +222,7 @@ public abstract class Entity{
 			this.velocity = new Vector2d(xVelocity, yVelocity);
 		}
 	}
-
+	
 	/**
 	 * Variable referencing the velocity vector of this Entity in kilometers/second.
 	 */
@@ -305,7 +267,6 @@ public abstract class Entity{
 	 */
 	@Basic
 	@Raw
-	@Immutable
 	public double getRadius(){
 		return this.radius;
 	}
@@ -315,11 +276,11 @@ public abstract class Entity{
 	 *  
 	 * @param radius
 	 *            The radius to check.
-	 * @return | result == getMinRadius() < radius
+	 * @return | result == getMinRadius() <= radius
 	 */
 	@Raw
 	public boolean canHaveAsRadius(double radius){
-		return getMinRadius() < radius;
+		return getMinRadius() <= radius;
 	}
 
 	/**
@@ -330,7 +291,7 @@ public abstract class Entity{
 	/**
 	 * Variable registering the radius of this Entity in kilometres.
 	 */
-	private final double radius;
+	protected final double radius;
 
 	/**
 	 * Return the mass of this Entity.
@@ -348,40 +309,20 @@ public abstract class Entity{
 	public double getMassDensity(){
 		return this.mass / (4.0 / 3.0 * Math.PI * Math.pow(getRadius(), 3));
 	}
-
-	/**
-	 * Return the lowest possible massDensity for any Entity.
-	 * 
-	 * @return 
-	 * 			| 1.42 * Math.pow(10, 12)
-	 */
-	public static double getLowestMassDensity(){
-		return 1.42 * Math.pow(10, 12);
-	}
-
-	/**
-	 * Return the lowest possible mass for this Entity.
-	 * 
-	 * @return 
-	 * 			| 4.0 / 3.0 * Math.PI * Math.pow(getRadius(), 3) * getLowestMassDensity()
-	 */
-	@Model
-	protected double getLowestMass(){
-		return 4.0 / 3.0 * Math.PI * Math.pow(getRadius(), 3) * getLowestMassDensity();
-	}
-
+	
 	/**
 	 * Check whether this Entity can have the given mass as its mass.
 	 *  
 	 * @param  mass
 	 *         The mass to check.
-	 * @return 
-	 *       | result == mass > getLowestMass()
-	*/
-	@Raw
-	public boolean canHaveAsMass(double mass){
-		return mass > getLowestMass();
-	}
+	 */
+	public abstract boolean canHaveAsMass(double mass);
+	
+	
+	/**
+	 * Return the lowest possible massDensity for any Ship.
+	 */
+	public abstract double getLowestMassDensity();
 
 	/**
 	 * Set the mass of this Entity to the given mass.
@@ -396,13 +337,13 @@ public abstract class Entity{
 	 * @post   If the given amss is not a valid mass for this Entity
 	 * 		   the mass of this Entity is equal to the lowest possible mass.
 	 * 		 | if (!canHaveAsMass(mass))
-	 *       |   then new.getMass() == getLowestMass()
+	 *       |   then new.getMass() == 4.0 / 3.0 * Math.PI * Math.pow(getRadius(), 3) * getLowestMassDensity()
 	 */
 	@Raw
 	public void setMass(double mass){
 		if(canHaveAsMass(mass))
 			this.mass = mass;
-		else this.mass = getLowestMass();
+		else this.mass = 4.0 / 3.0 * Math.PI * Math.pow(getRadius(), 3) * getLowestMassDensity();
 	}
 
 	/**
@@ -415,6 +356,11 @@ public abstract class Entity{
 	 * with respect to this Entity's current velocity.
 	 * @param  timeDelta
 	 * 			The amount of time the Entity moves with current velocity
+	 * @post	This entity moves with respect to the current velocity for a
+	 * 			positive timeDelta.
+	 * 			| if(timeDelta >= 0.0)
+	 * 			| then new.getPosition().equals(new Vector2d(getPosition().getX() + timeDelta * getVelocity().getX(),
+	 * 			|											 getPosition().getY() + timeDelta * getVelocity().getY())
 	 * @throws IllegalArgumentException
 	 * 			The timedelta cannot be less than zero
 	 * 			| timeDelta < 0.0
@@ -459,7 +405,7 @@ public abstract class Entity{
 	}
 
 	/**
-	 * Calculate the time before collision with the given other Ship, assuming the velocities
+	 * Calculate the time before collision with the given other Entity, assuming the velocities
 	 * of both Entities do not change. If in the current state no collision will occur,
 	 * the time to collision is considered infinite.
 	 * 
@@ -484,15 +430,16 @@ public abstract class Entity{
 	 * 			| 	   otherCollision = other.getPosition().add(other.getVelocity().mul(value))
 	 * 			|    in
 	 * 			| 	   thisCollision.sub(otherCollision).getLength() > this.getRadius() + other.getRadius()
+	 * @return If the container of this Entity and the given Entity does not match then there will be no
+	 * 			collision so the time till the collision will be considered as infinity.
+	 * 			| if this.getContainer() != other.getContainer()
+	 * 			| then new.getTimeToCollision(other) == Double.POSITIVE_INFINITY
 	 * @throws NullPointerException
 	 * 			The other entity is ineffective
 	 * 			| other == null
 	 * @throws IllegalArgumentException 
 	 * 			The entities overlap
 	 * 			| this.overlaps(other)
-	 * @throws IllegalArgumentException 
-	 * 			The container of this Entity and the given Entity does not match
-	 * 			| this.getContainer() != other.getContainer()
 	 */
 	public double getTimeToCollision(Entity other) throws NullPointerException, IllegalArgumentException{
 		if(other == null)
@@ -500,7 +447,7 @@ public abstract class Entity{
 		if(this.overlaps(other))
 			throw new IllegalArgumentException(); 
 		if(this.getContainer() != other.getContainer())
-			throw new IllegalArgumentException();
+			return Double.POSITIVE_INFINITY;
 
 		double sigmaSq = Math.pow(this.getRadius() + other.getRadius(), 2);
 		double rDotr = this.getPosition().sub(other.getPosition()).getLengthSquared();
@@ -623,6 +570,63 @@ public abstract class Entity{
 	public Vector2d getBoundaryCollisionPosition(){
 		return getBoundaryCollisionData().getCollisionPoint();
 	}
+	
+	/**
+	 * Resolve given collision case appropriatly
+	 * 
+	 * @param collisionData
+	 * 			The given collision case
+	 * @throws IllegalArgumentException
+	 * 			| !(collisionData.getCollisionType() == CollisionType.BOUNDARY) ||
+	 * 			| !(collisionData.getCollisionType() == CollisionType.INTER_ENTITY)
+	 */
+	public abstract void resolve(CollisionData collisionData) throws IllegalArgumentException;
+	
+	/**
+	 * Resolve a given boundary collision case, by reflecting the velocity
+	 * vector of this Entity on the bounds of its World.
+	 * 
+	 * @param collisionData
+	 * 		The given collision case
+	 * @post The x or y component of the velocity vector of this Entity 
+	 * 		 has an opposing sign.
+	 * 		| new.getVelocity().getX() == this.getVelocity().getX() * (-1.0) ^
+	 * 		| new.getVelocity().getY() == this.getVelocity().getY() * (-1.0)
+	 * @throws IllegalStateException
+	 * 		This Entity has no World container
+	 * 		| !(getContainer() instanceof World)
+	 * @throws IllegalArgumentExeption
+	 * 		The given collisionData has an invalid collisionPoint
+	 * 		| !(collisionData.getCollisionPoint().isXInRangeOf(0, 0.01) ||
+	 *		|	collisionData.getCollisionPoint().isXInRangeOf((World getContainer()).getWidth(), 0.01) ||
+	 *		|	collisionData.getCollisionPoint().isYInRangeOf(0, 0.01) ||
+	 *		|	collisionData.getCollisionPoint().isYInRangeOf((World getContainer()).getHeight(), 0.01)
+	 */
+	public void resolveBoundaryCollision(CollisionData collisionData) throws IllegalStateException, IllegalArgumentException{
+		if(!(getContainer() instanceof World))
+			throw new IllegalStateException();
+		World world = (World) getContainer();
+		if(collisionData.getCollisionPoint().isXInRangeOf(0, 0.01) ||
+			collisionData.getCollisionPoint().isXInRangeOf(world.getWidth(), 0.01))
+			setXVelocity(getVelocity().getX() * -1.0);
+		else if(collisionData.getCollisionPoint().isYInRangeOf(0, 0.01) ||
+				collisionData.getCollisionPoint().isYInRangeOf(world.getHeight(), 0.01))
+			setYVelocity(getVelocity().getY() * -1.0);
+		else
+			throw new IllegalArgumentException();
+		
+		
+	}
+	
+	public void resolveBounceCollision(Entity other, double thisMass, double otherMass){
+		double sigmaSq = Math.pow(this.getRadius() + other.getRadius(), 2);
+		double dx = other.getPosition().getX() - this.getPosition().getX();
+		double dy = other.getPosition().getY() - this.getPosition().getY();
+		double j = 2.0 * thisMass * otherMass * (other.getVelocity().sub(this.getVelocity()).dot(other.getPosition().sub(this.getPosition())))
+				/ (sigmaSq * (thisMass + otherMass) );
+		this.setVelocity(this.getVelocity().getX() + j * dx / thisMass, this.getVelocity().getY() + j * dy / thisMass);
+		other.setVelocity(other.getVelocity().getX() - j * dx / otherMass, other.getVelocity().getY() - j * dy / otherMass);
+	}
 
 	public abstract void terminate();
 
@@ -651,7 +655,7 @@ public abstract class Entity{
 	}
 
 	public abstract boolean canHaveAsContainer(Container<Entity> container);
-
+	
 	/**
 	 * Check whether this Entity has a proper container.
 	 * 
@@ -682,7 +686,7 @@ public abstract class Entity{
 	 */
 	@Raw
 	public void setContainer(Container<Entity> container) throws IllegalArgumentException{
-		if(!canHaveAsContainer(container))
+		if(!canHaveAsContainer(container) || this == null)
 			throw new IllegalArgumentException();
 		this.container = container;
 		if(container != null)

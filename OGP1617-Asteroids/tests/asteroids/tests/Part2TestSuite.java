@@ -61,6 +61,7 @@ public class Part2TestSuite{
 	public void testEvolveShipWithActiveThruster() throws ModelException{
 		World world = facade.createWorld(5000, 5000);
 		Ship ship = facade.createShip(100, 120, 10, 0, 50, Math.PI, 1.1E18);
+		ship = new Ship(100, 120, 10, 0,  Math.PI, 50, 1.1E18, 1.1e21);
 		facade.addShipToWorld(world, ship);
 		facade.setThrusterActive(ship, true);
 		assertEquals(1000.0, facade.getShipAcceleration(ship), EPSILON);
@@ -134,7 +135,7 @@ public class Part2TestSuite{
 	public void testCreateEntityMassTooLow() throws ModelException{
 		Ship ship = facade.createShip(200.0, 300.0, 10.0, -10.0, 500.0, 0.0, 1e8);
 		assertNotNull(ship);
-		assertEquals(Ship.getLowestMassDensity() * 4.0 / 3.0 * Math.PI * Math.pow(500, 3), ship.getMass(), EPSILON);
+		assertEquals(ship.getLowestMassDensity() * 4.0 / 3.0 * Math.PI * Math.pow(500, 3), ship.getMass(), EPSILON);
 
 	}
 
@@ -365,7 +366,7 @@ public class Part2TestSuite{
 		Ship ship2 = new Ship(1000, 500, -200, 0, Math.PI, 100, 20e20, world, 20e20);
 		CollisionData cd = world.getNextEntityCollision();
 		assertNotNull(cd);
-		assertEquals(CollisionType.INTER_SHIP, cd.getCollisionType());
+		assertEquals(CollisionType.INTER_ENTITY, cd.getCollisionType());
 		assertEquals(new Vector2d(700, 500), cd.getCollisionPoint());
 		assertEquals(1.0, cd.getTimeToCollision(), EPSILON);
 		assertTrue(cd.getColliders().contains(ship2));
@@ -394,7 +395,7 @@ public class Part2TestSuite{
 		assertEqualsVector(new Vector2d(-205, 0), ship2.getVelocity(), EPSILON);
 		CollisionData cd = world.getNextEntityCollision();
 		assertNotNull(cd);
-		assertEquals(CollisionType.INTER_SHIP, cd.getCollisionType());
+		assertEquals(CollisionType.INTER_ENTITY, cd.getCollisionType());
 		assertEqualsVector(new Vector2d(501.61290323, 500), cd.getCollisionPoint(), EPSILON);
 		assertEquals(0.967741935, cd.getTimeToCollision(), EPSILON);
 		assertTrue(cd.getColliders().contains(ship2));
@@ -910,7 +911,7 @@ public class Part2TestSuite{
 		Bullet bulletItem2 = new Bullet(200, 200, 200, 200, 5, ship);
 		ship.terminate();
 		assertTrue(ship.isTerminated());
-		assertTrue(ship.isTerminatedContainer());
+		assertTrue(ship.isTerminated());
 		assertNull(ship.getContainer());
 		assertTrue(!worldContainer.hasAsItem(ship));
 		assertEquals(0, worldContainer.getNbItems());
@@ -930,7 +931,7 @@ public class Part2TestSuite{
 		new Bullet(200, 200, 200, 200, 5, ship);
 		worldContainer.terminate();
 		assertTrue(worldContainer.isTerminated());
-		assertTrue(worldContainer.isTerminatedContainer());
+		assertTrue(worldContainer.isTerminated());
 		assertEquals(0, worldContainer.getNbItems());
 		assertTrue(!worldContainer.hasAsItem(bulletItem));
 		assertTrue(!worldContainer.hasAsItem(ship));

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import be.kuleuven.cs.som.annotate.Basic;
+import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Raw;
 
 /**
@@ -166,12 +167,46 @@ public class Ship extends Entity implements Container<Entity>{
 	/**
 	 * The mininum radius for any Ship in kilometres
 	 */
-	private static final double MIN_RADIUS = 10.0;
+	public static final double MIN_RADIUS = 10.0;
 
 	@Basic
 	@Override
 	public double getMinRadius(){
 		return MIN_RADIUS;
+	}
+	
+	/**
+	 * Return the lowest possible massDensity for any Ship.
+	 * 
+	 * @return 
+	 * 			| 1.42 * Math.pow(10, 12)
+	 */
+	public double getLowestMassDensity(){
+		return 1.42 * Math.pow(10, 12);
+	}
+	
+	/**
+	 * Check whether this Ship can have the given mass as its mass.
+	 *  
+	 * @param  mass
+	 *         The mass to check.
+	 * @return 
+	 *       | result == mass > getLowestMass()
+	*/
+	@Raw
+	public boolean canHaveAsMass(double mass){
+		return mass > getLowestMass();
+	}
+
+	/**
+	 * Return the lowest possible mass for this Ship.
+	 * 
+	 * @return 
+	 * 			| 4.0 / 3.0 * Math.PI * Math.pow(getRadius(), 3) * getLowestMassDensity()
+	 */
+	@Model
+	protected double getLowestMass(){
+		return 4.0 / 3.0 * Math.PI * Math.pow(getRadius(), 3) * getLowestMassDensity();
 	}
 	
 	/**
@@ -207,7 +242,7 @@ public class Ship extends Entity implements Container<Entity>{
 	public boolean canHaveAsContainer(Container<Entity> container){
 		if(this.isTerminated())
 			return container == null;
-		return (container == null) ||  ((container instanceof World) && (!container.isTerminatedContainer()));
+		return (container == null) ||  ((container instanceof World) && (!container.isTerminated()));
 	}
 
 	/**
@@ -256,9 +291,9 @@ public class Ship extends Entity implements Container<Entity>{
 	private double thrustForce;
 
 	/**
-	 * Static constant variable registering the default thrust force of this Ship.
+	 * Static constant variable registering the default thrust force of this Ship in kg * km / s^2.
 	 */
-	public static final double DEFAULT_THRUST_FORCE = 1.1 * Math.pow(10, 21);
+	public static final double DEFAULT_THRUST_FORCE = 1.1 * Math.pow(10, 18);
 
 	/**
 	 * Return the acceleration of this ship.
@@ -352,6 +387,88 @@ public class Ship extends Entity implements Container<Entity>{
 				newVel = getVelocity().normalize().mul(getMaxVelocity());
 
 			setVelocity(newVel.getX(), newVel.getY());
+		}
+	}
+	
+	
+	/**
+	 * Resolve given collision case appropriatly
+	 * 
+	 * @param collisionData
+	 * 			The given collision case
+	 * @effect 	If the collisionType is BOUNDARY the boundary collision is resolved
+	 * 			| if(collisionData.getCollisionType() == CollisionType.BOUNDARY) 
+	 * 			| then resolveBoundaryCollision(collisionData)
+	 * @effect 	If the collisionType is INTER_ENTITY and the other entity is a Ship,
+	 * 			the collision will be handled so the entities bounce off each other.
+	 * 			| if(collisionData.getCollisionType() == CollisionType.INTER_ENTITY && 
+	 * 			|	 collisionData.getOther(this) instanceof Ship) 
+	 * 			| then resolveBounceCollision(collisionData.getOther(this), getTotalMass(),
+	 * 			|								 collisionData.getOther(this).getTotalMass())
+	 * @effect  If the collisionType is INTER_ENTITY and the other entity is an Asteroid,
+	 * 			the collision will be handled so this Ship is terminated.
+	 * 			| if(collisionData.getCollisionType() == CollisionType.INTER_ENTITY && 
+	 * 			|	 collisionData.getOther(this) instanceof Asteroid) 
+	 * 			| then this.terminate()
+	 * @effect  If the collisionType is INTER_ENTITY and the other entity is a Planetoid,
+	 * 			the collision will be handled so ////TODO.
+	 * 			| if(collisionData.getCollisionType() == CollisionType.INTER_ENTITY && 
+	 * 			|	 collisionData.getOther(this) instanceof Planetoid) 
+	 * 			| then ////
+	 * @effect 	If the collisionType is INTER_ENTITY and the other entity is not a Ship, Asteroid
+	 *  		or Planetoid the collision will be resolved by the other entity.
+	 * 			| if(collisionData.getCollisionType() == CollisionType.INTER_ENTITY && 
+	 * 			|		!(collisionData.getOther(this) instanceof Ship) &&
+	 * 			|		!(collisionData.getOther(this) instanceof Asteroid) &&
+	 * 			|		!(collisionData.getOther(this) instanceof Planetoid)) 
+	 * 			| then collisionData.getOther(this).resolve(collisionData)
+	 * @throws IllegalArgumentException
+	 * 			| !(collisionData.getCollisionType() == CollisionType.BOUNDARY ||
+	 * 			| 	collisionData.getCollisionType() == CollisionType.INTER_ENTITY)
+	 */
+	@Override
+	public void resolve(CollisionData collisionData) throws IllegalArgumentException{
+		if(collisionData.getCollisionType() == CollisionType.BOUNDARY){
+			resolveBoundaryCollision(collisionData);
+		}else if(collisionData.getCollisionType() == CollisionType.INTER_ENTITY){
+			Entity other = collisionData.getOther(this);
+			if(other instanceof Ship)
+				resolveBounceCollision(other, getTotalMass(), ((Ship) other).getTotalMass());
+			else if(other instanceof Asteroid)
+				this.terminate();
+			else if(other instanceof Planetoid){
+				teleport();
+			}else
+				other.resolve(collisionData);
+		}else{
+			throw new IllegalArgumentException();
+		}
+	}
+	
+	/**
+	 * A method for the teleport functionality associated with a Ship-Planetoid collision
+	 * 
+	 * @post If the container of this ship is a world, a random valid position is chosen
+	 * 		 and set as the position of this Ship, however if the ship overlaps any other entity
+	 * 		 at the chosen position, this ship is terminated.
+	 * 			| if(getContainer() instanceof World) 
+	 * 			| then let newPos = new Vector2d((World getContainer()).getWidth() * Math.random(), (World getContainer()).getHeight() * Math.random())
+	 * 			| in 
+	 * 			| 	TODO
+	 */
+	@Model
+	private void teleport(){
+		if(getContainer() instanceof World){
+			World world = (World) getContainer();
+			Vector2d newPos;
+			do{
+				newPos = new Vector2d(world.getWidth() * Math.random(), world.getHeight() * Math.random());
+			}while(!world.isInBounds(newPos, getRadius()));
+			if(world.overlapsWithAnyEntity(new Ship(newPos.getX(), newPos.getY(), 0, 0, getOrientation(), getRadius(), getMass())).size() > 0)
+				this.terminate();
+			else
+				setPosition(newPos.getX(), newPos.getY());
+			
 		}
 	}
 
@@ -528,13 +645,6 @@ public class Ship extends Entity implements Container<Entity>{
 	 *       |     (! bullet.isTerminated()) )
 	 */
 	private final Set<Bullet> bullets = new HashSet<Bullet>();
-
-	@Basic
-	@Raw
-	@Override
-	public boolean isTerminatedContainer(){
-		return this.isTerminated;
-	}
 	
 	/**
 	 * The initial bulletspeed for any bullet in kilometres per second.
@@ -557,7 +667,7 @@ public class Ship extends Entity implements Container<Entity>{
 	 * 			If any of the given bullets can not be an item of this Ship
 	 * 			| for some bullet in bullets:
 	 * 			| 	!canHaveAsItem(bullet)
-	 * @throws IllegalArgumeentException
+	 * @throws IllegalArgumentException
 	 * 			If the given bullet(s) has a current container and the container
 	 * 			is not this Ships world container.
 	 * 			| ! ( bullet.getContainer() instanceof World && bullet.getContainer() == getContainer())
@@ -618,7 +728,7 @@ public class Ship extends Entity implements Container<Entity>{
 		Bullet bullet = bullets.iterator().next();
 		Vector2d newPosition = new Vector2d(this.getPosition().getX() + (this.getRadius()+bullet.getRadius()) * Math.cos(this.getOrientation()),
 											this.getPosition().getY() + (this.getRadius()+bullet.getRadius()) * Math.sin(this.getOrientation()));
-		
+		Container<Entity> container = bullet.getContainer();
 		bullet.setContainer(null);
 		this.removeItem(bullet);
 		if(!world.isInBounds(newPosition, bullet.getRadius())){
@@ -632,7 +742,7 @@ public class Ship extends Entity implements Container<Entity>{
 		
 		if (overlapping.size() > 0){
 			for(Entity e : overlapping)
-				world.resolve(new CollisionData(0.0, null, CollisionType.INTER_ENTITY, Arrays.asList(new Entity[]{bullet, e})));
+				new CollisionData(0.0, null, CollisionType.INTER_ENTITY, Arrays.asList(new Entity[]{bullet, e})).resolve();
 			return;
 		}else
 			bullet.setContainer(world);			

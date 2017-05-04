@@ -16,7 +16,7 @@ import be.kuleuven.cs.som.annotate.Raw;
 public class Bullet extends Entity{
 
 	/**
-	 * Initialize this new Bullet with given x, y, xVelocity, yVelocity, radius, container and maxBoundaryCollision.
+	 * Initialize this new Bullet with given x, y, xVelocity, yVelocity, radius, container and maxBoundaryCollisions.
 	 *
 	 * @param x
 	 *     		The x-position for this new Bullet.
@@ -33,7 +33,7 @@ public class Bullet extends Entity{
 	 * @param  maxBoundaryCollision
 	 *         The maxBoundaryCollisions for this new Bullet.
 	 * @effect This new Bullet is initialized as a new Entity with
-	 * 		   given x, y, xVelocity, yVelocity, radius and mass
+	 * 		   given x, y, xVelocity, yVelocity, radius, container and mass
 	 * 		   corresponding to the radius of this Bullet.
 	 * 			| super(x, y, xVelocity, yVelocity, radius, 4.0/3.0*Math.PI*Math.pow(radius, 3)*BULLET_MASS_DENSITY, container)
 	 * @pre    The given maxBoundaryCollisions must be a valid maxBoundaryCollisions for any Bullet.
@@ -71,23 +71,72 @@ public class Bullet extends Entity{
 	 * @param container
 	 * 			The container for this new Bullet.
 	 * @effect This new Bullet is initialized as a new Entity with
-	 * 		   given x, y, xVelocity, yVelocity, radius and mass.
-	 * 			| this(x, y, xVelocity, yVelocity, radius, mass, container, DEFAULT_MAX_BOUNDARY_COLLISIONS)
+	 * 		   given x, y, xVelocity, yVelocity, radius and container,
+	 * 		   with the default number of maxBoundaryCollisions
+	 * 			| this(x, y, xVelocity, yVelocity, radius, container, DEFAULT_MAX_BOUNDARY_COLLISIONS)
 	 */
 	@Raw
 	public Bullet(double x, double y, double xVelocity, double yVelocity, double radius, Container<Entity> container) throws IllegalArgumentException{
 		this(x, y, xVelocity, yVelocity, radius, container, DEFAULT_MAX_BOUNDARY_COLLISIONS);
 	}
+	
+	/**
+	 * Initialize this new Bullet with given x, y, xVelocity, yVelocity, radius and mass.
+	 * The maxBoundaryCollisions is set to the constant DEFAULT_MAX_BOUNDARY_COLLISIONS.
+	 * This bullet has no Container.
+	 *
+	 * @param x
+	 *     		The x-position for this new Bullet.
+	 * @param y
+	 *        	The y-position for this new Bullet.
+	 * @param xVelocity
+	 * 			The x-velocity for this new Bullet.
+	 * @param yVelocity
+	 *       	The y-velocity for this new Bullet.
+	 * @param radius
+	 *          The radius for this new Bullet.
+	 * @effect This new Bullet is initialized as a new Entity with
+	 * 		   given x, y, xVelocity, yVelocity and radius,
+	 * 		   no container and the default number of maxBoundaryCollisions.
+	 * 			| this(x, y, xVelocity, yVelocity, radius, null, DEFAULT_MAX_BOUNDARY_COLLISIONS)
+	 */
+	@Raw
+	public Bullet(double x, double y, double xVelocity, double yVelocity, double radius) throws IllegalArgumentException{
+		this(x, y, xVelocity, yVelocity, radius, null, DEFAULT_MAX_BOUNDARY_COLLISIONS);
+	}
 
 	/**
 	 * The mininum radius for any Bullet in kilometres
 	 */
-	private static final double MIN_RADIUS = 1.0;
+	public static final double MIN_RADIUS = 1.0;
 	
 	/**
 	 * The mass density for any Bullet in kilograms per cubic kilometre.
 	 */
-	public static final double BULLET_MASS_DENSITY = 7.8 * Math.pow(10, 12);
+	public static final double BULLET_MASS_DENSITY = 7.8e12;
+	
+	/**
+	 * Return the lowest possible massDensity for any Bullet.
+	 * 
+	 * @return 
+	 * 			| BULLET_MASS_DENSITY
+	 */
+	public double getLowestMassDensity(){
+		return BULLET_MASS_DENSITY;
+	}
+	
+	/**
+	 * Check whether this Bullet can have the given mass as its mass.
+	 *  
+	 * @param  mass
+	 *         The mass to check.
+	 * @return 
+	 *       | result == mass == 4.0 / 3.0 * Math.PI * Math.pow(getRadius(), 3) * BULLET_MASS_DENSITY
+	*/
+	@Raw
+	public boolean canHaveAsMass(double mass){
+		return mass == 4.0 / 3.0 * Math.PI * Math.pow(getRadius(), 3) * BULLET_MASS_DENSITY;
+	}
 
 	@Basic
 	@Override
@@ -176,6 +225,56 @@ public class Bullet extends Entity{
 	public static final int DEFAULT_MAX_BOUNDARY_COLLISIONS = 3;
 	
 	/**
+	 * Resolve given collision case appropriatly
+	 * 
+	 * @param collisionData
+	 * 			The given collision case
+	 * @effect 	| if(collisionData.getCollisionType() == CollisionType.BOUNDARY) 
+	 * 			| then resolveBoundaryCollision(collisionData) TODO check if legit
+	 * @effect 	| if(collisionData.getCollisionType() == CollisionType.INTER_ENTITY && 
+	 * 			|		collisionData.getColliders().contains(getSource())) 
+	 * 			| then getSource().loadBullet(this)
+	 * @post 	| if(collisionData.getCollisionType() == CollisionType.INTER_ENTITY && 
+	 * 			|		!collisionData.getColliders().contains(getSource())) 
+	 * 			| then for each entity in collisionData.getColliders():
+	 * 			|			entity.isTerminated()
+	 * @throws IllegalArgumentException
+	 * 			| !(collisionData.getCollisionType() == CollisionType.BOUNDARY ||
+	 * 			| 	collisionData.getCollisionType() == CollisionType.INTER_ENTITY)
+	 */
+	@Override
+	public void resolve(CollisionData collisionData) throws IllegalArgumentException {
+		if(collisionData.getCollisionType() == CollisionType.BOUNDARY)
+			resolveBoundaryCollision(collisionData);
+		else if(collisionData.getCollisionType() == CollisionType.INTER_ENTITY){
+			Entity other = collisionData.getOther(this);
+			if(other instanceof Ship && other == getSource())
+				getSource().loadBullet(this);
+			else{
+				this.terminate();
+				other.terminate();
+			}
+		}else
+			throw new IllegalArgumentException();
+		
+	}
+	
+	/**
+	 * Resolve a given boundary collision case, by reflecting the velocity
+	 * vector of this Entity on the bounds of its World.
+	 * 
+	 * @param collisionData
+	 * 		The given collision case
+	 * @effect 	| super.resolveBoundaryCollision(collisionData)
+	 * @effect  | incrementBoundaryCollisionCount()
+	 */
+	@Override
+	public void resolveBoundaryCollision(CollisionData collisionData) throws IllegalStateException, IllegalArgumentException{
+		super.resolveBoundaryCollision(collisionData);
+		incrementBoundaryCollisionCount();
+	}
+	
+	/**
 	 * Return the position of this Bullet
 	 * If this bullet is loaded by a Ship the position
 	 * of this bullet is equal to the position of the Ship
@@ -243,11 +342,11 @@ public class Bullet extends Entity{
 	 *       |   then result == (container == null) || ((container instanceof World) 
 	 *       |							&& (!container.isTerminatedContainer()))
 	 */
-	@Raw
+	@Raw @Override
 	public boolean canHaveAsContainer(Container<Entity> container){
 		if(this.isTerminated())
 			return container == null;
-		return (container == null) || ((container instanceof World || container instanceof Ship) && (!container.isTerminatedContainer()));
+		return (container == null) || ((container instanceof World || container instanceof Ship) && (!container.isTerminated()));
 	}
 
 	/**
@@ -288,6 +387,7 @@ public class Bullet extends Entity{
 	 * 		  is not effective.
 	 * 		 | new.getSource() == null
 	 */
+	@Override
 	public void terminate(){
 		if(!isTerminated()){
 			Container<Entity> oldContainer = getContainer();
