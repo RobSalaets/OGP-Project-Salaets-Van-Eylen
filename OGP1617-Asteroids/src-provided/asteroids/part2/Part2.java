@@ -5,13 +5,8 @@ import asteroids.part2.internal.AsteroidsFrame2;
 
 public class Part2 {
 	public static void main(String[] args) {
-<<<<<<< HEAD
 		boolean tryFullscreen = true;
 		boolean enableSound = true;
-=======
-		boolean tryFullscreen = false;
-		boolean enableSound = false;
->>>>>>> upstream/master
 		for (String arg : args) {
 			if (arg.equals("-fullscreen")) {
 				tryFullscreen = true;
