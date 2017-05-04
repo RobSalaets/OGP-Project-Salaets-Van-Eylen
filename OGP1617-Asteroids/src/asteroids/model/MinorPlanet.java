@@ -47,11 +47,6 @@ public abstract class MinorPlanet extends Entity{
 		return MIN_RADIUS;
 	}
 
-//	@Override
-//	public boolean canHaveAsRadius(double radius){
-//		return radius >= this.getMinRadius();
-//	}
-
 	/**
 	 * Resolve given collision case appropriatly
 	 * 

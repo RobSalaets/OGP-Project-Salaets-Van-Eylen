@@ -40,6 +40,8 @@ public class Planetoid extends MinorPlanet{
 	 * @post   The totalTraveledDistance of this new Planetoid is equal to the given
 	 *         totalTraveledDistance.
 	 *       	| new.getTotalTraveledDistance() == totalTraveledDistance
+	 * @effect This Planetoid is shrunk with respect to the given total traveled distance.
+	 * 			| shrink()
 	 */
 	@Raw
 	public Planetoid(double x, double y, double xVelocity, double yVelocity, double startRadius, Container<Entity> container, double totalTraveledDistance){

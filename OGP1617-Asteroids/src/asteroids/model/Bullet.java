@@ -383,9 +383,6 @@ public class Bullet extends Entity{
 	 *       | if (! isTerminated())
 	 *       |   then new.getContainer().getNbItems() ==
 	 *       |            getContainer().getNbItems() - 1
-	 * @post  If this Bullet was not yet terminated, the source of this Bullet
-	 * 		  is not effective.
-	 * 		 | new.getSource() == null
 	 */
 	@Override
 	public void terminate(){
@@ -395,7 +392,6 @@ public class Bullet extends Entity{
 				setContainer(null);
 				oldContainer.removeItem(this);
 			}
-			this.source = null;
 			this.isTerminated = true;
 		}
 	}

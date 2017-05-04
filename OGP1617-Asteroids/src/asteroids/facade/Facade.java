@@ -247,8 +247,9 @@ public class Facade implements IFacade{
 	public void addShipToWorld(World world, Ship ship) throws ModelException{
 		try{
 			ship.setContainer(world);
-			
 		}catch (IllegalArgumentException e){
+			throw new ModelException(e);
+		}catch(NullPointerException e){
 			throw new ModelException(e);
 		}
 	}
@@ -256,7 +257,8 @@ public class Facade implements IFacade{
 	@Override
 	public void removeShipFromWorld(World world, Ship ship) throws ModelException{
 		try{
-			ship.setContainer(null);
+			if(ship != null)
+				ship.setContainer(null);
 			world.removeItem(ship);
 		}catch (IllegalArgumentException e){
 			throw new ModelException(e);
@@ -337,6 +339,8 @@ public class Facade implements IFacade{
 
 	@Override
 	public double[] getPositionCollisionBoundary(Object object) throws ModelException{
+		if(((Entity) object).getBoundaryCollisionPosition() == null)
+			return null;
 		return ((Entity) object).getBoundaryCollisionPosition().asArray();
 	}
 
@@ -375,6 +379,8 @@ public class Facade implements IFacade{
 	@Override
 	public double[] getPositionNextCollision(World world) throws ModelException{
 		try{
+			if(world.getNextCollision().getCollisionPoint() == null)
+				return null;
 			return world.getNextCollision().getCollisionPoint().asArray();
 		}catch (IllegalArgumentException e){
 			throw new ModelException(e);
@@ -387,9 +393,7 @@ public class Facade implements IFacade{
 			if(collisionListener == null)
 				world.evolve(dt);
 			else{
-//				synchronized(collisionListener){
-					world.evolve(dt, collisionListener);
-//				}
+				world.evolve(dt, collisionListener);
 			}
 		}catch (IllegalArgumentException e){
 			throw new ModelException(e);

@@ -127,18 +127,20 @@ public class World implements Container<Entity>{
 	 * @param timeDelta
 	 * 			The amount of time to apply to the current state of this World.
 	 * @throws IllegalArgumentException
-	 * 			| timeDelta < 0.0 || timeDelta == Double.NaN
+	 * 			| timeDelta < 0.0 
 	 */
 	public void evolve(double timeDelta) throws IllegalArgumentException{
-		if(timeDelta < 0.0 || timeDelta == Double.NaN)
-			throw new IllegalArgumentException();
-		CollisionData next = getNextCollision();
-		if(next.getTimeToCollision() > timeDelta){
-			advanceEntities(timeDelta);
+		if(timeDelta >= 0.0){
+			CollisionData next = getNextCollision();
+			if(next.getTimeToCollision() > timeDelta){
+				advanceEntities(timeDelta);
+			}else{
+				advanceEntities(next.getTimeToCollision());
+				next.resolve();
+				evolve(timeDelta - next.getTimeToCollision());
+			}	
 		}else{
-			advanceEntities(next.getTimeToCollision());
-			next.resolve();
-			evolve(timeDelta - next.getTimeToCollision());
+			throw new IllegalArgumentException();			
 		}
 	}
 	
@@ -147,33 +149,34 @@ public class World implements Container<Entity>{
 	 * 
 	 * @see evolve(double timeDelta)
 	 * @throws IllegalArgumentException
-	 * 			| timeDelta < 0.0 || timeDelta == Double.NaN || cl == null
+	 * 			| timeDelta < 0.0 || cl == null
 	 */
 	public void evolve(double timeDelta, CollisionListener cl) throws IllegalArgumentException{
-		if(timeDelta < 0.0 || timeDelta == Double.NaN || cl == null)
-			throw new IllegalArgumentException();
-		CollisionData next = getNextCollision();
-		if(next.getTimeToCollision() > timeDelta){
-			advanceEntities(timeDelta);
-		}else{
-			advanceEntities(next.getTimeToCollision());
-			if(next.getCollisionType() == CollisionType.INTER_ENTITY){
-				boolean showCollision = true;
-				for(Entity e : next.getColliders())
-					if(e instanceof Bullet && ((Bullet) e).getSource() != null
-					&& next.getOther(e) == ((Bullet) e).getSource())
-						showCollision = false;
-				synchronized(cl){
-					if(showCollision){
-						cl.notify();
-						cl.objectCollision(next.getColliders().get(0), next.getColliders().get(1),
-								next.getCollisionPoint().getX(), next.getCollisionPoint().getY());
+		if(timeDelta >= 0.0 && cl != null){
+			CollisionData next = getNextCollision();
+			if(next.getTimeToCollision() > timeDelta){
+				advanceEntities(timeDelta);
+			}else{
+				advanceEntities(next.getTimeToCollision());
+				if(next.getCollisionType() == CollisionType.INTER_ENTITY){
+					boolean showCollision = true;
+					for(Entity e : next.getColliders())
+						if(e instanceof Bullet && ((Bullet) e).getSource() != null
+						&& next.getOther(e) == ((Bullet) e).getSource())
+							showCollision = false;
+					synchronized(cl){
+						if(showCollision){
+							cl.notify();
+							cl.objectCollision(next.getColliders().get(0), next.getColliders().get(1),
+									next.getCollisionPoint().getX(), next.getCollisionPoint().getY());
+						}
 					}
 				}
+				next.resolve();
+				evolve(timeDelta - next.getTimeToCollision(), cl);
 			}
-			next.resolve();
-			evolve(timeDelta - next.getTimeToCollision(), cl);
-		}
+		}else
+			throw new IllegalArgumentException();
 	}
 	
 	/**
@@ -371,7 +374,7 @@ public class World implements Container<Entity>{
 	 * 			references this World as its container and does not overlap with any other Entity of this World,
 	 * 			and if the current container is not an instance of World.
 	 *       | result == (item != null) && item.canHaveAsContainer(this) && isInBounds(item.getPosition(), item.getRadius())
-	 *       | 				&& overlapsWithAnyEntity(item).size() == 0 && !(item.getContainer() instanceof World)
+	 *       | 				&& overlapsWithAnyEntity(item).size() == 0
 	 */
 	@Override
 	@Raw
@@ -440,12 +443,12 @@ public class World implements Container<Entity>{
 	 * @throws IllegalArgumentException
 	 * 		   The World does not have the given Entity as one of its entities
 	 * 		   or the given Entity still references any World as its container or the given Entity is null.
-	 * 			| !this.hasAsItem(item) || item.getContainer() != null || item == null
+	 * 			| !this.hasAsItem(item) || item.getContainer() != null
 	 */
 	@Override
 	@Raw
 	public void removeItem(Entity item) throws IllegalArgumentException{
-		if(!this.hasAsItem(item) || item.getContainer() != null || item == null)
+		if(!this.hasAsItem(item) || item.getContainer() != null)
 			throw new IllegalArgumentException();
 		entities.remove(item.getPosition());
 	}

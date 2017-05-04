@@ -106,13 +106,18 @@ public abstract class Entity{
 	 * 			The y-position to check.
 	 * @return If the container of this Entity is effective the position must be 
 	 * 			in the bounds specified by the container. Otherwise the position 
-	 * 			is unbounded.
+	 * 			is unbounded. And in all cases the given x and y must be a number.
 	 * 			| if(getContainer() != null)
 	 * 			| then result == getContainer().isInbounds(new Vector2d(x,y), getRadius())
+	 * 			| 	&& !Double.isNaN(x) && !Double.isNaN(y)
+	 * 			| else result == !Double.isNaN(x) && !Double.isNaN(y)
 	 */
 	public boolean canHaveAsPosition(double x, double y){
+		if (Double.isNaN(x) || Double.isNaN(y))
+			return false;
 		if(getContainer() != null)
 			return getContainer().isInBounds(new Vector2d(x, y), getRadius());
+		
 		return true;
 	}
 	
@@ -169,7 +174,11 @@ public abstract class Entity{
 	 */
 	@Raw
 	public boolean canHaveAsVelocity(double xVelocity, double yVelocity){
-		return new Vector2d(xVelocity, yVelocity).getLength() <= getMaxVelocity();
+		try{
+			return new Vector2d(xVelocity, yVelocity).getLength() <= getMaxVelocity();			
+		}catch(IllegalArgumentException ex){
+			return false;
+		}
 	}
 
 	/**
@@ -218,9 +227,8 @@ public abstract class Entity{
 	 */
 	@Raw
 	public void setVelocity(double xVelocity, double yVelocity){
-		if(canHaveAsVelocity(xVelocity, yVelocity)){
+		if(canHaveAsVelocity(xVelocity, yVelocity))
 			this.velocity = new Vector2d(xVelocity, yVelocity);
-		}
 	}
 	
 	/**
@@ -686,8 +694,13 @@ public abstract class Entity{
 	 */
 	@Raw
 	public void setContainer(Container<Entity> container) throws IllegalArgumentException{
-		if(!canHaveAsContainer(container) || this == null)
+		if(!canHaveAsContainer(container))
 			throw new IllegalArgumentException();
+		if(this.container != null && container !=null){
+			Container<Entity> old = getContainer();
+			setContainer(null);
+			old.removeItem(this);
+		}
 		this.container = container;
 		if(container != null)
 			container.addItem(this);

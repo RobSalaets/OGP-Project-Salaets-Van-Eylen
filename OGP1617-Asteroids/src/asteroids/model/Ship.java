@@ -728,7 +728,7 @@ public class Ship extends Entity implements Container<Entity>{
 		Bullet bullet = bullets.iterator().next();
 		Vector2d newPosition = new Vector2d(this.getPosition().getX() + (this.getRadius()+bullet.getRadius()) * Math.cos(this.getOrientation()),
 											this.getPosition().getY() + (this.getRadius()+bullet.getRadius()) * Math.sin(this.getOrientation()));
-		Container<Entity> container = bullet.getContainer();
+		
 		bullet.setContainer(null);
 		this.removeItem(bullet);
 		if(!world.isInBounds(newPosition, bullet.getRadius())){

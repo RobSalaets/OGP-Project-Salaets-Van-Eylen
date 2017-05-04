@@ -66,11 +66,11 @@ public class Vector2d{
 	 * @param  comp
 	 *         The component to check.
 	 * @return 
-	 *       | result == true
+	 *       | result == !Double.isNaN(comp)
 	*/
 	@Raw
 	public boolean canHaveAsComponent(double comp){
-		return true;
+		return !Double.isNaN(comp);
 	}
 	
 	/**
