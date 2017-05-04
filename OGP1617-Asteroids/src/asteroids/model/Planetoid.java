@@ -1,6 +1,8 @@
 package asteroids.model;
 
 import be.kuleuven.cs.som.annotate.Basic;
+import be.kuleuven.cs.som.annotate.Immutable;
+import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Raw;
 
 /**
@@ -9,8 +11,11 @@ import be.kuleuven.cs.som.annotate.Raw;
 public class Planetoid extends MinorPlanet{
 
 	/**
-	 * Initialize this new Planetoid with given x, y, xVelocity, yVelocity, startRadius, mass and container.
+	 * Initialize this new Planetoid with given x, y, xVelocity, yVelocity, startRadius, mass, container
+	 * 	and totalTraveledDistance.
 	 *
+	 * @invar  Each Planetoid can have its totalTraveledDistance as totalTraveledDistance.
+	 *       	| canHaveAsTotalTraveledDistance(this.getTotalTraveledDistance())
 	 * @param x
 	 *     		The x-position for this new Planetoid.
 	 * @param y
@@ -23,18 +28,27 @@ public class Planetoid extends MinorPlanet{
 	 *          The radius for this new Planetoid.
 	 * @param container
 	 * 			The container for this new Planetoid.
+	 * @param totalTraveledDistance
+	 *         	The totalTraveledDistance for this new Planetoid.
 	 * @effect This new Planetoid is initialized as a new MinorPlanet with
 	 * 		   given x, y, xVelocity, yVelocity, startRadius, container and a mass corresponding 
 	 * 			to the startRadius of this Planetoid.
 	 * 			| super(x, y, xVelocity, yVelocity, startRadius, 4.0/3.0*Math.PI*Math.pow(startRadius, 3)*PLANETOID_MASS_DENSITY, container)
 	 * @effect The currentRadius of this new Planetoid is set to
 	 *         the given startRadius.
-	 *       | this.setRadius(startRadius)
+	 *       	| this.setRadius(startRadius)
+	 * @post   The totalTraveledDistance of this new Planetoid is equal to the given
+	 *         totalTraveledDistance.
+	 *       	| new.getTotalTraveledDistance() == totalTraveledDistance
+	 * @effect This Planetoid is shrunk with respect to the given total traveled distance.
+	 * 			| shrink()
 	 */
 	@Raw
-	public Planetoid(double x, double y, double xVelocity, double yVelocity, double startRadius, Container<Entity> container) throws IllegalArgumentException{
+	public Planetoid(double x, double y, double xVelocity, double yVelocity, double startRadius, Container<Entity> container, double totalTraveledDistance){
 		super(x, y, xVelocity, yVelocity, startRadius, 4.0 / 3.0 * Math.PI * Math.pow(startRadius, 3) * PLANETOID_MASS_DENSITY, container);
 		this.setRadius(startRadius);
+		this.setTotalTraveledDistance(totalTraveledDistance);
+		shrink();
 	}
 
 	/**
@@ -57,8 +71,8 @@ public class Planetoid extends MinorPlanet{
 	 * 			| this(x, y, xVelocity, yVelocity, startRadius, null)
 	 */
 	@Raw
-	public Planetoid(double x, double y, double xVelocity, double yVelocity, double startRadius) throws IllegalArgumentException{
-		this(x, y, xVelocity, yVelocity, startRadius, null);
+	public Planetoid(double x, double y, double xVelocity, double yVelocity, double startRadius, double totalTraveledDistance){
+		this(x, y, xVelocity, yVelocity, startRadius, null, totalTraveledDistance);
 	}
 
 	/**
@@ -88,7 +102,54 @@ public class Planetoid extends MinorPlanet{
 	public boolean canHaveAsMass(double mass){
 		return mass > 4.0 / 3.0 * Math.PI * Math.pow(MIN_RADIUS, 3) * PLANETOID_MASS_DENSITY;
 	}
+	
+	/**
+	 * Return the totalTraveledDistance of this Planetoid.
+	 */
+	@Basic @Raw
+	public double getTotalTraveledDistance() {
+		return this.totalTraveledDistance;
+	}
+	
+	/**
+	 * Check whether the given totalTraveledDistance is a valid totalTraveledDistance for
+	 * this Planetoid.
+	 *  
+	 * @param  totalTraveledDistance
+	 *         The totalTraveledDistance to check.
+	 * @return True if the totalTraveledDistance is finite and not negative.
+	 *       | result == totalTraveledDistance >= 0
+	 */
+	public boolean canHaveAsTotalTraveledDistance(double totalTraveledDistance) {
+		return totalTraveledDistance >= 0;
+	}
 
+	/**
+	 * Set the totalTraveledDistance of this Planetoid to the given totalTraveledDistance.
+	 * 
+	 * @param  totalTraveledDistance
+	 *         The new totalTraveledDistance for this Planetoid.
+	 * @post   The totalTraveledDistance of this new Planetoid is equal to
+	 *         the given totalTraveledDistance.
+	 *       | new.getTotalTraveledDistance() == totalTraveledDistance
+	 * @throws IllegalArgumentException
+	 *         The given totalTraveledDistance is not a valid totalTraveledDistance for any
+	 *         Planetoid.
+	 *       | ! isValidTotalTraveledDistance(getTotalTraveledDistance())
+	 */
+	@Raw
+	public void setTotalTraveledDistance(double totalTraveledDistance) 
+			throws IllegalArgumentException {
+		if (! canHaveAsTotalTraveledDistance(totalTraveledDistance))
+			throw new IllegalArgumentException();
+		this.totalTraveledDistance = totalTraveledDistance;
+	}
+
+	/**
+	 * Variable registering the totalTraveledDistance of this Planetoid.
+	 */
+	private double totalTraveledDistance;
+	
 	/**
 	 * Move the Planetoid to a new position given a time duration,
 	 * with respect to this Planetoid's current velocity.
@@ -105,11 +166,8 @@ public class Planetoid extends MinorPlanet{
 	public void move(double timeDelta) throws IllegalArgumentException{
 		super.move(timeDelta);
 		double distance = getVelocity().mul(timeDelta).getLength();
-		double newRadius = getRadius() - distance * 0.000001;//Komt op hetzelfde neer als de totale afgelegde weg bijhouden TODO remove
-		if(canHaveAsRadius(newRadius))
-			this.setRadius(newRadius);	
-		else
-			this.terminate();
+		setTotalTraveledDistance(getTotalTraveledDistance() + distance);
+		shrink();
 	}
 
 	/**
@@ -120,7 +178,35 @@ public class Planetoid extends MinorPlanet{
 	public double getRadius(){
 		return this.currentRadius;
 	}
-
+	
+	/**
+	 * Return the start radius of this Planetoid.
+	 */
+	@Basic
+	@Raw
+	@Immutable
+	public double getStartRadius(){
+		return this.radius;
+	}
+	
+	/**
+	 *  Shrinks the current radius of this Planetoid to the new radius if the new radius is valid, 
+	 *  else this Planetoid will be terminated.
+	 *  
+	 * @post	| if(canHaveAsRadius(this.getStartRadius() - 0.000001*getTotalTraveledDistance())
+	 * 			| then new.getRadius() == (this.getStartRadius() - 0.000001*getTotalTraveledDistance())
+	 * @post	| if(!canHaveAsRadius(this.getStartRadius() - 0.000001*getTotalTraveledDistance())
+	 * 			| then new.isTerminated()
+	 */
+	@Model
+	private void shrink(){
+		double newRadius = this.getStartRadius() - 0.000001*getTotalTraveledDistance();
+		if(canHaveAsRadius(newRadius))
+			setRadius(newRadius);
+		else
+			this.terminate();
+	}
+	
 	/**
 	 * Set the currentRadius of this Planetoid to the given radius.
 	 * 
@@ -148,4 +234,7 @@ public class Planetoid extends MinorPlanet{
 	 * Variable registering the current radius of this Planetoid.
 	 */
 	private double currentRadius;
+	
+	
 }
+

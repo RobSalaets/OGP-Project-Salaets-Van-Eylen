@@ -66,11 +66,11 @@ public class Vector2d{
 	 * @param  comp
 	 *         The component to check.
 	 * @return 
-	 *       | result == Double.isFinite(comp)
+	 *       | result == !Double.isNaN(comp)
 	*/
 	@Raw
 	public boolean canHaveAsComponent(double comp){
-		return Double.isFinite(comp);
+		return !Double.isNaN(comp);
 	}
 	
 	/**

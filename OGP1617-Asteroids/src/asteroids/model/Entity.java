@@ -104,20 +104,20 @@ public abstract class Entity{
 	 * 			The x-position to check.
 	 * @param y
 	 * 			The y-position to check.
-	 * @return In all cases the given x and y must be finite values.
- 	 *			If the container of this Entity is effective the position must be 
+	 * @return If the container of this Entity is effective the position must be 
 	 * 			in the bounds specified by the container. Otherwise the position 
-	 * 			is unbounded.
+	 * 			is unbounded. And in all cases the given x and y must be a number.
 	 * 			| if(getContainer() != null)
 	 * 			| then result == getContainer().isInbounds(new Vector2d(x,y), getRadius())
-	 * 			|				&& Double.isFinite(x) && Double.isFinite(y)
-	 * 			| else result == Double.isFinite(x) && Double.isFinite(y)
+	 * 			| 	&& !Double.isNaN(x) && !Double.isNaN(y)
+	 * 			| else result == !Double.isNaN(x) && !Double.isNaN(y)
 	 */
 	public boolean canHaveAsPosition(double x, double y){
-		if(!Double.isFinite(x) || !Double.isFinite(y))
+		if (Double.isNaN(x) || Double.isNaN(y))
 			return false;
 		if(getContainer() != null)
 			return getContainer().isInBounds(new Vector2d(x, y), getRadius());
+		
 		return true;
 	}
 	
@@ -174,7 +174,11 @@ public abstract class Entity{
 	 */
 	@Raw
 	public boolean canHaveAsVelocity(double xVelocity, double yVelocity){
-		return new Vector2d(xVelocity, yVelocity).getLength() <= getMaxVelocity();
+		try{
+			return new Vector2d(xVelocity, yVelocity).getLength() <= getMaxVelocity();			
+		}catch(IllegalArgumentException ex){
+			return false;
+		}
 	}
 
 	/**
@@ -223,9 +227,8 @@ public abstract class Entity{
 	 */
 	@Raw
 	public void setVelocity(double xVelocity, double yVelocity){
-		if(canHaveAsVelocity(xVelocity, yVelocity)){
+		if(canHaveAsVelocity(xVelocity, yVelocity))
 			this.velocity = new Vector2d(xVelocity, yVelocity);
-		}
 	}
 	
 	/**
@@ -281,11 +284,11 @@ public abstract class Entity{
 	 *  
 	 * @param radius
 	 *            The radius to check.
-	 * @return | result == getMinRadius() < radius
+	 * @return | result == getMinRadius() <= radius
 	 */
 	@Raw
 	public boolean canHaveAsRadius(double radius){
-		return getMinRadius() < radius;
+		return getMinRadius() <= radius;
 	}
 
 	/**
@@ -296,7 +299,7 @@ public abstract class Entity{
 	/**
 	 * Variable registering the radius of this Entity in kilometres.
 	 */
-	private final double radius;
+	protected final double radius;
 
 	/**
 	 * Return the mass of this Entity.
@@ -435,15 +438,16 @@ public abstract class Entity{
 	 * 			| 	   otherCollision = other.getPosition().add(other.getVelocity().mul(value))
 	 * 			|    in
 	 * 			| 	   thisCollision.sub(otherCollision).getLength() > this.getRadius() + other.getRadius()
+	 * @return If the container of this Entity and the given Entity does not match then there will be no
+	 * 			collision so the time till the collision will be considered as infinity.
+	 * 			| if this.getContainer() != other.getContainer()
+	 * 			| then new.getTimeToCollision(other) == Double.POSITIVE_INFINITY
 	 * @throws NullPointerException
 	 * 			The other entity is ineffective
 	 * 			| other == null
 	 * @throws IllegalArgumentException 
 	 * 			The entities overlap
 	 * 			| this.overlaps(other)
-	 * @throws IllegalArgumentException 
-	 * 			The container of this Entity and the given Entity does not match
-	 * 			| this.getContainer() != other.getContainer()
 	 */
 	public double getTimeToCollision(Entity other) throws NullPointerException, IllegalArgumentException{
 		if(other == null)
@@ -451,7 +455,7 @@ public abstract class Entity{
 		if(this.overlaps(other))
 			throw new IllegalArgumentException(); 
 		if(this.getContainer() != other.getContainer())
-			throw new IllegalArgumentException();
+			return Double.POSITIVE_INFINITY;
 
 		double sigmaSq = Math.pow(this.getRadius() + other.getRadius(), 2);
 		double rDotr = this.getPosition().sub(other.getPosition()).getLengthSquared();
@@ -659,7 +663,7 @@ public abstract class Entity{
 	}
 
 	public abstract boolean canHaveAsContainer(Container<Entity> container);
-
+	
 	/**
 	 * Check whether this Entity has a proper container.
 	 * 
@@ -692,6 +696,11 @@ public abstract class Entity{
 	public void setContainer(Container<Entity> container) throws IllegalArgumentException{
 		if(!canHaveAsContainer(container))
 			throw new IllegalArgumentException();
+		if(this.container != null && container !=null){
+			Container<Entity> old = getContainer();
+			setContainer(null);
+			old.removeItem(this);
+		}
 		this.container = container;
 		if(container != null)
 			container.addItem(this);
