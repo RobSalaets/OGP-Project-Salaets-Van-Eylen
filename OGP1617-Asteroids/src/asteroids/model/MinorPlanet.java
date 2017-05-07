@@ -61,10 +61,10 @@ public abstract class MinorPlanet extends Entity{
 	 * 			|	 collisionData.getOther(this) instanceof MinorPlanet) 
 	 * 			| then resolveBounceCollision(collisionData.getOther(this), getMass(),
 	 * 			|								 collisionData.getOther(this).getMass())
-	 * @effect 	If the collisionType is INTER_ENTITY and the other entity is a Bullet,
-	 * 			the collision will be resolved by the bullet.
+	 * @effect 	If the collisionType is INTER_ENTITY, and the other is no MinorPlanet
+	 * 			the collision will be resolved by the other Entity.
 	 * 			| if(collisionData.getCollisionType() == CollisionType.INTER_ENTITY && 
-	 * 			|		collisionData.getOther(this) instanceof Bullet) 
+	 * 			|		!(collisionData.getOther(this) instanceof MinorPlanet)) 
 	 * 			| then collisionData.getOther(this).resolve(collisionData)
 	 * @throws IllegalArgumentException
 	 * 			| !(collisionData.getCollisionType() == CollisionType.BOUNDARY ||
@@ -78,7 +78,7 @@ public abstract class MinorPlanet extends Entity{
 			Entity other = collisionData.getOther(this);
 			if(other instanceof MinorPlanet)
 				resolveBounceCollision(other, getMass(), ((MinorPlanet) other).getMass());
-			else if(other instanceof Bullet)
+			else 
 				other.resolve(collisionData);
 		}else{
 			throw new IllegalArgumentException();

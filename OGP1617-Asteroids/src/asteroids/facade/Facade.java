@@ -412,7 +412,6 @@ public class Facade implements IFacade{
 
 	@Override
 	public int getNbStudentsInTeam(){
-		
 		return 2;
 	}
 

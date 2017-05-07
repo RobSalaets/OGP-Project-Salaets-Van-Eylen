@@ -436,9 +436,9 @@ public class Ship extends Entity implements Container<Entity>{
 				resolveBounceCollision(other, getTotalMass(), ((Ship) other).getTotalMass());
 			else if(other instanceof Asteroid)
 				this.terminate();
-			else if(other instanceof Planetoid){
+			else if(other instanceof Planetoid)
 				teleport();
-			}else
+			else
 				other.resolve(collisionData);
 		}else{
 			throw new IllegalArgumentException();
@@ -468,7 +468,6 @@ public class Ship extends Entity implements Container<Entity>{
 				this.terminate();
 			else
 				setPosition(newPos.getX(), newPos.getY());
-			
 		}
 	}
 
