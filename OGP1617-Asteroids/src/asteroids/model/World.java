@@ -127,18 +127,20 @@ public class World implements Container<Entity>{
 	 * @param timeDelta
 	 * 			The amount of time to apply to the current state of this World.
 	 * @throws IllegalArgumentException
-	 * 			| timeDelta < 0.0
+	 * 			| timeDelta < 0.0 
 	 */
 	public void evolve(double timeDelta) throws IllegalArgumentException{
-		if(timeDelta < 0.0)
-			throw new IllegalArgumentException();
-		CollisionData next = getNextCollision();
-		if(next.getTimeToCollision() > timeDelta){
-			advanceEntities(timeDelta);
+		if(timeDelta >= 0.0){
+			CollisionData next = getNextCollision();
+			if(next.getTimeToCollision() > timeDelta){
+				advanceEntities(timeDelta);
+			}else{
+				advanceEntities(next.getTimeToCollision());
+				next.resolve();
+				evolve(timeDelta - next.getTimeToCollision());
+			}	
 		}else{
-			advanceEntities(next.getTimeToCollision());
-			next.resolve();
-			evolve(timeDelta - next.getTimeToCollision());
+			throw new IllegalArgumentException();			
 		}
 	}
 	
@@ -150,30 +152,31 @@ public class World implements Container<Entity>{
 	 * 			| timeDelta < 0.0 || cl == null
 	 */
 	public void evolve(double timeDelta, CollisionListener cl) throws IllegalArgumentException{
-		if(timeDelta < 0.0 || cl == null)
-			throw new IllegalArgumentException();
-		CollisionData next = getNextCollision();
-		if(next.getTimeToCollision() > timeDelta){
-			advanceEntities(timeDelta);
-		}else{
-			advanceEntities(next.getTimeToCollision());
-			if(next.getCollisionType() == CollisionType.INTER_ENTITY){
-				boolean showCollision = true;
-				for(Entity e : next.getColliders())
-					if(e instanceof Bullet && ((Bullet) e).getSource() != null
-					&& next.getOther(e) == ((Bullet) e).getSource())
-						showCollision = false;
-				synchronized(cl){
-					if(showCollision){
-						cl.notify();
-						cl.objectCollision(next.getColliders().get(0), next.getColliders().get(1),
-								next.getCollisionPoint().getX(), next.getCollisionPoint().getY());
+		if(timeDelta >= 0.0 && cl != null){
+			CollisionData next = getNextCollision();
+			if(next.getTimeToCollision() > timeDelta){
+				advanceEntities(timeDelta);
+			}else{
+				advanceEntities(next.getTimeToCollision());
+				if(next.getCollisionType() == CollisionType.INTER_ENTITY){
+					boolean showCollision = true;
+					for(Entity e : next.getColliders())
+						if(e instanceof Bullet && ((Bullet) e).getSource() != null
+						&& next.getOther(e) == ((Bullet) e).getSource())
+							showCollision = false;
+					synchronized(cl){
+						if(showCollision){
+							cl.notify();
+							cl.objectCollision(next.getColliders().get(0), next.getColliders().get(1),
+									next.getCollisionPoint().getX(), next.getCollisionPoint().getY());
+						}
 					}
 				}
+				next.resolve();
+				evolve(timeDelta - next.getTimeToCollision(), cl);
 			}
-			next.resolve();
-			evolve(timeDelta - next.getTimeToCollision(), cl);
-		}
+		}else
+			throw new IllegalArgumentException();
 	}
 	
 	/**
@@ -368,7 +371,8 @@ public class World implements Container<Entity>{
 	 *         The Entity to check.
 	 * @return True if and only if the given Entity is effective and this World is a valid container
 	 * 			for the Entity and the Entity is in the bounds of this World and
-	 * 			references this World as its container and does not overlap with any other Entity of this World.
+	 * 			references this World as its container and does not overlap with any other Entity of this World,
+	 * 			and if the current container is not an instance of World.
 	 *       | result == (item != null) && item.canHaveAsContainer(this) && isInBounds(item.getPosition(), item.getRadius())
 	 *       | 				&& overlapsWithAnyEntity(item).size() == 0
 	 */
@@ -423,7 +427,7 @@ public class World implements Container<Entity>{
 	 */
 	@Override
 	public void addItem(Entity item) throws IllegalArgumentException{
-		if(!canHaveAsItem(item) || item.getContainer() != this || hasAsItem(item) )
+		if(!canHaveAsItem(item) || item.getContainer() != this || hasAsItem(item))
 			throw new IllegalArgumentException();
 		entities.put(item.getPosition(), item);
 	}
@@ -438,7 +442,7 @@ public class World implements Container<Entity>{
 	 *       | ! new.hasAsItem(item)
 	 * @throws IllegalArgumentException
 	 * 		   The World does not have the given Entity as one of its entities
-	 * 		   or the given Entity still references any World as its container.
+	 * 		   or the given Entity still references any World as its container or the given Entity is null.
 	 * 			| !this.hasAsItem(item) || item.getContainer() != null
 	 */
 	@Override
@@ -495,6 +499,28 @@ public class World implements Container<Entity>{
 	public Set<MinorPlanet> getMinorPlanets(){
 //		return entities.values().stream().filter(e -> e instanceof MinorPlanet).map(e->(MinorPlanet)e).collect(Collectors.toSet());
 		return null;
+	}
+	
+	/**
+	* Return a set of all the asteroids of this world.
+	* 
+	* @return Each asteroid in the resulting set is an item of this World.
+	 * 		 | for each asteroid in result:
+	 * 		 | 	this.hasAsItem(asteroid)
+	*/
+	public Set<Asteroid> getAsteroids(){
+		return entities.values().stream().filter(e -> e instanceof Asteroid).map(e->(Asteroid)e).collect(Collectors.toSet());
+	}
+	
+	/**
+	* Return a set of all the planetoids of this world.
+	* 
+	* @return Each planetoid in the resulting set is an item of this World.
+	 * 		 | for each planetoid in result:
+	 * 		 | 	this.hasAsItem(planetoid)
+	*/
+	public Set<Planetoid> getPlanetoids(){
+		return entities.values().stream().filter(e -> e instanceof Planetoid).map(e->(Planetoid)e).collect(Collectors.toSet());
 	}
 	
 	/**
