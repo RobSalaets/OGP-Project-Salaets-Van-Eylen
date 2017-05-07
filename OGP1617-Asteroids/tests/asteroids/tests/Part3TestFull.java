@@ -10,6 +10,7 @@ import static org.junit.Assert.fail;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,6 +61,12 @@ public class Part3TestFull {
     facade.addShipToWorld(filledWorld, ship2);
     bullet1 = facade.createBullet(300, 320, 10, 5, 50);
     facade.addBulletToWorld(filledWorld, bullet1);
+  }
+  
+  @After
+  public void checkScore(){
+//	  if(max_score != score)
+//		  throw new IllegalStateException();
   }
 
   @Test

@@ -98,15 +98,6 @@ public abstract class MinorPlanet extends Entity{
 	 *         this MinorPlanet belonged.
 	 *       | if (! isTerminated())
 	 *       |   then ! new.getContainer().hasAsItem(this))
-	 * @post   If this MinorPlanet was not yet terminated, the size of
-	 *         the container to which this MinorPlanet belonged is decremented by 1.
-	 *       | if (! isTerminated())
-	 *       |   then new.getContainer().getNbItems() ==
-	 *       |            getContainer().getNbItems() - 1
-	 * @post  If this MinorPlanet was not yet terminated, the source of this MinorPlanet
-	 * 		  is not effective.
-	 * 		 | if (! isTerminated())
-	 * 		 | new.getSource() == null
 	 */
 	@Override
 	public void terminate(){

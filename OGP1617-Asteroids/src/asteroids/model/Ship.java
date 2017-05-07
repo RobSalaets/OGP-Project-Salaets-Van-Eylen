@@ -390,7 +390,6 @@ public class Ship extends Entity implements Container<Entity>{
 		}
 	}
 	
-	
 	/**
 	 * Resolve given collision case appropriatly
 	 * 
@@ -411,10 +410,10 @@ public class Ship extends Entity implements Container<Entity>{
 	 * 			|	 collisionData.getOther(this) instanceof Asteroid) 
 	 * 			| then this.terminate()
 	 * @effect  If the collisionType is INTER_ENTITY and the other entity is a Planetoid,
-	 * 			the collision will be handled so ////TODO.
+	 * 			the collision will be handled so this Ship is teleported.
 	 * 			| if(collisionData.getCollisionType() == CollisionType.INTER_ENTITY && 
 	 * 			|	 collisionData.getOther(this) instanceof Planetoid) 
-	 * 			| then ////
+	 * 			| then teleport()
 	 * @effect 	If the collisionType is INTER_ENTITY and the other entity is not a Ship, Asteroid
 	 *  		or Planetoid the collision will be resolved by the other entity.
 	 * 			| if(collisionData.getCollisionType() == CollisionType.INTER_ENTITY && 
@@ -453,8 +452,10 @@ public class Ship extends Entity implements Container<Entity>{
 	 * 		 at the chosen position, this ship is terminated.
 	 * 			| if(getContainer() instanceof World) 
 	 * 			| then let newPos = new Vector2d((World getContainer()).getWidth() * Math.random(), (World getContainer()).getHeight() * Math.random())
-	 * 			| in 
-	 * 			| 	TODO
+	 * 			| 	in 
+	 * 			| 	if((World getContainer()).overlapsWithAnyEntity(newPos, getRadius()).size() > 0)
+	 * 			| 	then new.isTerminated()
+	 * 			| 	else (World getContainer()).isInBounds(new.getPosition(), new.getRadius()) 
 	 */
 	@Model
 	private void teleport(){
@@ -464,7 +465,7 @@ public class Ship extends Entity implements Container<Entity>{
 			do{
 				newPos = new Vector2d(world.getWidth() * Math.random(), world.getHeight() * Math.random());
 			}while(!world.isInBounds(newPos, getRadius()));
-			if(world.overlapsWithAnyEntity(new Ship(newPos.getX(), newPos.getY(), 0, 0, getOrientation(), getRadius(), getMass())).size() > 0)
+			if(world.overlapsWithAnyEntity(newPos, getRadius()).size() > 0)
 				this.terminate();
 			else
 				setPosition(newPos.getX(), newPos.getY());
@@ -611,8 +612,6 @@ public class Ship extends Entity implements Container<Entity>{
 				oldContainer.removeItem(this);
 			}
 			for(Bullet bullet : new ArrayList<Bullet>(bullets)){
-				bullet.setContainer(null);
-				removeItem(bullet);	
 				bullet.terminate();
 			}
 			this.isTerminated = true;
@@ -669,20 +668,19 @@ public class Ship extends Entity implements Container<Entity>{
 	 * @throws IllegalArgumentException
 	 * 			If the given bullet(s) has a current container and the container
 	 * 			is not this Ships world container.
-	 * 			| ! ( bullet.getContainer() instanceof World && bullet.getContainer() == getContainer())
+	 * 			| ! ( bullet.getContainer() instanceof World && bullet.getContainer() == getContainer()) //TODO
 	 */
 	public void loadBullet(Bullet... bullets) throws NullPointerException, IllegalArgumentException{
 		if(bullets.length == 0)
 			throw new NullPointerException();
 		for (Bullet bullet : bullets){
-			if(bullet.getContainer() != null){
-				Container<Entity> old = bullet.getContainer();
-				if(!(old instanceof World) || old != this.getContainer())
-					throw new IllegalArgumentException();
-				bullet.setContainer(null);
-				old.removeItem(bullet);
-			}
+			if(bullet.getContainer() != null &&
+			(!(bullet.getContainer() instanceof World) || bullet.getContainer() != this.getContainer()))
+				throw new IllegalArgumentException();
+			if(!isInBounds(bullet.getPosition(), bullet.getRadius()))
+				throw new IllegalArgumentException();
 			bullet.setContainer(this);
+			addItem(bullet);
 			bullet.resetBoundaryCollisionCount();
 		}
 	}
@@ -700,7 +698,7 @@ public class Ship extends Entity implements Container<Entity>{
 	 *		|								this.getPosition().getY() + (this.getRadius()+bullet.getRadius()) * Math.sin(this.getOrientation()))
 	 * 		| for one bullet in bullets:
 	 * 		| 	if((getContainer() instanceof World) && (bullets.size() > 0) &&
-	 * 		|		getContainer().overlapsWithAnyEntity().size() == 0 && getContainer().isInBounds(newPosition, bullet.getRadius())
+	 * 		|		getContainer().overlapsWithAnyEntity(bullet).size() == 0 && getContainer().isInBounds(newPosition, bullet.getRadius())
 	 * 		| 	then 	bullet.getContainer() == this.getContainer() &&
 	 *		|			this.getContainer().hasAsItem(bullet) && !new.hasAsItem(bullet) &&
 	 *		|			bullet.getPosition().equals(newPosition) &&
@@ -729,7 +727,7 @@ public class Ship extends Entity implements Container<Entity>{
 											this.getPosition().getY() + (this.getRadius()+bullet.getRadius()) * Math.sin(this.getOrientation()));
 		
 		bullet.setContainer(null);
-		this.removeItem(bullet);
+		removeItem(bullet);
 		if(!world.isInBounds(newPosition, bullet.getRadius())){
 			bullet.terminate();
 			return;
@@ -743,8 +741,8 @@ public class Ship extends Entity implements Container<Entity>{
 			for(Entity e : overlapping)
 				new CollisionData(0.0, null, CollisionType.INTER_ENTITY, Arrays.asList(new Entity[]{bullet, e})).resolve();
 			return;
-		}else
-			bullet.setContainer(world);			
-		
+		}
+		bullet.setContainer(world);			
+		world.addItem(bullet);
 	}
 }

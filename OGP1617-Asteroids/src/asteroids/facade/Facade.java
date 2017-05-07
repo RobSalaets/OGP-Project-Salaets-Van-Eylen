@@ -247,6 +247,7 @@ public class Facade implements IFacade{
 	public void addShipToWorld(World world, Ship ship) throws ModelException{
 		try{
 			ship.setContainer(world);
+			world.addItem(ship);
 		}catch (IllegalArgumentException e){
 			throw new ModelException(e);
 		}catch(NullPointerException e){
@@ -257,10 +258,11 @@ public class Facade implements IFacade{
 	@Override
 	public void removeShipFromWorld(World world, Ship ship) throws ModelException{
 		try{
-			if(ship != null)
-				ship.setContainer(null);
+			ship.setContainer(null);
 			world.removeItem(ship);
 		}catch (IllegalArgumentException e){
+			throw new ModelException(e);
+		}catch(NullPointerException e){
 			throw new ModelException(e);
 		}
 	}
@@ -269,6 +271,7 @@ public class Facade implements IFacade{
 	public void addBulletToWorld(World world, Bullet bullet) throws ModelException{
 		try{
 			bullet.setContainer(world);
+			world.addItem(bullet);
 		}catch (IllegalArgumentException e){
 			throw new ModelException(e);
 		}
@@ -424,6 +427,7 @@ public class Facade implements IFacade{
 	public void addAsteroidToWorld(World world, Asteroid asteroid) throws ModelException{
 		try{
 			asteroid.setContainer(world);
+			world.addItem(asteroid);
 			
 		}catch (IllegalArgumentException e){
 			throw new ModelException(e);
@@ -449,7 +453,7 @@ public class Facade implements IFacade{
 	public void addPlanetoidToWorld(World world, Planetoid planetoid) throws ModelException{
 		try{
 			planetoid.setContainer(world);
-			
+			world.addItem(planetoid);
 		}catch (IllegalArgumentException e){
 			throw new ModelException(e);
 		}

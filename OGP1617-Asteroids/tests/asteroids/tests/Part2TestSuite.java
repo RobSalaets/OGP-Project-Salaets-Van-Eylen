@@ -802,7 +802,8 @@ public class Part2TestSuite{
 		Ship shipContainer = facade.createShip(500, 500, 0, 0, 200, 0, 15e20);
 		Ship shipItem = facade.createShip(500, 500, 0, 0, 200, 0, 15e20);
 		try{
-			shipItem.setContainer(shipContainer);		
+			shipItem.setContainer(shipContainer);	
+			shipContainer.addItem(shipItem);
 		}catch(IllegalArgumentException ex){
 			throw new ModelException(ex);
 		}

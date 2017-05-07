@@ -230,7 +230,7 @@ public class Bullet extends Entity{
 	 * @param collisionData
 	 * 			The given collision case
 	 * @effect 	| if(collisionData.getCollisionType() == CollisionType.BOUNDARY) 
-	 * 			| then resolveBoundaryCollision(collisionData) TODO check if legit
+	 * 			| then resolveBoundaryCollision(collisionData)
 	 * @effect 	| if(collisionData.getCollisionType() == CollisionType.INTER_ENTITY && 
 	 * 			|		collisionData.getColliders().contains(getSource())) 
 	 * 			| then getSource().loadBullet(this)
@@ -248,9 +248,13 @@ public class Bullet extends Entity{
 			resolveBoundaryCollision(collisionData);
 		else if(collisionData.getCollisionType() == CollisionType.INTER_ENTITY){
 			Entity other = collisionData.getOther(this);
-			if(other instanceof Ship && other == getSource())
+			if(other instanceof Ship && other == getSource()){
+				Container<Entity> old = getContainer();
+				setContainer(null);
+				old.removeItem(this);
+				setPosition(other.getPosition().getX(), other.getPosition().getY());
 				getSource().loadBullet(this);
-			else{
+			}else{
 				this.terminate();
 				other.terminate();
 			}

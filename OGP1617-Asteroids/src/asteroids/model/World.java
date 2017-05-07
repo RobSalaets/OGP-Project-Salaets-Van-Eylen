@@ -539,8 +539,8 @@ public class World implements Container<Entity>{
 	
 	/**
 	 * Return the entities which the given entity overlaps with in this world.
-	 * This function is used an entity not yet in the entities of this world,
-	 * otherwise this function should always return an empty list.
+	 * This function is used for an entity not yet in the entities of this world,
+	 * otherwise this function returns an empty list.
 	 * 
 	 * @param entity
 	 * 		The entity to check.
@@ -553,12 +553,25 @@ public class World implements Container<Entity>{
 	public List<Entity> overlapsWithAnyEntity(Entity entity) throws NullPointerException{
 		if (entity == null)
 			throw new NullPointerException();
-		ArrayList<Entity> result = new ArrayList<>();
-		for (Entity other : entities.values())
-			if (entity.overlaps(other) && !entity.equals(other))
-				result.add(other);
-		
-		return result;
+		return entities.values().stream().filter(e -> e.overlaps(entity) && !entity.equals(e)).collect(Collectors.toList());
+	}
+	
+	/**
+	 * Return the entities which an object with given radius and position, would overlap with in this world.
+	 * 
+	 * @param position 
+	 * 		The given position.
+	 * @return The resulting list contains entities that overlap with an entity with given position 
+	 * 			and radius.
+	 * 		| for each other in result:
+	 * 		|	entity.overlapsCircle(position, radius)
+	 * @throws NullPointerException
+	 * 		| position == null
+	 */
+	public List<Entity> overlapsWithAnyEntity(Vector2d position, double radius) throws NullPointerException{
+		if (position == null)
+			throw new NullPointerException();
+		return entities.values().stream().filter(e -> e.overlapsCircle(position, radius)).collect(Collectors.toList());
 	}
 
 	/**

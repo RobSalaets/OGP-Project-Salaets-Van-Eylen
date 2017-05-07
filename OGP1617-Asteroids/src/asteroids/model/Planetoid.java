@@ -81,6 +81,11 @@ public class Planetoid extends MinorPlanet{
 	public static final double PLANETOID_MASS_DENSITY = 0.917e12;
 	
 	/**
+	 * The minimum radius for a planetoid to spawn asteroids on termination, in kilometres.
+	 */
+	public static final double PLANETOID_MIN_SPAWN_RADIUS = 30.0;
+	
+	/**
 	 * Return the lowest possible massDensity for any Planetoid.
 	 * 
 	 * @return 
@@ -235,6 +240,28 @@ public class Planetoid extends MinorPlanet{
 	 */
 	private double currentRadius;
 	
-	
+	/**
+	 * Terminate this Planetoid.
+	 * If the radius of this Planetoid is bigger than the PLANETOID_MIN_SPAWN_RADIUS,
+	 * two asteroids are added to the former world container of this Planetoid.
+	 * 
+	 * @effect | super.terminate()
+	 * @post   | if(!isTerminated() && getContainer() instanceof World && getRadius() >= PLANETOID_MIN_SPAWN_RADIUS)
+	 * 		   | then getContainer().getNbItems() + 1 == (new getContainer()).getNbItems()
+	 */
+	@Override
+	public void terminate(){
+		Container<Entity> oldContainer = getContainer();
+		super.terminate();
+		if(!isTerminated() && oldContainer instanceof World && getRadius() >= PLANETOID_MIN_SPAWN_RADIUS){
+			Vector2d randomDirection = Vector2d.randomUnit();
+			Vector2d pos1 = getPosition().add(randomDirection.mul(getRadius()/2.0));
+			Vector2d pos2 = getPosition().sub(randomDirection.mul(getRadius()/2.0));
+			Vector2d vel1 = randomDirection.mul(1.5 * getVelocity().getLength());
+			Vector2d vel2 = randomDirection.mul(-1.5 * getVelocity().getLength());
+			new Asteroid(pos1.getX(), pos1.getY(), vel1.getX(), vel1.getY(), getRadius()/2.0, oldContainer);
+			new Asteroid(pos2.getX(), pos2.getY(), vel2.getX(), vel2.getY(), getRadius()/2.0, oldContainer);
+		}
+	}
 }
 

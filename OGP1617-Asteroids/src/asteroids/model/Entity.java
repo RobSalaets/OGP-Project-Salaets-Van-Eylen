@@ -86,6 +86,7 @@ public abstract class Entity{
 		this.radius = radius;
 		this.setMass(mass);
 		setContainer(container);
+		if(container != null)container.addItem(this);
 	}
 
 	/**
@@ -374,9 +375,10 @@ public abstract class Entity{
 	 * 			| timeDelta < 0.0
 	 */
 	public void move(double timeDelta) throws IllegalArgumentException{
-		if(timeDelta < 0.0)
+		if(timeDelta >= 0.0)
+			setPosition(getPosition().getX() + timeDelta * getVelocity().getX(), getPosition().getY() + timeDelta * getVelocity().getY());			
+		else
 			throw new IllegalArgumentException();
-		setPosition(getPosition().getX() + timeDelta * getVelocity().getX(), getPosition().getY() + timeDelta * getVelocity().getY());
 	}
 
 	/**
@@ -402,14 +404,31 @@ public abstract class Entity{
 	 * 
 	 * @param  other
 	 * 			The other Entity
-	 * @return result == (this == other || this.getPosition().sub(other.getPosition()).getLength() <= 0.99 * (this.getRadius() + other.getRadius()))
+	 * @return 	| result == (this == other || overlapsCircle(other.getPosition(), other.getRadius())
 	 * @throws NullPointerException
 	 * 			| other == null
 	 */
 	public boolean overlaps(Entity other) throws NullPointerException{
 		if(other == null)
 			throw new NullPointerException();
-		return this == other || (this.getPosition().sub(other.getPosition()).getLength() <= 0.99 * (this.getRadius() + other.getRadius()));
+		return this == other || overlapsCircle(other.getPosition(), other.getRadius());
+	}
+	
+	/**
+	 * Check if this Entity (significantly) overlaps with a given circular object
+	 * 
+	 * @param position
+	 * 		The position of the circle to check.
+	 * @param radius
+	 * 		The radius of the circle to check.
+	 * @return | result ==  (this.getPosition().sub(position).getLength() <= 0.99 * (this.getRadius() + radius))
+	 * @throws NullPointerException
+	 * 			| position == null
+	 */
+	public boolean overlapsCircle(Vector2d position, double radius) throws NullPointerException{
+		if(position == null)
+			throw new NullPointerException();
+		return (this.getPosition().sub(position).getLength() <= 0.99 * (this.getRadius() + radius));
 	}
 
 	/**
@@ -686,24 +705,16 @@ public abstract class Entity{
 	 * @post   The container of this Entity is the same as the
 	 *         given container.
 	 *       | new.getContainer() == container
-	 * @effect Adds this Entity to the container.
-	 * 		 | container.addItem(this)
 	 * @throws IllegalArgumentException
 	 *         This Entity cannot have the given container as its container.
-	 *       | ! canHaveAsContainer(container)
+	 *         Or the given container is effective and this Entity already has an effective Container.
+	 *       | ! canHaveAsContainer(container) || (getContainer() != null && container != null)
 	 */
 	@Raw
 	public void setContainer(Container<Entity> container) throws IllegalArgumentException{
-		if(!canHaveAsContainer(container))
+		if(!canHaveAsContainer(container) || (getContainer() != null && container != null))
 			throw new IllegalArgumentException();
-		if(this.container != null && container !=null){
-			Container<Entity> old = getContainer();
-			setContainer(null);
-			old.removeItem(this);
-		}
 		this.container = container;
-		if(container != null)
-			container.addItem(this);
 	}
 
 	/**

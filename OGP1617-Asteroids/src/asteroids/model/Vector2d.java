@@ -260,6 +260,15 @@ public class Vector2d{
 						- directionB.getX() * originB.getY() + directionB.getY() * originB.getX()) / n;
 		return alpha;
 	}
+	
+	/**
+	 * Returns a random unit vector.
+	 * @see Implementation
+	 */
+	public static Vector2d randomUnit(){
+		double argument = Math.random() * 2 * Math.PI;
+		return new Vector2d(Math.cos(argument), Math.sin(argument));
+	}
 
 	/**
 	 * Return the velocity components as an array
