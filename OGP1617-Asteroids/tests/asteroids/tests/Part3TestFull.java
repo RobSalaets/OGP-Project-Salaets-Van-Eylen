@@ -130,6 +130,7 @@ public class Part3TestFull {
     score += 3;
   }
 
+  @Test
   public void testCreateShipRadiusNan() throws ModelException {
     try {
       max_score += 1;
