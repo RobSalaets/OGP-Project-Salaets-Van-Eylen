@@ -6,238 +6,238 @@ import asteroids.model.Program;
 import asteroids.part3.programs.IProgramFactory;
 import asteroids.part3.programs.SourceLocation;
 
-public class ProgramFactory implements IProgramFactory<Object, Object, Object, Program>{
+public class ProgramFactory implements IProgramFactory<Expression, Statement, Function, Program>{
 
 	@Override
-	public Program createProgram(List<Object> functions, Object main){
+	public Program createProgram(List<Function> functions, Statement main){
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Object createFunctionDefinition(String functionName, Object body, SourceLocation sourceLocation){
+	public Function createFunctionDefinition(String functionName, Statement body, SourceLocation sourceLocation){
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Object createAssignmentStatement(String variableName, Object value, SourceLocation sourceLocation){
+	public Statement createAssignmentStatement(String variableName, Expression value, SourceLocation sourceLocation){
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Object createWhileStatement(Object condition, Object body, SourceLocation sourceLocation){
+	public Statement createWhileStatement(Expression condition, Statement body, SourceLocation sourceLocation){
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Object createBreakStatement(SourceLocation sourceLocation){
+	public Statement createBreakStatement(SourceLocation sourceLocation){
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Object createReturnStatement(Object value, SourceLocation sourceLocation){
+	public Statement createReturnStatement(Expression value, SourceLocation sourceLocation){
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Object createIfStatement(Object condition, Object ifBody, Object elseBody, SourceLocation sourceLocation){
+	public Statement createIfStatement(Expression condition, Statement ifBody, Statement elseBody, SourceLocation sourceLocation){
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Object createPrintStatement(Object value, SourceLocation sourceLocation){
+	public Statement createPrintStatement(Expression value, SourceLocation sourceLocation){
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Object createSequenceStatement(List<Object> statements, SourceLocation sourceLocation){
+	public Statement createSequenceStatement(List<Statement> statements, SourceLocation sourceLocation){
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Object createReadVariableExpression(String variableName, SourceLocation sourceLocation){
+	public Expression createReadVariableExpression(String variableName, SourceLocation sourceLocation){
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Object createReadParameterExpression(String parameterName, SourceLocation sourceLocation){
+	public Expression createReadParameterExpression(String parameterName, SourceLocation sourceLocation){
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Object createFunctionCallExpression(String functionName, List<Object> actualArgs, SourceLocation sourceLocation){
+	public Expression createFunctionCallExpression(String functionName, List<Expression> actualArgs, SourceLocation sourceLocation){
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Object createChangeSignExpression(Object expression, SourceLocation sourceLocation){
+	public Expression createChangeSignExpression(Expression expression, SourceLocation sourceLocation){
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Object createNotExpression(Object expression, SourceLocation sourceLocation){
+	public Expression createNotExpression(Expression expression, SourceLocation sourceLocation){
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Object createDoubleLiteralExpression(double value, SourceLocation location){
+	public Expression createDoubleLiteralExpression(double value, SourceLocation location){
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Object createNullExpression(SourceLocation location){
+	public Expression createNullExpression(SourceLocation location){
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Object createSelfExpression(SourceLocation location){
+	public Expression createSelfExpression(SourceLocation location){
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Object createShipExpression(SourceLocation location){
+	public Expression createShipExpression(SourceLocation location){
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Object createAsteroidExpression(SourceLocation location){
+	public Expression createAsteroidExpression(SourceLocation location){
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Object createPlanetoidExpression(SourceLocation location){
+	public Expression createPlanetoidExpression(SourceLocation location){
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Object createBulletExpression(SourceLocation location){
+	public Expression createBulletExpression(SourceLocation location){
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Object createPlanetExpression(SourceLocation location){
+	public Expression createPlanetExpression(SourceLocation location){
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Object createAnyExpression(SourceLocation location){
+	public Expression createAnyExpression(SourceLocation location){
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Object createGetXExpression(Object e, SourceLocation location){
+	public Expression createGetXExpression(Expression e, SourceLocation location){
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Object createGetYExpression(Object e, SourceLocation location){
+	public Expression createGetYExpression(Expression e, SourceLocation location){
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Object createGetVXExpression(Object e, SourceLocation location){
+	public Expression createGetVXExpression(Expression e, SourceLocation location){
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Object createGetVYExpression(Object e, SourceLocation location){
+	public Expression createGetVYExpression(Expression e, SourceLocation location){
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Object createGetRadiusExpression(Object e, SourceLocation location){
+	public Expression createGetRadiusExpression(Expression e, SourceLocation location){
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Object createLessThanExpression(Object e1, Object e2, SourceLocation location){
+	public Expression createLessThanExpression(Expression e1, Expression e2, SourceLocation location){
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Object createEqualityExpression(Object e1, Object e2, SourceLocation location){
+	public Expression createEqualityExpression(Expression e1, Expression e2, SourceLocation location){
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Object createAdditionExpression(Object e1, Object e2, SourceLocation location){
+	public Expression createAdditionExpression(Expression e1, Expression e2, SourceLocation location){
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Object createMultiplicationExpression(Object e1, Object e2, SourceLocation location){
+	public Expression createMultiplicationExpression(Expression e1, Expression e2, SourceLocation location){
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Object createSqrtExpression(Object e, SourceLocation location){
+	public Expression createSqrtExpression(Expression e, SourceLocation location){
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Object createGetDirectionExpression(SourceLocation location){
+	public Expression createGetDirectionExpression(SourceLocation location){
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Object createThrustOnStatement(SourceLocation location){
+	public Statement createThrustOnStatement(SourceLocation location){
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Object createThrustOffStatement(SourceLocation location){
+	public Statement createThrustOffStatement(SourceLocation location){
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Object createFireStatement(SourceLocation location){
+	public Statement createFireStatement(SourceLocation location){
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Object createTurnStatement(Object angle, SourceLocation location){
+	public Statement createTurnStatement(Expression angle, SourceLocation location){
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Object createSkipStatement(SourceLocation location){
+	public Statement createSkipStatement(SourceLocation location){
 		// TODO Auto-generated method stub
 		return null;
 	}

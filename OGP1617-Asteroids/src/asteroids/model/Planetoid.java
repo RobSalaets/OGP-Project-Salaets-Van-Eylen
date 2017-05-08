@@ -251,16 +251,18 @@ public class Planetoid extends MinorPlanet{
 	 */
 	@Override
 	public void terminate(){
-		Container<Entity> oldContainer = getContainer();
-		super.terminate();
-		if(!isTerminated() && oldContainer instanceof World && getRadius() >= PLANETOID_MIN_SPAWN_RADIUS){
-			Vector2d randomDirection = Vector2d.randomUnit();
-			Vector2d pos1 = getPosition().add(randomDirection.mul(getRadius()/2.0));
-			Vector2d pos2 = getPosition().sub(randomDirection.mul(getRadius()/2.0));
-			Vector2d vel1 = randomDirection.mul(1.5 * getVelocity().getLength());
-			Vector2d vel2 = randomDirection.mul(-1.5 * getVelocity().getLength());
-			new Asteroid(pos1.getX(), pos1.getY(), vel1.getX(), vel1.getY(), getRadius()/2.0, oldContainer);
-			new Asteroid(pos2.getX(), pos2.getY(), vel2.getX(), vel2.getY(), getRadius()/2.0, oldContainer);
+		if(!isTerminated()){
+			Container<Entity> oldContainer = getContainer();
+			super.terminate();
+			if(oldContainer instanceof World && getRadius() >= PLANETOID_MIN_SPAWN_RADIUS){
+				Vector2d randomDirection = Vector2d.randomUnit();
+				Vector2d pos1 = getPosition().add(randomDirection.mul(getRadius()/2.0));
+				Vector2d pos2 = getPosition().sub(randomDirection.mul(getRadius()/2.0));
+				Vector2d vel1 = randomDirection.mul(1.5 * getVelocity().getLength());
+				Vector2d vel2 = randomDirection.mul(-1.5 * getVelocity().getLength());
+				new Asteroid(pos1.getX(), pos1.getY(), vel1.getX(), vel1.getY(), getRadius()/2.0, oldContainer);
+				new Asteroid(pos2.getX(), pos2.getY(), vel2.getX(), vel2.getY(), getRadius()/2.0, oldContainer);
+			}
 		}
 	}
 }
