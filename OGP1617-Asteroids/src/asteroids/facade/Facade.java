@@ -12,6 +12,7 @@ import asteroids.model.Program;
 import asteroids.model.Ship;
 import asteroids.model.Vector2d;
 import asteroids.model.World;
+import asteroids.model.programs.ProgramFactory;
 import asteroids.part2.CollisionListener;
 import asteroids.part3.facade.IFacade;
 import asteroids.part3.programs.IProgramFactory;
@@ -577,25 +578,25 @@ public class Facade implements IFacade{
 
 	@Override
 	public Program getShipProgram(Ship ship) throws ModelException{
-		// TODO Auto-generated method stub
-		return null;
+		return ship.getProgram();
 	}
 
 	@Override
 	public void loadProgramOnShip(Ship ship, Program program) throws ModelException{
-		// TODO Auto-generated method stub
-		
+		ship.setProgram(program);
 	}
 
 	@Override
 	public List<Object> executeProgram(Ship ship, double dt) throws ModelException{
-		// TODO Auto-generated method stub
-		return null;
+		try{
+			return ship.executeProgram(dt);			
+		}catch(Exception e){//TODO
+			throw new ModelException(e);
+		}
 	}
 
 	@Override
 	public IProgramFactory<?, ?, ?, ? extends Program> createProgramFactory() throws ModelException{
-		// TODO Auto-generated method stub
-		return null;
+		return new ProgramFactory();
 	}
 }

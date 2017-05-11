@@ -668,7 +668,10 @@ public class Ship extends Entity implements Container<Entity>{
 	 * @throws IllegalArgumentException
 	 * 			If the given bullet(s) has a current container and the container
 	 * 			is not this Ships world container.
-	 * 			| ! ( bullet.getContainer() instanceof World && bullet.getContainer() == getContainer()) //TODO
+	 * 			| bullet.getContainer() != null && ! ( bullet.getContainer() instanceof World && bullet.getContainer() == getContainer())
+	 * @throws IllegalArgumentException
+	 * 			If the given bullet in not in bounds of this Ship
+	 * 			| !isInBounds(bullet.getPosition(), bullet.getRadius())
 	 */
 	public void loadBullet(Bullet... bullets) throws NullPointerException, IllegalArgumentException{
 		if(bullets.length == 0)
@@ -745,4 +748,41 @@ public class Ship extends Entity implements Container<Entity>{
 		bullet.setContainer(world);			
 		world.addItem(bullet);
 	}
+	
+	/**
+	 * Set the program of this Ship to the given program.
+	 * 
+	 * @param  program
+	 *         The new program for this Ship.
+	 * @post   The program of this new Ship is equal to the given program. 
+	 * 			| new.getProgram() == program
+	 */
+	public void setProgram(Program program) throws NullPointerException{
+		this.program = program;
+	}
+	
+	/**
+	 * Return the program of this Ship.
+	 */
+	@Basic
+	public Program getProgram(){
+		return program;
+	}
+	
+	/**
+	 * TODO
+	 * @param dt
+	 * @return
+	 */
+	public List<Object> executeProgram(double dt){
+		if(program != null){
+			
+		}
+		return null;
+	}
+	
+	/**
+	 * A variable referencing the program of this Ship
+	 */
+	private Program program;
 }
