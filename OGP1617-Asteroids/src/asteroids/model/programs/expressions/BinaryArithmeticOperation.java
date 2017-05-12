@@ -1,5 +1,5 @@
 package asteroids.model.programs.expressions;
 
-public enum ArithmeticOperationType {
+public enum BinaryArithmeticOperation {
 	ADD, MULTIPLY
 }
