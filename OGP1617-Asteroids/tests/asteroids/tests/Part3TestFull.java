@@ -22,8 +22,8 @@ import asteroids.model.Planetoid;
 import asteroids.model.Ship;
 import asteroids.model.World;
 import asteroids.part3.facade.IFacade;
-import asteroids.part3.model.Program;
-import asteroids.part3.model.programs.ProgramFactory;
+import asteroids.model.Program;
+import asteroids.model.programs.ProgramFactory;
 import asteroids.part3.programs.IProgramFactory;
 import asteroids.part3.programs.internal.ProgramParser;
 import asteroids.util.ModelException;
@@ -50,7 +50,7 @@ public class Part3TestFull {
 
   @Before
   public void setUp() throws ModelException {
-    facade = new asteroids.part3.facade.Facade();
+    facade = new asteroids.facade.Facade();
     nbStudentsInTeam = facade.getNbStudentsInTeam();
     filledWorld = facade.createWorld(2000, 2000);
     ship1 = facade.createShip(100, 120, 10, 5, 50, 0, 1.0E20);

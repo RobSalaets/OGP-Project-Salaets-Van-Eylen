@@ -5,8 +5,8 @@ import asteroids.part2.internal.AsteroidsFrame2;
 
 public class Part2 {
 	public static void main(String[] args) {
-		boolean tryFullscreen = true;
-		boolean enableSound = true;
+		boolean tryFullscreen = false;
+		boolean enableSound = false;
 		for (String arg : args) {
 			if (arg.equals("-fullscreen")) {
 				tryFullscreen = true;
@@ -18,7 +18,7 @@ public class Part2 {
 			}
 		}
 
-		IFacade facade = new asteroids.part3.facade.Facade();
+		IFacade facade = new asteroids.facade.Facade();
 		AsteroidsFrame2.run(facade, tryFullscreen, enableSound);
 	}
 }
