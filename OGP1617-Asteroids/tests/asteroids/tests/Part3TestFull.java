@@ -22,8 +22,8 @@ import asteroids.model.Planetoid;
 import asteroids.model.Ship;
 import asteroids.model.World;
 import asteroids.part3.facade.IFacade;
-import asteroids.model.Program;
-import asteroids.model.programs.ProgramFactory;
+import asteroids.part3.model.Program;
+import asteroids.part3.model.programs.ProgramFactory;
 import asteroids.part3.programs.IProgramFactory;
 import asteroids.part3.programs.internal.ProgramParser;
 import asteroids.util.ModelException;
@@ -50,7 +50,7 @@ public class Part3TestFull {
 
   @Before
   public void setUp() throws ModelException {
-    facade = new asteroids.facade.Facade();
+    facade = new asteroids.part3.facade.Facade();
     nbStudentsInTeam = facade.getNbStudentsInTeam();
     filledWorld = facade.createWorld(2000, 2000);
     ship1 = facade.createShip(100, 120, 10, 5, 50, 0, 1.0E20);
@@ -91,6 +91,7 @@ public class Part3TestFull {
     try {
       max_score += 2;
       facade.createShip(Double.NaN, 120, 10, 5, 50, 0, 1.0E20);
+      fail();
     } catch (ModelException exc) {
       score += 2;
     }
@@ -140,6 +141,7 @@ public class Part3TestFull {
     try {
       max_score += 1;
       facade.createShip(100, 120, 10, 5, Double.NaN, 0, 1.0E20);
+      fail();
     } catch (ModelException exc) {
       score += 1;
     }
@@ -150,6 +152,7 @@ public class Part3TestFull {
     try {
       max_score += 2;
       facade.createShip(100, 120, 10, 5, 0, 0, 1.0E20);
+      fail();
     } catch (ModelException exc) {
       score += 2;
     }
@@ -160,6 +163,7 @@ public class Part3TestFull {
     try {
       max_score += 1;
       facade.createShip(100, 120, 10, 5, 50, -Math.PI, 1.0E20);
+      fail();
     } catch (ModelException exc) {
       score += 1;
     }
@@ -170,6 +174,7 @@ public class Part3TestFull {
     try {
       max_score += 1;
       facade.createShip(100, 120, 10, 5, 50, 3 * Math.PI, 1.0E20);
+      fail();
     } catch (ModelException exc) {
       score += 1;
     }
@@ -216,7 +221,7 @@ public class Part3TestFull {
     score += 2;
   }
 
-//  @Test
+//  @Test TODO
 //  public void testLoadProgram() throws ModelException {
 //    max_score += 2;
 //    Ship ship = facade.createShip(100, 120, 10, 5, 50, 0, 1.0E20);
@@ -368,6 +373,7 @@ public class Part3TestFull {
       max_score += 1;
       World world = facade.createWorld(1000, 1000);
       facade.addShipToWorld(world, null);
+      fail();
     } catch (ModelException exc) {
       score += 1;
     }
@@ -380,6 +386,7 @@ public class Part3TestFull {
       World world = facade.createWorld(1000, 1000);
       Ship ship = facade.createShip(100000, 1200000, 10, 5, 50, 0, 1.0E20);
       facade.addShipToWorld(world, ship);
+      fail();
     } catch (ModelException exc) {
       score += 4;
     }
@@ -394,6 +401,7 @@ public class Part3TestFull {
       Ship ship2 = facade.createShip(130, 150, 10, 5, 50, 0, 1.0E20);
       facade.addShipToWorld(world, ship1);
       facade.addShipToWorld(world, ship2);
+      fail();
     } catch (ModelException exc) {
       score += 3;
     }
@@ -407,6 +415,7 @@ public class Part3TestFull {
       Ship ship = facade.createShip(100, 120, 10, 5, 50, 0, 1.0E20);
       facade.addShipToWorld(world, ship);
       facade.addShipToWorld(world, ship);
+      fail();
     } catch (ModelException exc) {
       score += 1;
     }
@@ -450,6 +459,7 @@ public class Part3TestFull {
       Bullet bullet = facade.createBullet(130, 150, 10, 5, 50);
       facade.addShipToWorld(world, ship);
       facade.addBulletToWorld(world, bullet);
+      fail();
     } catch (ModelException exc) {
       score += 4;
     }
@@ -481,6 +491,7 @@ public class Part3TestFull {
       facade.addShipToWorld(world, ship1);
       facade.addShipToWorld(world, ship2);
       facade.removeShipFromWorld(world, null);
+      fail();
     } catch (ModelException exc) {
       score += 1;
     }
@@ -495,6 +506,7 @@ public class Part3TestFull {
       Ship ship2 = facade.createShip(400, 520, 10, 5, 50, 0, 1.0E20);
       facade.addShipToWorld(world, ship1);
       facade.removeShipFromWorld(world, ship2);
+      fail();
     } catch (ModelException exc) {
       score += 2;
     }
@@ -511,6 +523,7 @@ public class Part3TestFull {
       facade.addShipToWorld(world, ship1);
       facade.addShipToWorld(otherWorld, ship2);
       facade.removeShipFromWorld(world, ship2);
+      fail();
     } catch (ModelException exc) {
       score += 3;
     }
@@ -636,6 +649,7 @@ public class Part3TestFull {
       Ship ship = facade.createShip(100, 120, 10, 5, 500, 0, 1.0E20);
       Bullet bullet = facade.createBullet(560, 120, 10, 5, 50);
       facade.loadBulletOnShip(ship, bullet);
+      fail();
     } catch (ModelException exc) {
       score += 5;
     }
@@ -662,6 +676,7 @@ public class Part3TestFull {
       Bullet bullet = facade.createBullet(100, 120, 10, 5, 50);
       facade.addBulletToWorld(world, bullet);
       facade.loadBulletOnShip(ship, bullet);
+      fail();
     } catch (ModelException exc) {
       score += 5;
     }
@@ -747,6 +762,7 @@ public class Part3TestFull {
         assertEquals(0, facade.getNbBulletsOnShip(ship));
         throw new ModelException("Needed for a succesfull test.");
       }
+      fail();
     } catch (ModelException exc) {
       score += 6;
     }
@@ -1019,6 +1035,7 @@ public class Part3TestFull {
       facade.addShipToWorld(world, ship1);
       facade.addShipToWorld(world, ship2);
       facade.evolve(world, Double.NaN, null);
+      fail();
     } catch (ModelException exc) {
       score += 2;
     }
@@ -1034,6 +1051,7 @@ public class Part3TestFull {
       facade.addShipToWorld(world, ship1);
       facade.addShipToWorld(world, ship2);
       facade.evolve(world, -1, null);
+      fail();
     } catch (ModelException exc) {
       score += 2;
     }
@@ -1329,8 +1347,8 @@ public class Part3TestFull {
   }
 
   // Assignment Statement
-//
-//  @Test
+
+//  @Test TODO
 //  public void testAssignmentStatement_NewGlobalVariable() throws ModelException {
 //    max_score += 4;
 //    String code = "varname := 7.0;" + "print varname; ";
@@ -1417,6 +1435,7 @@ public class Part3TestFull {
 //      Program program = ProgramParser.parseProgramFromString(code, programFactory);
 //      facade.loadProgramOnShip(ship1, program);
 //      facade.executeProgram(ship1, 0.3);
+//      fail();
 //    } catch (ModelException exc) {
 //      score += 5;
 //    }
@@ -1430,6 +1449,7 @@ public class Part3TestFull {
 //      Program program = ProgramParser.parseProgramFromString(code, programFactory);
 //      facade.loadProgramOnShip(ship1, program);
 //      facade.executeProgram(ship1, 0.3);
+//      fail();
 //    } catch (ModelException exc) {
 //      score += 5;
 //    }
@@ -1448,6 +1468,7 @@ public class Part3TestFull {
 //      Program program = ProgramParser.parseProgramFromString(code, programFactory);
 //      facade.loadProgramOnShip(ship1, program);
 //      facade.executeProgram(ship1, 1.0);
+//      fail();
 //    } catch (ModelException exc) {
 //      score += 5;
 //    }
@@ -1536,6 +1557,7 @@ public class Part3TestFull {
 //      Program program = ProgramParser.parseProgramFromString(code, programFactory);
 //      facade.loadProgramOnShip(ship1, program);
 //      facade.executeProgram(ship1, 1.0);
+//      fail();
 //    } catch (ModelException exc) {
 //      score += 5;
 //    }
@@ -1613,6 +1635,7 @@ public class Part3TestFull {
 //      Program program = ProgramParser.parseProgramFromString(code, programFactory);
 //      facade.loadProgramOnShip(ship1, program);
 //      facade.executeProgram(ship1, 0.3);
+//      fail();
 //    } catch (ModelException exc) {
 //      score += 3;
 //    }
@@ -1675,6 +1698,7 @@ public class Part3TestFull {
 //      Program program = ProgramParser.parseProgramFromString(code, programFactory);
 //      facade.loadProgramOnShip(ship1, program);
 //      facade.executeProgram(ship1, 0.3);
+//      fail();
 //    } catch (ModelException exc) {
 //      score += 3;
 //    }
@@ -1770,6 +1794,7 @@ public class Part3TestFull {
 //        Program program = ProgramParser.parseProgramFromString(code, programFactory);
 //        facade.loadProgramOnShip(ship1, program);
 //        facade.executeProgram(ship1, 0.3);
+//        fail();
 //      } catch (ModelException exc) {
 //        score += 3;
 //      }
@@ -1809,6 +1834,7 @@ public class Part3TestFull {
 //      Program program = ProgramParser.parseProgramFromString(code, programFactory);
 //      facade.loadProgramOnShip(ship1, program);
 //      facade.executeProgram(ship1, 0.3);
+//      fail();
 //    } catch (ModelException exc) {
 //      score += 3;
 //    }
@@ -1894,6 +1920,7 @@ public class Part3TestFull {
 //      Program program = ProgramParser.parseProgramFromString(code, programFactory);
 //      facade.loadProgramOnShip(ship1, program);
 //      facade.executeProgram(ship1, 1.0);
+//      fail();
 //    } catch (ModelException exc) {
 //      score += 5;
 //    }
@@ -2013,6 +2040,7 @@ public class Part3TestFull {
 //      Program program = ProgramParser.parseProgramFromString(code, programFactory);
 //      facade.loadProgramOnShip(ship1, program);
 //      facade.executeProgram(ship1, 1.0);
+//      fail();
 //    } catch (ModelException exc) {
 //      score += 12;
 //    }
@@ -2333,6 +2361,7 @@ public class Part3TestFull {
 //      Program program = ProgramParser.parseProgramFromString(code, programFactory);
 //      facade.loadProgramOnShip(ship1, program);
 //      facade.executeProgram(ship1, 1.0);
+//      fail();
 //    } catch (ModelException exc) {
 //      score += 5;
 //    }
@@ -2360,6 +2389,7 @@ public class Part3TestFull {
 //      Program program = ProgramParser.parseProgramFromString(code, programFactory);
 //      facade.loadProgramOnShip(ship1, program);
 //      facade.executeProgram(ship1, 1.0);
+//      fail();
 //    } catch (ModelException exc) {
 //      score += 5;
 //    }
@@ -2390,6 +2420,7 @@ public class Part3TestFull {
 //        Program program = ProgramParser.parseProgramFromString(code, programFactory);
 //        facade.loadProgramOnShip(ship1, program);
 //        facade.executeProgram(ship1, 1.0);
+//        fail();
 //      } catch (ModelException exc) {
 //        score += 5;
 //      }
@@ -2442,6 +2473,7 @@ public class Part3TestFull {
 //      Program program = ProgramParser.parseProgramFromString(code, programFactory);
 //      facade.loadProgramOnShip(ship1, program);
 //      facade.executeProgram(ship1, 0.3);
+//      fail();
 //    } catch (ModelException exc) {
 //      score += 9;
 //    }
@@ -2468,6 +2500,7 @@ public class Part3TestFull {
 //      Program program = ProgramParser.parseProgramFromString(code, programFactory);
 //      facade.loadProgramOnShip(ship1, program);
 //      facade.executeProgram(ship1, 0.3);
+//      fail();
 //    } catch (ModelException exc) {
 //      score += 4;
 //    }
@@ -2481,6 +2514,7 @@ public class Part3TestFull {
 //      Program program = ProgramParser.parseProgramFromString(code, programFactory);
 //      facade.loadProgramOnShip(ship1, program);
 //      facade.executeProgram(ship1, 0.3);
+//      fail();
 //    } catch (ModelException exc) {
 //      score += 4;
 //    }
@@ -2494,6 +2528,7 @@ public class Part3TestFull {
 //      Program program = ProgramParser.parseProgramFromString(code, programFactory);
 //      facade.loadProgramOnShip(ship1, program);
 //      facade.executeProgram(ship1, 0.3);
+//      fail();
 //    } catch (ModelException exc) {
 //      score += 5;
 //    }
@@ -2507,6 +2542,7 @@ public class Part3TestFull {
 //      Program program = ProgramParser.parseProgramFromString(code, programFactory);
 //      facade.loadProgramOnShip(ship1, program);
 //      facade.executeProgram(ship1, 0.3);
+//      fail();
 //    } catch (ModelException exc) {
 //      score += 6;
 //    }
@@ -2534,6 +2570,7 @@ public class Part3TestFull {
 //      Program program = ProgramParser.parseProgramFromString(code, programFactory);
 //      facade.loadProgramOnShip(ship1, program);
 //      facade.executeProgram(ship1, 1.0);
+//      fail();
 //    } catch (ModelException exc) {
 //      score += 5;
 //    }
@@ -2561,6 +2598,7 @@ public class Part3TestFull {
 //      Program program = ProgramParser.parseProgramFromString(code, programFactory);
 //      facade.loadProgramOnShip(ship1, program);
 //      facade.executeProgram(ship1, 1.0);
+//      fail();
 //    } catch (ModelException exc) {
 //      score += 5;
 //    }
@@ -2588,6 +2626,7 @@ public class Part3TestFull {
 //      Program program = ProgramParser.parseProgramFromString(code, programFactory);
 //      facade.loadProgramOnShip(ship1, program);
 //      facade.executeProgram(ship1, 1.0);
+//      fail();
 //    } catch (ModelException exc) {
 //      score += 2;
 //    }
@@ -2601,6 +2640,7 @@ public class Part3TestFull {
 //      Program program = ProgramParser.parseProgramFromString(code, programFactory);
 //      facade.loadProgramOnShip(ship1, program);
 //      facade.executeProgram(ship1, 1.0);
+//      fail();
 //    } catch (ModelException exc) {
 //      score += 3;
 //    }
@@ -2628,6 +2668,7 @@ public class Part3TestFull {
 //      Program program = ProgramParser.parseProgramFromString(code, programFactory);
 //      facade.loadProgramOnShip(ship1, program);
 //      facade.executeProgram(ship1, 1.0);
+//      fail();
 //    } catch (ModelException exc) {
 //      score += 2;
 //    }
@@ -2641,6 +2682,7 @@ public class Part3TestFull {
 //      Program program = ProgramParser.parseProgramFromString(code, programFactory);
 //      facade.loadProgramOnShip(ship1, program);
 //      facade.executeProgram(ship1, 1.0);
+//      fail();
 //    } catch (ModelException exc) {
 //      score += 3;
 //    }
@@ -2668,6 +2710,7 @@ public class Part3TestFull {
 //      Program program = ProgramParser.parseProgramFromString(code, programFactory);
 //      facade.loadProgramOnShip(ship1, program);
 //      facade.executeProgram(ship1, 1.0);
+//      fail();
 //    } catch (ModelException exc) {
 //      score += 2;
 //    }
@@ -2681,6 +2724,7 @@ public class Part3TestFull {
 //      Program program = ProgramParser.parseProgramFromString(code, programFactory);
 //      facade.loadProgramOnShip(ship1, program);
 //      facade.executeProgram(ship1, 1.0);
+//      fail();
 //    } catch (ModelException exc) {
 //      score += 3;
 //    }
@@ -2708,6 +2752,7 @@ public class Part3TestFull {
 //      Program program = ProgramParser.parseProgramFromString(code, programFactory);
 //      facade.loadProgramOnShip(ship1, program);
 //      facade.executeProgram(ship1, 1.0);
+//      fail();
 //    } catch (ModelException exc) {
 //      score += 2;
 //    }
@@ -2721,6 +2766,7 @@ public class Part3TestFull {
 //      Program program = ProgramParser.parseProgramFromString(code, programFactory);
 //      facade.loadProgramOnShip(ship1, program);
 //      facade.executeProgram(ship1, 1.0);
+//      fail();
 //    } catch (ModelException exc) {
 //      score += 3;
 //    }
@@ -2748,6 +2794,7 @@ public class Part3TestFull {
 //      Program program = ProgramParser.parseProgramFromString(code, programFactory);
 //      facade.loadProgramOnShip(ship1, program);
 //      facade.executeProgram(ship1, 1.0);
+//      fail();
 //    } catch (ModelException exc) {
 //      score += 2;
 //    }
@@ -2761,6 +2808,7 @@ public class Part3TestFull {
 //      Program program = ProgramParser.parseProgramFromString(code, programFactory);
 //      facade.loadProgramOnShip(ship1, program);
 //      facade.executeProgram(ship1, 1.0);
+//      fail();
 //    } catch (ModelException exc) {
 //      score += 3;
 //    }
@@ -2841,6 +2889,7 @@ public class Part3TestFull {
 //      Program program = ProgramParser.parseProgramFromString(code, programFactory);
 //      facade.loadProgramOnShip(ship1, program);
 //      facade.executeProgram(ship1, 1.0);
+//      fail();
 //    } catch (ModelException exc) {
 //      score += 5;
 //    }

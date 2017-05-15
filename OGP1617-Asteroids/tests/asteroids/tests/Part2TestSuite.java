@@ -11,7 +11,6 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 
-import asteroids.facade.Facade;
 import asteroids.model.Bullet;
 import asteroids.model.CollisionData;
 import asteroids.model.CollisionType;
@@ -20,6 +19,7 @@ import asteroids.model.Ship;
 import asteroids.model.Vector2d;
 import asteroids.model.World;
 import asteroids.part2.facade.IFacade;
+import asteroids.part3.facade.Facade;
 import asteroids.util.ModelException;
 
 public class Part2TestSuite{

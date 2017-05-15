@@ -7,9 +7,9 @@ import static org.junit.Assert.assertNull;
 import org.junit.Before;
 import org.junit.Test;
 
-import asteroids.facade.Facade;
 import asteroids.model.Ship;
 import asteroids.part1.facade.IFacade;
+import asteroids.part3.facade.Facade;
 import asteroids.util.ModelException;
 
 public class Part1Test{
