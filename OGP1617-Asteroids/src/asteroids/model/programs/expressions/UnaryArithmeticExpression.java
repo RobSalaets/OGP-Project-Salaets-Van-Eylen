@@ -4,8 +4,7 @@ import asteroids.model.programs.Scope;
 
 public class UnaryArithmeticExpression extends UnaryExpression<DoubleLiteral, DoubleLiteral> {
 
-
-	public UnaryArithmeticExpression(Expression<? extends Type, DoubleLiteral> arg, UnaryArithmeticOperation operation) throws IllegalArgumentException {
+	public UnaryArithmeticExpression(Expression<? super DoubleLiteral> arg, UnaryArithmeticOperation operation) throws IllegalArgumentException {
 		super(arg);
 		if(operation == null)
 			throw new IllegalArgumentException("The UnaryArithmeticOperation must be effective.");
@@ -16,13 +15,16 @@ public class UnaryArithmeticExpression extends UnaryExpression<DoubleLiteral, Do
 	
 	@Override
 	public DoubleLiteral evaluate(Scope scope) {
+		Object eval = getArgument().evaluate(scope);
+		if(!(eval instanceof DoubleLiteral))
+			throw new IllegalArgumentException();
 		Double result = null;
 		switch(operationType){
 		case CHANGE_SIGN:
-			result = -getArgument().evaluate(scope).getValue();
+			result = -((DoubleLiteral)eval).getValue();
 			break;
 		case SQUARE_ROOT:
-			result = Math.sqrt(getArgument().evaluate(scope).getValue()); //
+			result = Math.sqrt(((DoubleLiteral)eval).getValue()); 
 			break;
 		default:
 			break;

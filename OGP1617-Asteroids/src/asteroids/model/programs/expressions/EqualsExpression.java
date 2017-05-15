@@ -2,15 +2,22 @@ package asteroids.model.programs.expressions;
 
 import asteroids.model.programs.Scope;
 
-public class EqualsExpression<AT extends Type> extends BinaryExpression<AT, BooleanLiteral> {
 
-	public EqualsExpression(Expression<? extends Type, AT> left, Expression<? extends Type, AT> right) throws IllegalArgumentException {
-		super(left, right);
+public class EqualsExpression extends Expression<BooleanLiteral> {
+
+	public EqualsExpression(Expression<? extends Type> left, Expression<? extends Type> right) throws IllegalArgumentException {
+		if(left == null || right == null)
+			throw new IllegalArgumentException();
+		this.leftArg = left;
+		this.rightArg = right;
 	}
+	
+	private final Expression<? extends Type> leftArg;
+	private final Expression<? extends Type> rightArg;
 
 	@Override
 	public BooleanLiteral evaluate(Scope scope) {
-		return new BooleanLiteral(getLeftArgument().evaluate(scope).equals(getRightArgument().evaluate(scope)));
+		return new BooleanLiteral(leftArg.evaluate(scope).equals(rightArg.evaluate(scope)));
 	}
 
 }

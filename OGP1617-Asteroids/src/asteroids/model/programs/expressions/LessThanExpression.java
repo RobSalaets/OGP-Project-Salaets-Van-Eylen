@@ -4,13 +4,18 @@ import asteroids.model.programs.Scope;
 
 public class LessThanExpression extends BinaryExpression<DoubleLiteral, BooleanLiteral> {
 
-	public LessThanExpression(Expression<? extends Type, DoubleLiteral> left, Expression<? extends Type, DoubleLiteral> right)
+	public LessThanExpression(Expression<? super DoubleLiteral> left, Expression<? super DoubleLiteral> right)
 			throws IllegalArgumentException {
 		super(left, right);
 	}
 
 	@Override
 	public BooleanLiteral evaluate(Scope scope) {
-		return new BooleanLiteral(getLeftArgument().evaluate(scope).getValue() < getRightArgument().evaluate(scope).getValue());
+		Object evalL = getLeftArgument().evaluate(scope);
+		Object evalR = getRightArgument().evaluate(scope);
+		if(!((evalL instanceof DoubleLiteral) && (evalR instanceof DoubleLiteral)))
+			throw new IllegalArgumentException();
+		
+		return new BooleanLiteral(((DoubleLiteral)evalL).getValue() < ((DoubleLiteral)evalR).getValue());
 	}
 }

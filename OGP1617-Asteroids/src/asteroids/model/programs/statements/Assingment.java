@@ -7,14 +7,14 @@ import asteroids.part3.programs.SourceLocation;
 
 public class Assingment extends SequentialStatement {
 	
-	public Assingment(SourceLocation location, String name, Expression<? extends Type, ? extends Type> expression){
+	public Assingment(SourceLocation location, String name, Expression<? extends Type> expression){
 		super(location);
 		this.variableName = name;
 		this.expression = expression;
 	}
 
 	private final String variableName;
-	private final Expression<? extends Type, ? extends Type> expression;
+	private final Expression<? extends Type> expression;
 	
 	@Override
 	public void execute(Scope scope) {

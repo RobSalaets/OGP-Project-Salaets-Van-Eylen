@@ -4,7 +4,7 @@ import asteroids.model.programs.Scope;
 
 public class BinaryArithmeticExpression extends BinaryExpression<DoubleLiteral, DoubleLiteral>{
 
-	public BinaryArithmeticExpression(Expression<? extends Type, DoubleLiteral> left, Expression<? extends Type, DoubleLiteral> right, BinaryArithmeticOperation operation) throws IllegalArgumentException{
+	public BinaryArithmeticExpression(Expression<? super DoubleLiteral> left, Expression<? super DoubleLiteral> right, BinaryArithmeticOperation operation) throws IllegalArgumentException{
 		super(left, right);
 		if(operation == null)
 			throw new IllegalArgumentException("The BinaryArithmeticOperation must be effective.");
@@ -15,13 +15,18 @@ public class BinaryArithmeticExpression extends BinaryExpression<DoubleLiteral, 
 	
 	@Override
 	public DoubleLiteral evaluate(Scope scope) {
+		Object evalL = getLeftArgument().evaluate(scope);
+		Object evalR = getRightArgument().evaluate(scope);
+		if(!((evalL instanceof DoubleLiteral) && (evalR instanceof DoubleLiteral)))
+			throw new IllegalArgumentException();
+		
 		Double result = null;
 		switch(operationType){
 		case ADD:
-			result = getLeftArgument().evaluate(scope).getValue() + getRightArgument().evaluate(scope).getValue();
+			result = ((DoubleLiteral)evalL).getValue() + ((DoubleLiteral)evalR).getValue();
 			break;
 		case MULTIPLY:
-			result = getLeftArgument().evaluate(scope).getValue() * getRightArgument().evaluate(scope).getValue();
+			result = ((DoubleLiteral)evalL).getValue() * ((DoubleLiteral)evalR).getValue();
 			break;
 		default:
 			break;
