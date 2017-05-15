@@ -1,5 +1,7 @@
 package asteroids.model.programs.expressions;
 
+import asteroids.model.programs.Scope;
+
 public class NotExpression extends UnaryExpression<BooleanLiteral, BooleanLiteral> {
 
 	public NotExpression(Expression<? extends Type, BooleanLiteral> arg) {
@@ -7,7 +9,7 @@ public class NotExpression extends UnaryExpression<BooleanLiteral, BooleanLitera
 	}
 
 	@Override
-	public BooleanLiteral evaluate() {
-		return new BooleanLiteral(!getArgument().evaluate().getValue());
+	public BooleanLiteral evaluate(Scope scope) {
+		return new BooleanLiteral(!getArgument().evaluate(scope).getValue());
 	}
 }

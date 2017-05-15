@@ -1,22 +1,18 @@
 package asteroids.model.programs.expressions;
 
-public class VariableExpression<E extends Type> extends Expression<E, E>{
+import asteroids.model.programs.Scope;
+
+public class VariableExpression<ET extends Type> extends Expression<Type, ET>{
 	
-	public VariableExpression(E value) throws IllegalArgumentException{
+	public VariableExpression(String varName) throws IllegalArgumentException{
 		super();
-		if(value == null)
-			throw new IllegalArgumentException("The value of a VariableExpression must be effective.");
-		this.value = value;
+		this.varName = varName;
 	}
 	
-	public E getValue(){
-		return value;
-	}
-	
-	private final E value;
+	private final String varName;
 
 	@Override
-	public E evaluate() {
-		return value;
+	public ET evaluate(Scope scope) {
+		return scope.getVariable(varName); //Probleem: variableExpression generic type niet af te leiden uit String
 	}
 }

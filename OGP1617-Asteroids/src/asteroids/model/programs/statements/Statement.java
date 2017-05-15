@@ -1,5 +1,6 @@
 package asteroids.model.programs.statements;
 
+import asteroids.model.programs.Scope;
 import asteroids.part3.programs.SourceLocation;
 
 public abstract class Statement{
@@ -10,7 +11,7 @@ public abstract class Statement{
 
 	private final SourceLocation location;
 	
-	public abstract void execute();
+	public abstract void execute(Scope scope);
 		
 	
 }

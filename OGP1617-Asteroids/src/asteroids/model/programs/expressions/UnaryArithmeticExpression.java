@@ -1,5 +1,7 @@
 package asteroids.model.programs.expressions;
 
+import asteroids.model.programs.Scope;
+
 public class UnaryArithmeticExpression extends UnaryExpression<DoubleLiteral, DoubleLiteral> {
 
 
@@ -13,14 +15,14 @@ public class UnaryArithmeticExpression extends UnaryExpression<DoubleLiteral, Do
 	private final UnaryArithmeticOperation operationType;
 	
 	@Override
-	public DoubleLiteral evaluate() {
+	public DoubleLiteral evaluate(Scope scope) {
 		Double result = null;
 		switch(operationType){
 		case CHANGE_SIGN:
-			result = -getArgument().evaluate().getValue();
+			result = -getArgument().evaluate(scope).getValue();
 			break;
 		case SQUARE_ROOT:
-			result = Math.sqrt(getArgument().evaluate().getValue()); //
+			result = Math.sqrt(getArgument().evaluate(scope).getValue()); //
 			break;
 		default:
 			break;
