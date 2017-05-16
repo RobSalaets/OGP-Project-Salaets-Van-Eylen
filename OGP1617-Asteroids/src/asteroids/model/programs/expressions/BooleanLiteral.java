@@ -1,5 +1,8 @@
 package asteroids.model.programs.expressions;
 
+import be.kuleuven.cs.som.annotate.Value;
+
+@Value
 public class BooleanLiteral extends Type{
 	
 	public BooleanLiteral(boolean state) {

@@ -15,8 +15,8 @@ public class BinaryArithmeticExpression extends BinaryExpression<DoubleLiteral, 
 	
 	@Override
 	public DoubleLiteral evaluate(Scope scope) {
-		Object evalL = getLeftArgument().evaluate(scope);
-		Object evalR = getRightArgument().evaluate(scope);
+		Type evalL = getLeftArgument().evaluate(scope);
+		Type evalR = getRightArgument().evaluate(scope);
 		if(!((evalL instanceof DoubleLiteral) && (evalR instanceof DoubleLiteral)))
 			throw new IllegalArgumentException();
 		
