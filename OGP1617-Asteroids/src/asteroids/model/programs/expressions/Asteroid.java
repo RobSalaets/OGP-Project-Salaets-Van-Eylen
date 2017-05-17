@@ -1,6 +1,6 @@
 package asteroids.model.programs.expressions;
 
-public class Asteroid extends Planet {
+public class Asteroid extends PlanetEntity {
 	
 	public Asteroid(Asteroid asteroid) {
 		this.setAsteroid(asteroid);

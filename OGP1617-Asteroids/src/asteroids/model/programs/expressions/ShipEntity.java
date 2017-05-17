@@ -1,14 +1,16 @@
 package asteroids.model.programs.expressions;
 
-public class Ship extends EntityLiteral {
+import asteroids.model.Ship;
 
-	public Ship(Ship ship) {
+public class ShipEntity extends EntityLiteral {
+
+	public ShipEntity(Ship ship) {
 		this.setShip(ship);
 	}
 
 	@Override
 	public Ship getValue() {
-		return this;
+		return ship;
 	}
 	
 	private Ship ship;

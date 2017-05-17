@@ -1,14 +1,16 @@
 package asteroids.model.programs.expressions;
 
-public class Planetoid extends Planet {
+import asteroids.model.Planetoid;
+
+public class PlanetoidEntity extends PlanetEntity {
 	
-	public Planetoid(Planetoid planetoid) {
+	public PlanetoidEntity(Planetoid planetoid) {
 		this.setPlanetoid(planetoid);
 	}
 
 	@Override
 	public Planetoid getValue() {
-		return this;
+		return planetoid;
 	}
 	
 	public Planetoid planetoid;

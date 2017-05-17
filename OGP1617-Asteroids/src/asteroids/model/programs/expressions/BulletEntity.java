@@ -1,14 +1,16 @@
 package asteroids.model.programs.expressions;
 
-public class Bullet extends EntityLiteral{
+import asteroids.model.Bullet;
+
+public class BulletEntity extends EntityLiteral{
 	
-	public Bullet(Bullet bullet) {
+	public BulletEntity(Bullet bullet) {
 		this.setBullet(bullet);
 	}
 
 	@Override
 	public Bullet getValue() {
-		return this;
+		return bullet;
 	}
 	
 	public Bullet bullet;
