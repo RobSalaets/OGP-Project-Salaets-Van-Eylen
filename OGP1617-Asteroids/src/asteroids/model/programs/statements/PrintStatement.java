@@ -22,7 +22,7 @@ public class PrintStatement extends Statement {
 	@Override
 	public void execute(Scope scope, ExecutionContext context) throws ProgramExecutionTimeException{
 		Type eval = content.evaluate(scope);
-		context.addToPrintLog(eval);
+		context.addToPrintLog(eval, getSourceLocation());
 		System.out.println(eval.toString());
 	}
 }

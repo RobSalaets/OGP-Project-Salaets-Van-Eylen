@@ -21,19 +21,15 @@ public class WhileStatement extends ConditionalStatement implements Breakable{
 
 	@Override
 	public void execute(Scope scope, ExecutionContext context) throws ProgramExecutionTimeException{
-		while(condition.evaluate(scope).getValue() && !context.isBreaking()){
+		context.addToStack(this, getSourceLocation());
+		while(condition.evaluate(scope).getValue() && !context.isBreaking())
 			body.execute(scope, context);
-		}
-		context.stopBreaking();
+		
+		if(!context.isReturning() && context.isBreaking())
+			context.stopBreaking();
 	}
 	
 	public MultiStatement getBody(){
 		return body;
-	}
-
-	@Override
-	public void handleEscape() {
-		// TODO Auto-generated method stub
-		
 	}
 }

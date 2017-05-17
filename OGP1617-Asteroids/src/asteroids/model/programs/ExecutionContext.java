@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Stack;
 
 import asteroids.model.programs.expressions.Type;
+import asteroids.part3.programs.SourceLocation;
 
 public class ExecutionContext {
 
@@ -15,43 +16,62 @@ public class ExecutionContext {
 //	private Program program;
 	private List<Type> printLog = new ArrayList<Type>();
 	private Stack<Desertable> stack = new Stack<Desertable>();
-	
-	private boolean breaking = false;
 
-	public void addToPrintLog(Type value) throws ProgramExecutionTimeException {
+	public void addToPrintLog(Type value, SourceLocation line) throws ProgramExecutionTimeException {
 		if (value == null)
-			throw new ProgramExecutionTimeException("Trying to add null to the print log");
+			throw new ProgramExecutionTimeException("Trying to add null to the print log", line);
 		printLog.add(value);
 	}
 
-	public void addToStack(Desertable d) throws ProgramExecutionTimeException {
+	public void addToStack(Desertable d, SourceLocation line) throws ProgramExecutionTimeException {
 		if (d == null)
-			throw new ProgramExecutionTimeException("Trying to add null to the execution stack");
+			throw new ProgramExecutionTimeException("Trying to add null to the execution stack", line);
 		stack.push(d);
 	}
 
-	public void breakFromCurrent() throws ProgramExecutionTimeException {
+	public void breakFromCurrent(SourceLocation line) throws ProgramExecutionTimeException {
 		if (stack.isEmpty() || !(stack.peek() instanceof Breakable))
-			throw new ProgramExecutionTimeException("No statement to break from.");
+			throw new ProgramExecutionTimeException("No statement to break from.", line);
 		stack.pop();
-		breaking = true;
+		setBreak();
+	}
+	
+	public void returnFromCurrent(SourceLocation line) throws ProgramExecutionTimeException {
+		Desertable top = null;
+		do {
+			if (stack.isEmpty())
+				throw new ProgramExecutionTimeException("No function to return from.", line);
+			top = stack.pop();
+			setReturn();
+		} while (!(top instanceof Function));
 	}
 	
 	public boolean isBreaking(){
 		return breaking;
 	}
 	
+	public boolean isReturning(){
+		return returning;
+	}
+	
 	public void stopBreaking(){
 		breaking = false;
 	}
-
-	public void returnFromCurrent() throws ProgramExecutionTimeException {
-		Desertable top = null;
-		do {
-			if (stack.isEmpty())
-				throw new ProgramExecutionTimeException("No function to return from.");
-			top = stack.pop();
-			top.handleEscape();// TODO Probleem met isBreaking()
-		} while (!(top instanceof Function));
+	
+	public void stopReturning(){
+		returning = false;
+		breaking = false;
 	}
+	
+	private void setBreak(){
+		breaking = true;
+	}
+	
+	private void setReturn(){
+		returning = true;
+		breaking = true;
+	}
+	
+	private boolean breaking = false;
+	private boolean returning = false;
 }

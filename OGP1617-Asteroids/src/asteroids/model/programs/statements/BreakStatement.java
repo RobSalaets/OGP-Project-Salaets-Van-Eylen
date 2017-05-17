@@ -13,6 +13,6 @@ public class BreakStatement extends Statement{
 
 	@Override
 	public void execute(Scope scope, ExecutionContext context) throws ProgramExecutionTimeException{
-		context.breakFromCurrent();
+		context.breakFromCurrent(getSourceLocation());
 	}
 }

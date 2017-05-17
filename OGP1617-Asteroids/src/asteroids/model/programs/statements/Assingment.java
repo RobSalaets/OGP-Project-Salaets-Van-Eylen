@@ -22,6 +22,6 @@ public class Assingment extends Statement {
 	
 	@Override
 	public void execute(Scope scope, ExecutionContext context) throws ProgramExecutionTimeException{
-		scope.putVariable(variableName, expression.evaluate(scope));
+		scope.putVariable(variableName, expression.evaluate(scope), getSourceLocation());
 	}
 }
