@@ -2,7 +2,6 @@ package asteroids.model.programs.statements;
 
 import asteroids.model.programs.ExecutionContext;
 import asteroids.model.programs.ProgramExecutionTimeException;
-import asteroids.model.programs.Scope;
 import asteroids.model.programs.expressions.Expression;
 import asteroids.model.programs.expressions.Type;
 import asteroids.part3.programs.SourceLocation;
@@ -21,7 +20,7 @@ public class Assingment extends Statement {
 	private final Expression<? extends Type> expression;
 	
 	@Override
-	public void execute(Scope scope, ExecutionContext context) throws ProgramExecutionTimeException{
-		scope.putVariable(variableName, expression.evaluate(scope), getSourceLocation());
+	public void execute(ExecutionContext context) throws ProgramExecutionTimeException{
+		context.getScope().putVariable(variableName, expression.evaluate(context.getScope()), getSourceLocation());
 	}
 }

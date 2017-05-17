@@ -4,23 +4,35 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
+import asteroids.model.World;
 import asteroids.model.programs.expressions.Type;
 import asteroids.part3.programs.SourceLocation;
 
 public class ExecutionContext {
 
-	public ExecutionContext(/*Program program*/) {
-//		this.program = program;
+	public ExecutionContext(Scope globalScope, World world) {
+		this.world = world;
+		this.globalScope = globalScope;
 	}
 
-//	private Program program;
+	private final World world;
 	private List<Type> printLog = new ArrayList<Type>();
 	private Stack<Desertable> stack = new Stack<Desertable>();
+	private final Scope globalScope;
 
 	public void addToPrintLog(Type value, SourceLocation line) throws ProgramExecutionTimeException {
 		if (value == null)
 			throw new ProgramExecutionTimeException("Trying to add null to the print log", line);
 		printLog.add(value);
+	}
+	
+	public World getWorld(){
+		return world;
+	}
+	
+	public Scope getScope(){
+		//TODO localscopes
+		return globalScope;
 	}
 
 	public void addToStack(Desertable d, SourceLocation line) throws ProgramExecutionTimeException {

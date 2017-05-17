@@ -21,7 +21,7 @@ public abstract class Statement{
 		return location;
 	}
 	
-	public abstract void execute(Scope scope, ExecutionContext context) throws ProgramExecutionTimeException;
+	public abstract void execute(ExecutionContext context) throws ProgramExecutionTimeException;
 		
 	
 }

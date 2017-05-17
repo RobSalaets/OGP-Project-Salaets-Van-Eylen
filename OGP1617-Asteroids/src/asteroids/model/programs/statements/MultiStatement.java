@@ -4,7 +4,6 @@ import java.util.List;
 
 import asteroids.model.programs.ExecutionContext;
 import asteroids.model.programs.ProgramExecutionTimeException;
-import asteroids.model.programs.Scope;
 import asteroids.part3.programs.SourceLocation;
 
 public class MultiStatement extends Statement{
@@ -20,9 +19,9 @@ public class MultiStatement extends Statement{
 	private final List<Statement> statements;
 
 	@Override
-	public void execute(Scope scope, ExecutionContext context) throws ProgramExecutionTimeException{
+	public void execute(ExecutionContext context) throws ProgramExecutionTimeException{
 		for(Statement s : statements){
-			s.execute(scope, context);
+			s.execute(context);
 			if(context.isBreaking())
 				return;
 		}
