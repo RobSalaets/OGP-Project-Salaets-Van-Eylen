@@ -3,7 +3,7 @@ package asteroids.model.programs.statements;
 import asteroids.model.programs.ExecutionContext;
 import asteroids.model.programs.ProgramExecutionTimeException;
 import asteroids.model.programs.expressions.Expression;
-import asteroids.model.programs.expressions.Type;
+import asteroids.model.programs.expressions.types.Type;
 import asteroids.part3.programs.SourceLocation;
 
 public class PrintStatement extends Statement {
@@ -20,7 +20,7 @@ public class PrintStatement extends Statement {
 	
 	@Override
 	public void execute(ExecutionContext context) throws ProgramExecutionTimeException{
-		Type eval = content.evaluate(context.getScope());
+		Type eval = content.evaluate(context.getScope(), context.getWorld());
 		context.addToPrintLog(eval, getSourceLocation());
 		System.out.println(eval.toString());
 	}

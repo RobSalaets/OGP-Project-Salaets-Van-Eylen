@@ -1,20 +1,20 @@
-package asteroids.model.programs.expressions;
+package asteroids.model.programs.expressions.types;
 
 import be.kuleuven.cs.som.annotate.Value;
 
 @Value
-public class BooleanLiteral extends Type{
+public class DoubleLiteral extends Type{
 	
-	public BooleanLiteral(boolean state) {
-		this.state = state;
+	public DoubleLiteral(double value) {
+		this.value = value;
 	}
 
 	@Override
-	public Boolean getValue() {
-		return state;
+	public Double getValue() {
+		return value;
 	}
 	
-	private final boolean state;
+	private final double value;
 	
 	@Override
 	public boolean equals(Object other) {
@@ -22,7 +22,7 @@ public class BooleanLiteral extends Type{
 			return false;
 		if(this.getClass() != other.getClass())
 			return false;
-		BooleanLiteral otherVector = (BooleanLiteral) other;
+		DoubleLiteral otherVector = (DoubleLiteral) other;
 		return getValue() == otherVector.getValue();
 	}
 	

@@ -1,4 +1,4 @@
-package asteroids.model.programs.expressions;
+package asteroids.model.programs.expressions.types;
 
 import asteroids.model.Bullet;
 

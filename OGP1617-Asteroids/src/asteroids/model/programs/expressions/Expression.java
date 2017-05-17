@@ -1,6 +1,8 @@
 package asteroids.model.programs.expressions;
 
+import asteroids.model.World;
 import asteroids.model.programs.Scope;
+import asteroids.model.programs.expressions.types.Type;
 
 /**
  * @param <ET>
@@ -12,5 +14,5 @@ public abstract class Expression<ET extends Type>{
 		
 	}
 
-	public abstract ET evaluate(Scope scope);
+	public abstract ET evaluate(Scope scope, World world) throws ExpressionEvaluationException;
 }

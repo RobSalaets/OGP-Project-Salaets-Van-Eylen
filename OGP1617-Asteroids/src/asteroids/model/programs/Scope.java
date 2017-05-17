@@ -2,7 +2,7 @@ package asteroids.model.programs;
 
 import java.util.HashMap;
 
-import asteroids.model.programs.expressions.Type;
+import asteroids.model.programs.expressions.types.Type;
 import asteroids.part3.programs.SourceLocation;
 
 public class Scope {

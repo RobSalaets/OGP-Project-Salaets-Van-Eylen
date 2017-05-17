@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Stack;
 
 import asteroids.model.World;
-import asteroids.model.programs.expressions.Type;
+import asteroids.model.programs.expressions.types.Type;
 import asteroids.part3.programs.SourceLocation;
 
 public class ExecutionContext {

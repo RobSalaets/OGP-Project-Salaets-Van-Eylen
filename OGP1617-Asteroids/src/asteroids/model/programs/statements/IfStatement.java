@@ -2,8 +2,8 @@ package asteroids.model.programs.statements;
 
 import asteroids.model.programs.ExecutionContext;
 import asteroids.model.programs.ProgramExecutionTimeException;
-import asteroids.model.programs.expressions.BooleanLiteral;
 import asteroids.model.programs.expressions.Expression;
+import asteroids.model.programs.expressions.types.BooleanLiteral;
 import asteroids.part3.programs.SourceLocation;
 
 public class IfStatement extends ConditionalStatement {

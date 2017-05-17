@@ -1,6 +1,10 @@
 package asteroids.model.programs.expressions;
 
+import asteroids.model.World;
 import asteroids.model.programs.Scope;
+import asteroids.model.programs.expressions.types.BooleanLiteral;
+import asteroids.model.programs.expressions.types.DoubleLiteral;
+import asteroids.model.programs.expressions.types.Type;
 
 public class LessThanExpression extends BinaryExpression<DoubleLiteral, BooleanLiteral> {
 
@@ -10,11 +14,11 @@ public class LessThanExpression extends BinaryExpression<DoubleLiteral, BooleanL
 	}
 
 	@Override
-	public BooleanLiteral evaluate(Scope scope) {
-		Type evalL = getLeftArgument().evaluate(scope);
-		Type evalR = getRightArgument().evaluate(scope);
+	public BooleanLiteral evaluate(Scope scope, World world) throws ExpressionEvaluationException{
+		Type evalL = getLeftArgument().evaluate(scope, world);
+		Type evalR = getRightArgument().evaluate(scope, world);
 		if(!((evalL instanceof DoubleLiteral) && (evalR instanceof DoubleLiteral)))
-			throw new IllegalArgumentException();
+			throw new ExpressionEvaluationException("Given operands do not evaluate to DoubleLiteral");
 		
 		return new BooleanLiteral(((DoubleLiteral)evalL).getValue() < ((DoubleLiteral)evalR).getValue());
 	}

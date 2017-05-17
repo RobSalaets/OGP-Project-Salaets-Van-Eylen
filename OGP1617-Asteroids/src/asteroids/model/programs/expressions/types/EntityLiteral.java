@@ -1,4 +1,4 @@
-package asteroids.model.programs.expressions;
+package asteroids.model.programs.expressions.types;
 
 public abstract class EntityLiteral extends Type{
 	

@@ -1,6 +1,9 @@
 package asteroids.model.programs.expressions;
 
+import asteroids.model.World;
 import asteroids.model.programs.Scope;
+import asteroids.model.programs.expressions.types.BooleanLiteral;
+import asteroids.model.programs.expressions.types.Type;
 
 
 public class EqualsExpression extends Expression<BooleanLiteral> {
@@ -16,8 +19,8 @@ public class EqualsExpression extends Expression<BooleanLiteral> {
 	private final Expression<? extends Type> rightArg;
 
 	@Override
-	public BooleanLiteral evaluate(Scope scope) {
-		return new BooleanLiteral(leftArg.evaluate(scope).equals(rightArg.evaluate(scope)));
+	public BooleanLiteral evaluate(Scope scope, World world){
+		return new BooleanLiteral(leftArg.evaluate(scope, world).equals(rightArg.evaluate(scope, world)));
 	}
 
 }

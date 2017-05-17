@@ -3,7 +3,7 @@ package asteroids.model.programs.statements;
 import asteroids.model.programs.ExecutionContext;
 import asteroids.model.programs.ProgramExecutionTimeException;
 import asteroids.model.programs.expressions.Expression;
-import asteroids.model.programs.expressions.Type;
+import asteroids.model.programs.expressions.types.Type;
 import asteroids.part3.programs.SourceLocation;
 
 public class ReturnStatement extends Statement {

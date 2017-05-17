@@ -1,5 +1,6 @@
 package asteroids.model.programs.expressions;
 
+import asteroids.model.programs.expressions.types.Type;
 import be.kuleuven.cs.som.annotate.Basic;
 
 public abstract class UnaryExpression<AT extends Type, ET extends Type> extends Expression<ET>{
