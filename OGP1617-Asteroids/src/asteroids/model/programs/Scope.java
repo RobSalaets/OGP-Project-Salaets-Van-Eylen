@@ -1,13 +1,15 @@
 package asteroids.model.programs;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import asteroids.model.programs.expressions.Type;
 
 public class Scope {
 
-	private HashMap<String, Function> functionMap;
-	private HashMap<String, Type> variableMap;
+	private HashMap<String, Function> functionMap = new HashMap<String, Function>();
+	private HashMap<String, Type> variableMap = new HashMap<String, Type>();
 	
 	public void putVariable(String varName, Type value) throws IllegalStateException{
 		if(readOnly)

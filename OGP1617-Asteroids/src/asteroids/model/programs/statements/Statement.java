@@ -1,17 +1,27 @@
 package asteroids.model.programs.statements;
 
+import asteroids.model.programs.ExecutionContext;
+import asteroids.model.programs.ProgramExecutionTimeException;
 import asteroids.model.programs.Scope;
 import asteroids.part3.programs.SourceLocation;
+import be.kuleuven.cs.som.annotate.Basic;
 
 public abstract class Statement{
 	
-	public Statement(SourceLocation location){
+	public Statement(SourceLocation location) throws IllegalArgumentException{
+		if(location == null)
+			throw new IllegalArgumentException();
 		this.location = location;
 	}
 
 	private final SourceLocation location;
 	
-	public abstract void execute(Scope scope);
+	@Basic 
+	public SourceLocation getSourceLocation(){
+		return location;
+	}
+	
+	public abstract void execute(Scope scope, ExecutionContext context) throws ProgramExecutionTimeException;
 		
 	
 }
