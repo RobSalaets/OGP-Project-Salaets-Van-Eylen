@@ -519,7 +519,7 @@ public class Facade implements IFacade{
 			return null;
 		}
 	}
-	// TODO TOTALTRAVELLEDDISTANCE
+	
 	@Override
 	public Planetoid createPlanetoid(double x, double y, double xVelocity, double yVelocity, double radius, double totalTraveledDistance) throws ModelException{
 		try{

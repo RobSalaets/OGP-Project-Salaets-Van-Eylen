@@ -497,8 +497,7 @@ public class World implements Container<Entity>{
 	 * 		 | 	this.hasAsItem(mPlanet)
 	*/
 	public Set<MinorPlanet> getMinorPlanets(){
-//		return entities.values().stream().filter(e -> e instanceof MinorPlanet).map(e->(MinorPlanet)e).collect(Collectors.toSet());
-		return null;
+		return entities.values().stream().filter(e -> e instanceof MinorPlanet).map(e->(MinorPlanet)e).collect(Collectors.toSet());
 	}
 	
 	/**
