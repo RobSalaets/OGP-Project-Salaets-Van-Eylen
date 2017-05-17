@@ -1,5 +1,5 @@
 package asteroids.model.programs.expressions;
 
 public enum EntityArithmeticOperation {
-	GETX, GETY, GETVX, GETVY, GET_RADIUS, GET_DIR
+	GETX, GETY, GETVX, GETVY, GET_RADIUS
 }
