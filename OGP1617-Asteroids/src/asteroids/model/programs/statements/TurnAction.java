@@ -9,7 +9,7 @@ import asteroids.part3.programs.SourceLocation;
 
 public class TurnAction extends Action {
 
-	public TurnAction(Expression<? super DoubleLiteral> angle, SourceLocation location) {
+	public TurnAction(SourceLocation location, Expression<? super DoubleLiteral> angle) {
 		super(location);
 		this.angle = angle;
 	}
@@ -21,8 +21,11 @@ public class TurnAction extends Action {
 		Object eval = angle.evaluate(context.getCurrentScope(), context.getWorld());
 		if(!(eval instanceof DoubleLiteral))
 			throw new ExpressionEvaluationException("Given operand does not evaluate to DoubleLiteral", getSourceLocation());
-		
-		context.getExecutor().turn(((DoubleLiteral) eval).getValue());
+		if(context.canExecuteAction()){
+			context.decrementExecutionTime(getSourceLocation());
+			double angle = (context.getExecutor().getOrientation() + ((DoubleLiteral) eval).getValue()) % (2 * Math.PI);
+			context.getExecutor().turn(angle - context.getExecutor().getOrientation());
+		}
 	}
 
 }

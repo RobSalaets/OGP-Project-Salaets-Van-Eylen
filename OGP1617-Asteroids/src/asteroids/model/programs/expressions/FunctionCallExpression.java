@@ -11,7 +11,7 @@ import asteroids.part3.programs.SourceLocation;
 public class FunctionCallExpression extends Expression<Type> {
 
 
-	protected FunctionCallExpression(String functionName, List<Expression<? extends Type>> actualArgs, SourceLocation sourceLocation) throws IllegalArgumentException {
+	public FunctionCallExpression(String functionName, List<Expression<? extends Type>> actualArgs, SourceLocation sourceLocation) throws IllegalArgumentException {
 		super(sourceLocation);
 		if(functionName == null || actualArgs == null)
 			throw new IllegalArgumentException();

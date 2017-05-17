@@ -7,6 +7,7 @@ import java.util.Stack;
 import asteroids.model.Ship;
 import asteroids.model.World;
 import asteroids.model.programs.expressions.types.Type;
+import asteroids.model.programs.statements.Action;
 import asteroids.part3.programs.SourceLocation;
 
 public class ExecutionContext {
@@ -41,7 +42,9 @@ public class ExecutionContext {
 	public Ship getExecutor(){
 		return executor;
 	}
+	
 	private final Ship executor;
+	
 	public Scope getCurrentScope(){
 		Function f = getCurrentFunction();
 		if(f != null)
@@ -114,4 +117,24 @@ public class ExecutionContext {
 	
 	private boolean breaking = false;
 	private boolean returning = false;
+	
+	public void clearStack(){
+		stack.clear();
+	}
+	
+	public void addExecTime(double timeDelta){
+		executionTimeLeft += timeDelta;
+	}
+	
+	public void decrementExecutionTime(SourceLocation line) throws ProgramExecutionTimeException{
+		if(getCurrentFunction() != null)
+			throw new ProgramExecutionTimeException("Trying to execute action statement in function environment", line);
+		executionTimeLeft -= Action.ACTION_TIME;
+	}
+	
+	public boolean canExecuteAction(){
+		return executionTimeLeft >= Action.ACTION_TIME;
+	}
+	
+	private double executionTimeLeft;
 }

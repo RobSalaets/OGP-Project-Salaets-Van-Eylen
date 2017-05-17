@@ -23,8 +23,8 @@ public class GlobalScope extends Scope {
 		return result;
 	}
 	
-	public void putFunction(String functionName, Function value, SourceLocation line){
-		functionMap.put(functionName, value);
+	public void putFunction(String functionName, Function function, SourceLocation line){
+		functionMap.put(functionName, function);
 	}
 	
 	public Function getFunction(String functionName, SourceLocation line) throws ExpressionEvaluationException{

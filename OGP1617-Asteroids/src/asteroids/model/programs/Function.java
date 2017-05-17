@@ -17,15 +17,13 @@ public class Function implements Desertable{
 		this.sourceLocation = sourceLocation;
 	}
 	
-	private final String name;
 	private final Statement body;
-	private final SourceLocation sourceLocation;
-	private ExecutionContext context;
-	private LocalScope localScope;
 	
 	public void setExecutionContext(ExecutionContext context){
 		this.context = context;
 	}
+	
+	private ExecutionContext context;
 	
 	public Type execute(List<Expression<? extends Type>> arguments) throws ProgramExecutionTimeException{
 		if(context == null)
@@ -46,7 +44,18 @@ public class Function implements Desertable{
 		return localScope;
 	}
 	
+	private LocalScope localScope;
+	
 	public SourceLocation getSourceLocation(){
 		return sourceLocation;
 	}
+	
+	private final SourceLocation sourceLocation;
+	
+	public String getName(){
+		return name;
+	}
+	
+	private final String name;
+	
 }
