@@ -1,15 +1,52 @@
 package asteroids.model.programs;
 
-public class Function implements Desertable{
+import java.util.List;
 
-	//error als er uit body gekomen wordt met !isReturning()
-	//TODO stopReturning()
+import asteroids.model.programs.expressions.Expression;
+import asteroids.model.programs.expressions.types.Type;
+import asteroids.model.programs.statements.Statement;
+import asteroids.part3.programs.SourceLocation;
+
+public class Function implements Desertable{
 	
-	private ExecutionContext context;
-	
-	public void setExecutionContext(ExecutionContext context) throws IllegalArgumentException{
-		if(context == null)
+	public Function(String functionName, Statement body, SourceLocation sourceLocation) throws IllegalArgumentException{
+		if(body == null || sourceLocation == null)
 			throw new IllegalArgumentException();
+		this.name = functionName;
+		this.body = body;
+		this.sourceLocation = sourceLocation;
+	}
+	
+	private final String name;
+	private final Statement body;
+	private final SourceLocation sourceLocation;
+	private ExecutionContext context;
+	private LocalScope localScope;
+	
+	public void setExecutionContext(ExecutionContext context){
 		this.context = context;
+	}
+	
+	public Type execute(List<Expression<? extends Type>> arguments) throws ProgramExecutionTimeException{
+		if(context == null)
+			throw new ProgramExecutionTimeException("The execution context of this Function was not set", sourceLocation);
+		localScope = new LocalScope(context.getGlobalScope());
+		for(int i = 0; i < arguments.size(); i++)
+			localScope.putVariable("$"+String.valueOf(i), arguments.get(i).evaluate(context.getCurrentScope(), context.getWorld()), sourceLocation);
+		context.getGlobalScope().setReadOnly(true);
+		context.addToStack(this, sourceLocation);
+		body.execute(context);
+		if(!context.isReturning())
+			throw new ProgramExecutionTimeException("No return statement in function: " + name, sourceLocation);
+		context.stopReturning();
+		return localScope.getVariable("$0", sourceLocation);
+	}
+
+	public LocalScope getLocalScope() {
+		return localScope;
+	}
+	
+	public SourceLocation getSourceLocation(){
+		return sourceLocation;
 	}
 }

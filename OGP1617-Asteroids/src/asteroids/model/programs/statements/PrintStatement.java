@@ -20,7 +20,7 @@ public class PrintStatement extends Statement {
 	
 	@Override
 	public void execute(ExecutionContext context) throws ProgramExecutionTimeException{
-		Type eval = content.evaluate(context.getScope(), context.getWorld());
+		Type eval = content.evaluate(context.getCurrentScope(), context.getWorld());
 		context.addToPrintLog(eval, getSourceLocation());
 		System.out.println(eval.toString());
 	}

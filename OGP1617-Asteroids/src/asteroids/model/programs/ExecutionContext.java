@@ -10,19 +10,21 @@ import asteroids.part3.programs.SourceLocation;
 
 public class ExecutionContext {
 
-	public ExecutionContext(Scope globalScope, World world) {
+	public ExecutionContext(World world) {
+		this.globalScope = new GlobalScope();
 		this.world = world;
-		this.globalScope = globalScope;
 	}
 
 	private final World world;
 	private List<Type> printLog = new ArrayList<Type>();
 	private Stack<Desertable> stack = new Stack<Desertable>();
-	private final Scope globalScope;
+	private final GlobalScope globalScope;
 
 	public void addToPrintLog(Type value, SourceLocation line) throws ProgramExecutionTimeException {
 		if (value == null)
 			throw new ProgramExecutionTimeException("Trying to add null to the print log", line);
+		if(getCurrentFunction() != null)
+			throw new ProgramExecutionTimeException("Trying to print in a function environment", line);
 		printLog.add(value);
 	}
 	
@@ -30,9 +32,23 @@ public class ExecutionContext {
 		return world;
 	}
 	
-	public Scope getScope(){
-		//TODO localscopes
+	public Scope getCurrentScope(){
+		Function f = getCurrentFunction();
+		if(f != null)
+			return f.getLocalScope();
+		return getGlobalScope();
+	}
+	
+	public GlobalScope getGlobalScope(){
 		return globalScope;
+	}
+	
+	private Function getCurrentFunction(){
+		Function f = null;
+		for(Desertable d : stack)
+			if(d instanceof Function)
+				f = (Function) d;
+		return f;
 	}
 
 	public void addToStack(Desertable d, SourceLocation line) throws ProgramExecutionTimeException {
@@ -54,8 +70,8 @@ public class ExecutionContext {
 			if (stack.isEmpty())
 				throw new ProgramExecutionTimeException("No function to return from.", line);
 			top = stack.pop();
-			setReturn();
 		} while (!(top instanceof Function));
+		setReturn();
 	}
 	
 	public boolean isBreaking(){
@@ -71,6 +87,8 @@ public class ExecutionContext {
 	}
 	
 	public void stopReturning(){
+		if(getCurrentFunction() == null)
+			getGlobalScope().setReadOnly(false);
 		returning = false;
 		breaking = false;
 	}

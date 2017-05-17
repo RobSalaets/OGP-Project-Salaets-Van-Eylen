@@ -10,8 +10,8 @@ public class Assingment extends Statement {
 	
 	public Assingment(SourceLocation location, String name, Expression<? extends Type> expression) throws IllegalArgumentException{
 		super(location);
-		if(expression == null)
-			throw new IllegalArgumentException("At: " + getSourceLocation().toString());
+		if(expression == null || name == null)
+			throw new IllegalArgumentException();
 		this.variableName = name;
 		this.expression = expression;
 	}
@@ -21,6 +21,6 @@ public class Assingment extends Statement {
 	
 	@Override
 	public void execute(ExecutionContext context) throws ProgramExecutionTimeException{
-		context.getScope().putVariable(variableName, expression.evaluate(context.getScope(), context.getWorld()), getSourceLocation());
+		context.getCurrentScope().putVariable(variableName, expression.evaluate(context.getCurrentScope(), context.getWorld()), getSourceLocation());
 	}
 }
