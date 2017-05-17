@@ -4,18 +4,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
+import asteroids.model.Ship;
 import asteroids.model.World;
 import asteroids.model.programs.expressions.types.Type;
 import asteroids.part3.programs.SourceLocation;
 
 public class ExecutionContext {
 
-	public ExecutionContext(World world) {
+
+	public ExecutionContext(Ship executor, World world) throws IllegalArgumentException{
+		if(executor == null)
+			throw new IllegalArgumentException();
+		this.executor = executor;
 		this.globalScope = new GlobalScope();
 		this.world = world;
 	}
 
-	private final World world;
 	private List<Type> printLog = new ArrayList<Type>();
 	private Stack<Desertable> stack = new Stack<Desertable>();
 	private final GlobalScope globalScope;
@@ -31,7 +35,13 @@ public class ExecutionContext {
 	public World getWorld(){
 		return world;
 	}
+
+	private final World world;
 	
+	public Ship getExecutor(){
+		return executor;
+	}
+	private final Ship executor;
 	public Scope getCurrentScope(){
 		Function f = getCurrentFunction();
 		if(f != null)
