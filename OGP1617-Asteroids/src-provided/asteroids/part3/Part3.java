@@ -11,7 +11,7 @@ import asteroids.part3.facade.IFacade;
 
 public class Part3 {
 	public static void main(String[] args) throws FileNotFoundException {
-		boolean tryFullscreen = false;
+		boolean tryFullscreen = true;
 		boolean enableSound = true;
 		URL aiProgramUrl = ResourceUtils.toURL("asteroids/resources/programs/program.txt");
 		for (int i = 0; i < args.length; i++) {
@@ -20,6 +20,11 @@ public class Part3 {
 				tryFullscreen = true;
 			} else if (arg.equals("-nosound")) {
 				enableSound = false;
+				
+				
+				
+				
+				
 			} else if (arg.equals("-ai")) {
 				if (i + 1 < args.length) {
 					String aiProgramPath = args[++i];
