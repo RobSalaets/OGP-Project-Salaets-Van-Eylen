@@ -16,8 +16,7 @@ public class SelfExpression extends Expression<EntityLiteral>{
 
 	@Override
 	public ShipEntity evaluate(Scope scope, World world, Ship executor) throws ExpressionEvaluationException, ProgramExecutionTimeException {
-//		world.getShips().stream().filter(context.getExecutor().getPosition)
-		return null;
+		return new ShipEntity(executor);
 	}
 
 }

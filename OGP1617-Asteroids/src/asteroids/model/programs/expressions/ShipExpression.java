@@ -1,5 +1,7 @@
 package asteroids.model.programs.expressions;
 
+import java.util.Optional;
+
 import asteroids.model.Ship;
 import asteroids.model.World;
 import asteroids.model.programs.ProgramExecutionTimeException;
@@ -15,9 +17,9 @@ public class ShipExpression extends Expression<EntityLiteral>{
 	}
 
 	@Override
-	public ShipEntity evaluate(Scope scope, World world, Ship executor) throws ExpressionEvaluationException, ProgramExecutionTimeException {
-//		world.getShips().stream().filter(context.getExecutor().getPosition)
-		return null;
+	public EntityLiteral evaluate(Scope scope, World world, Ship executor) throws ExpressionEvaluationException, ProgramExecutionTimeException {
+		 Ship closest = world.getShips().stream().reduce((a,b) -> a.getDistanceBetween(executor) < b.getDistanceBetween(executor) || b==executor ? a:b).orElse(null);
+		 return closest ==null ? new NullType(): new ShipEntity(closest);
 	}
 
 }
