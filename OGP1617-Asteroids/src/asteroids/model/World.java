@@ -23,7 +23,7 @@ import be.kuleuven.cs.som.annotate.Raw;
  * @invar  Each world must have proper entities.
  *       | hasProperItems()       
  */
-public class World implements Container<Entity>{
+public class World implements Container{
 
 	/**
 	 * Initialize this new World as a non-terminated world with given width and height

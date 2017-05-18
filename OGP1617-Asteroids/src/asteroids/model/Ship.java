@@ -23,7 +23,7 @@ import be.kuleuven.cs.som.annotate.Raw;
  * @invar   Each Ship must have proper Bullets.
  *          | hasProperItems()
  */
-public class Ship extends Entity implements Container<Entity>{
+public class Ship extends Entity implements Container{
 
 	/**
 	 * Initialize this new Ship with given x, y, xVelocity, yVelocity, orientation, radius, mass, container and thrustForce
@@ -59,7 +59,7 @@ public class Ship extends Entity implements Container<Entity>{
 	 *      	| new.getNbItems() == 0
 	 */
 	@Raw
-	public Ship(double x, double y, double xVelocity, double yVelocity, double orientation, double radius, double mass, Container<Entity> container, double thrustForce) throws IllegalArgumentException{
+	public Ship(double x, double y, double xVelocity, double yVelocity, double orientation, double radius, double mass, Container container, double thrustForce) throws IllegalArgumentException{
 		super(x, y, xVelocity, yVelocity, radius, mass, container);
 		this.setOrientation(orientation);
 		this.setThrustForce(thrustForce);
@@ -242,7 +242,7 @@ public class Ship extends Entity implements Container<Entity>{
 	 *       |   then result == (container == null) && ((container instanceof World) && (!container.isTerminatedContainer()))
 	 */
 	@Raw
-	public boolean canHaveAsContainer(Container<Entity> container){
+	public boolean canHaveAsContainer(Container container){
 		if(this.isTerminated())
 			return container == null;
 		return (container == null) ||  ((container instanceof World) && (!container.isTerminated()));
@@ -609,7 +609,7 @@ public class Ship extends Entity implements Container<Entity>{
 	 */
 	public void terminate(){
 		if(!isTerminated()){
-			Container<Entity> oldContainer = getContainer();
+			Container oldContainer = getContainer();
 			if(oldContainer != null){
 				setContainer(null);
 				oldContainer.removeItem(this);

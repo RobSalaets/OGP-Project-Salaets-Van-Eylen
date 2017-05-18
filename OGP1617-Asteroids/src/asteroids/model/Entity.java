@@ -76,7 +76,7 @@ public abstract class Entity{
 	 */
 	@Model
 	@Raw
-	protected Entity(double x, double y, double xVelocity, double yVelocity, double radius, double mass, Container<Entity> container) throws IllegalArgumentException{
+	protected Entity(double x, double y, double xVelocity, double yVelocity, double radius, double mass, Container container) throws IllegalArgumentException{
 		if(!canHaveAsRadius(radius))
 			throw new IllegalArgumentException();
 		this.setPosition(x, y);
@@ -677,11 +677,11 @@ public abstract class Entity{
 	 */
 	@Basic
 	@Raw
-	public Container<Entity> getContainer(){
+	public Container getContainer(){
 		return this.container;
 	}
 
-	public abstract boolean canHaveAsContainer(Container<Entity> container);
+	public abstract boolean canHaveAsContainer(Container container);
 	
 	/**
 	 * Check whether this Entity has a proper container.
@@ -711,7 +711,7 @@ public abstract class Entity{
 	 *       | ! canHaveAsContainer(container) || (getContainer() != null && container != null)
 	 */
 	@Raw
-	public void setContainer(Container<Entity> container) throws IllegalArgumentException{
+	public void setContainer(Container container) throws IllegalArgumentException{
 		if(!canHaveAsContainer(container) || (getContainer() != null && container != null))
 			throw new IllegalArgumentException();
 		this.container = container;
@@ -720,7 +720,7 @@ public abstract class Entity{
 	/**
 	 * Variable referencing the Container to which this Entity belongs.
 	 */
-	private Container<Entity> container;
+	private Container container;
   
 }
 

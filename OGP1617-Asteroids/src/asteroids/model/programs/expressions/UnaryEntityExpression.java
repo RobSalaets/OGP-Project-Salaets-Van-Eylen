@@ -24,7 +24,7 @@ public class UnaryEntityExpression extends UnaryExpression<EntityLiteral, Double
 	public DoubleLiteral evaluate(Scope scope, World world, Ship executor) throws ExpressionEvaluationException{
 		Type arg = getArgument().evaluate(scope, world, executor);
 		if(!((arg instanceof EntityLiteral)))
-			throw new ExpressionEvaluationException("Given operands do not evaluate to EntityLiteral", getSourceLocation());
+			throw new ExpressionEvaluationException("Given operand does not evaluate to EntityLiteral", getSourceLocation());
 		
 		Double result = null;
 		switch(operationType){

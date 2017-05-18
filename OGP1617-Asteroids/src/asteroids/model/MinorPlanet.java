@@ -32,7 +32,7 @@ public abstract class MinorPlanet extends Entity{
 	 */
 	@Model
 	@Raw
-	protected MinorPlanet(double x, double y, double xVelocity, double yVelocity, double radius, double mass, Container<Entity> container) throws IllegalArgumentException{
+	protected MinorPlanet(double x, double y, double xVelocity, double yVelocity, double radius, double mass, Container container) throws IllegalArgumentException{
 		super(x, y, xVelocity, yVelocity, radius, mass, container);
 	}
 
@@ -102,7 +102,7 @@ public abstract class MinorPlanet extends Entity{
 	@Override
 	public void terminate(){
 		if(!isTerminated()){
-			Container<Entity> oldContainer = getContainer();
+			Container oldContainer = getContainer();
 			if(oldContainer != null){
 				setContainer(null);
 				oldContainer.removeItem(this);
@@ -127,7 +127,7 @@ public abstract class MinorPlanet extends Entity{
 	 *       |   then result == (container == null) && ((container instanceof World) && (!container.isTerminatedContainer()))
 	 */
 	@Raw @Override
-	public boolean canHaveAsContainer(Container<Entity> container){
+	public boolean canHaveAsContainer(Container container){
 		if(this.isTerminated())
 			return container == null;
 		return (container == null) ||  ((container instanceof World) && (!container.isTerminated()));
