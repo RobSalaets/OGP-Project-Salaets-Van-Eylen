@@ -1,6 +1,11 @@
 package asteroids.model.programs.expressions;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import asteroids.model.Asteroid;
+import asteroids.model.Entity;
 import asteroids.model.Ship;
 import asteroids.model.World;
 import asteroids.model.programs.ProgramExecutionTimeException;
@@ -21,6 +26,12 @@ public class AsteroidExpression extends Expression<EntityLiteral>{
 		Asteroid closest = world.getAsteroids().stream().reduce(
 				(a, b) -> executor.getPosition().sub(a.getPosition()).getLength() < executor.getPosition().sub(b.getPosition()).getLength() ?
 						a : b).orElse(null);
+		List<Entity> l = new ArrayList<>();
+		Iterator<Entity> iterator = l.iterator();
+		
+		Entity result = iterator.hasNext() ? iterator.next() : null;
+		result = result == executor && iterator.hasNext() ? iterator.next() : null;
+		
 		return closest == null ? new NullType() : new AsteroidEntity(closest);
 	}
 
