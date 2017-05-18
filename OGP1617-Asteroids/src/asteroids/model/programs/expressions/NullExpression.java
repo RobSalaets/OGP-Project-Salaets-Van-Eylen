@@ -15,8 +15,7 @@ public class NullExpression extends Expression<Type>{
 
 	@Override
 	public Type evaluate(Scope scope, World world, Ship executor) throws ExpressionEvaluationException, ProgramExecutionTimeException {
-		return null;
-//		world.getAllEntities().stream().filter(context.getExecutor().getPosition)
+		return new NullType();
 	}
 
 }

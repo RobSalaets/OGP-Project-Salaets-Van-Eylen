@@ -1,7 +1,14 @@
 package asteroids.model.programs.expressions.types;
 
-public abstract class EntityLiteral extends Type{
+import asteroids.model.Entity;
+
+
+public class EntityLiteral extends Type{
 	
+		public EntityLiteral(Entity entity) {
+		 this.entity=entity;
+	}
+
 		@Override
 		public boolean equals(Object other) {
 			return this.equals(other);
@@ -11,7 +18,12 @@ public abstract class EntityLiteral extends Type{
 		public String toString() {
 			return String.valueOf(getValue());
 		}
-		
+
+		@Override
+		public Object getValue() {
+			return entity;
+		}
+		public Entity entity;
 		
 }
 
