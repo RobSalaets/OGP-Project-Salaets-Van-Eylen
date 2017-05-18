@@ -15,7 +15,6 @@ public class MultiStatement extends Statement{
 		if(statements.contains(null))
 			throw new IllegalArgumentException();
 		this.statements = statements;
-		resetPointer();
 	}
 	
 	private final List<Statement> statements;
@@ -23,8 +22,11 @@ public class MultiStatement extends Statement{
 	@Override
 	public void execute(ExecutionContext context) throws ProgramExecutionTimeException, ExpressionEvaluationException{
 		for(int i = statementPointer; i < statements.size(); i++){
-			statements.get(i).execute(context); 
-			if(!context.canExecuteAction()){ // Action didn't execute
+			statementPointer = i;
+			if(context.canExecuteAction()){
+				statements.get(i).execute(context); //Probleem return uit execute eerste keer moet pointer op i+1
+			}										// daarna i+1
+			if(!context.canExecuteAction()){
 				statementPointer = i;
 				return;
 			}
@@ -37,8 +39,14 @@ public class MultiStatement extends Statement{
 	
 	private void resetPointer(){
 		statementPointer = 0;
+		executed = true;
 	}
 	
-	private int statementPointer;
+	private int statementPointer = 0;
 	
+	public boolean hasFullyExecuted(){
+		return executed;
+	}
+	
+	private boolean executed = false;
 }

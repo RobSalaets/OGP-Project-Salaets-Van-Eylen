@@ -22,6 +22,5 @@ public abstract class Statement{
 	}
 	
 	public abstract void execute(ExecutionContext context) throws ProgramExecutionTimeException, ExpressionEvaluationException;
-		
 	
 }

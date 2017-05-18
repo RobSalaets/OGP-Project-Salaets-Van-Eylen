@@ -1,5 +1,8 @@
 package asteroids.model.programs.expressions;
 
+import java.util.Iterator;
+
+import asteroids.model.Entity;
 import asteroids.model.Ship;
 import asteroids.model.World;
 import asteroids.model.programs.ProgramExecutionTimeException;
@@ -15,8 +18,10 @@ public class AnyExpression extends Expression<EntityLiteral>{
 
 	@Override
 	public EntityLiteral evaluate(Scope scope, World world, Ship executor) throws ExpressionEvaluationException, ProgramExecutionTimeException {
-		return null;
-//		world.getAllEntities().stream().filter(executor.getPosition)
+		Iterator<Entity> iterator = world.getAllEntities().iterator();
+		Entity result = iterator.hasNext() ? iterator.next() : null;
+		result = (result == executor && iterator.hasNext()) ? iterator.next() : result;
+		return new EntityLiteral(result);
 	}
 
 }

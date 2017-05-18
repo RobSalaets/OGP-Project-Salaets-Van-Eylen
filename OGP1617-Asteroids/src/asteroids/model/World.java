@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import asteroids.part2.CollisionListener;
@@ -520,6 +521,17 @@ public class World implements Container{
 	*/
 	public Set<Planetoid> getPlanetoids(){
 		return entities.values().stream().filter(e -> e instanceof Planetoid).map(e->(Planetoid)e).collect(Collectors.toSet());
+	}
+	
+	/**
+	 * Return a set of entities that satisfy the given filter.
+	 * 
+	 * @return Each entity in the resulting set is an item of this World.
+	 * 		 | for each entity in result:
+	 * 		 | 	this.hasAsItem(entity)
+	 */
+	public Set<Entity> getEntitiesByFilter(Predicate<? super Entity> filter){
+		return entities.values().stream().filter(filter).collect(Collectors.toSet());
 	}
 	
 	/**

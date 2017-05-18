@@ -1,24 +1,27 @@
 package asteroids.model;
 
+import java.util.Arrays;
 import java.util.List;
 
 import asteroids.model.programs.ExecutionContext;
 import asteroids.model.programs.Function;
 import asteroids.model.programs.ProgramExecutionTimeException;
 import asteroids.model.programs.expressions.ExpressionEvaluationException;
+import asteroids.model.programs.statements.MultiStatement;
 import asteroids.model.programs.statements.Statement;
 
 public class Program{
 
-	public Program(List<Function> functions, Statement body) throws IllegalArgumentException{
-		if(functions.contains(null) || body == null)
+
+	public Program(List<Function> functions, Statement main) throws IllegalArgumentException{
+		if(functions.contains(null) || main == null)
 			throw new IllegalArgumentException();
 		this.functions = functions;
-		this.body = body;
+		this.body = new MultiStatement(main.getSourceLocation(), Arrays.asList(new Statement[]{main}));
 	}
 	
 	private final List<Function> functions;
-	private final Statement body;
+	private final MultiStatement body;
 	
 	public void addExecutor(Ship ship) throws IllegalArgumentException{
 		if(ship == null)
@@ -36,6 +39,7 @@ public class Program{
 		context.addExecTime(dt);
 		body.execute(context);
 		context.clearStack();
-		return context.getPrintLog();
+		List<Object> log = context.getPrintLog();
+		return body.hasFullyExecuted() ? log : null;
 	}
 }

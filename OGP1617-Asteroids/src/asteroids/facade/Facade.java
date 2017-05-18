@@ -596,6 +596,8 @@ public class Facade implements IFacade{
 			throw new ModelException(e);
 		}catch(ExpressionEvaluationException e){
 			throw new ModelException(e);
+		}catch(ClassCastException e){
+			throw new ModelException(e);
 		}
 	}
 

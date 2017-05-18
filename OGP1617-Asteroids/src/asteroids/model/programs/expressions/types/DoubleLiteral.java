@@ -23,7 +23,7 @@ public class DoubleLiteral extends Type{
 		if(this.getClass() != other.getClass())
 			return false;
 		DoubleLiteral otherVector = (DoubleLiteral) other;
-		return getValue() == otherVector.getValue();
+		return getValue().equals(otherVector.getValue());
 	}
 	
 	@Override

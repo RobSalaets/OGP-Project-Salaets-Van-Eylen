@@ -11,8 +11,8 @@ public class GlobalScope extends Scope {
 			throw new ProgramExecutionTimeException("Unable to write variables to this Scope", line);
 		if(functionMap.containsKey(varName))
 			throw new ProgramExecutionTimeException("Duplicate name with a function.", line);
-		if(variableMap.containsKey(varName) && !(variableMap.get(varName) instanceof Type))
-			throw new ProgramExecutionTimeException("The type of this variable is incompatible with given Type: " + value.toString(), line);
+		if(variableMap.containsKey(varName) && !(variableMap.get(varName).getClass().isAssignableFrom(value.getClass())))
+			throw new ProgramExecutionTimeException("The type of this variable is incompatible with given Type: " + value.getClass().toString(), line);
 		variableMap.put(varName, value);
 	}
 	

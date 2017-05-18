@@ -5,7 +5,7 @@ import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Raw;
 
 /**
- * An abstract class respresenting a MinorPlanet
+ * An abstract class representing a MinorPlanet
  */
 public abstract class MinorPlanet extends Entity{
 
@@ -37,7 +37,7 @@ public abstract class MinorPlanet extends Entity{
 	}
 
 	/**
-	 * The mininum radius for any minor planet in kilometres
+	 * The minimum radius for any minor planet in kilometers
 	 */
 	public static final double MIN_RADIUS = 5.0;
 

@@ -5,7 +5,6 @@ import asteroids.model.World;
 import asteroids.model.programs.ProgramExecutionTimeException;
 import asteroids.model.programs.Scope;
 import asteroids.model.programs.expressions.types.EntityLiteral;
-import asteroids.model.programs.expressions.types.ShipEntity;
 import asteroids.part3.programs.SourceLocation;
 
 public class SelfExpression extends Expression<EntityLiteral>{
@@ -15,9 +14,8 @@ public class SelfExpression extends Expression<EntityLiteral>{
 	}
 
 	@Override
-	public ShipEntity evaluate(Scope scope, World world, Ship executor) throws ExpressionEvaluationException, ProgramExecutionTimeException {
-//		world.getShips().stream().filter(context.getExecutor().getPosition)
-		return null;
+	public EntityLiteral evaluate(Scope scope, World world, Ship executor) throws ExpressionEvaluationException, ProgramExecutionTimeException {
+		return new EntityLiteral(executor);
 	}
 
 }

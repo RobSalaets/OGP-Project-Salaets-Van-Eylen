@@ -22,9 +22,9 @@ import asteroids.model.programs.expressions.SelfExpression;
 import asteroids.model.programs.expressions.ShipExpression;
 import asteroids.model.programs.expressions.UnaryArithmeticExpression;
 import asteroids.model.programs.expressions.UnaryArithmeticOperation;
-import asteroids.model.programs.expressions.UnaryEntityExpression;
-import asteroids.model.programs.expressions.UnaryEntityOperation;
-import asteroids.model.programs.expressions.UnaryGetDirExpression;
+import asteroids.model.programs.expressions.UnaryEntityGetExpression;
+import asteroids.model.programs.expressions.UnaryEntityGetOperation;
+import asteroids.model.programs.expressions.SelfGetDirExpression;
 import asteroids.model.programs.expressions.VariableExpression;
 import asteroids.model.programs.expressions.types.BooleanLiteral;
 import asteroids.model.programs.expressions.types.DoubleLiteral;
@@ -171,27 +171,27 @@ public class ProgramFactory implements IProgramFactory<Expression<? extends Type
 
 	@Override
 	public Expression<? extends Type> createGetXExpression(Expression<? extends Type> e, SourceLocation location) {
-		return new UnaryEntityExpression((Expression<? super EntityLiteral>) e, UnaryEntityOperation.GETX, location);
+		return new UnaryEntityGetExpression((Expression<? super EntityLiteral>) e, UnaryEntityGetOperation.GETX, location);
 	}
 
 	@Override
 	public Expression<? extends Type> createGetYExpression(Expression<? extends Type> e, SourceLocation location) {
-		return new UnaryEntityExpression((Expression<? super EntityLiteral>) e, UnaryEntityOperation.GETY, location);
+		return new UnaryEntityGetExpression((Expression<? super EntityLiteral>) e, UnaryEntityGetOperation.GETY, location);
 	}
 
 	@Override
 	public Expression<? extends Type> createGetVXExpression(Expression<? extends Type> e, SourceLocation location) {
-		return new UnaryEntityExpression((Expression<? super EntityLiteral>) e, UnaryEntityOperation.GETVX, location);
+		return new UnaryEntityGetExpression((Expression<? super EntityLiteral>) e, UnaryEntityGetOperation.GETVX, location);
 	}
 
 	@Override
 	public Expression<? extends Type> createGetVYExpression(Expression<? extends Type> e, SourceLocation location) {
-		return new UnaryEntityExpression((Expression<? super EntityLiteral>) e, UnaryEntityOperation.GETVY, location);
+		return new UnaryEntityGetExpression((Expression<? super EntityLiteral>) e, UnaryEntityGetOperation.GETVY, location);
 	}
 
 	@Override
 	public Expression<? extends Type> createGetRadiusExpression(Expression<? extends Type> e, SourceLocation location) {
-		return new UnaryEntityExpression((Expression<? super EntityLiteral>) e, UnaryEntityOperation.GET_RADIUS, location);
+		return new UnaryEntityGetExpression((Expression<? super EntityLiteral>) e, UnaryEntityGetOperation.GET_RADIUS, location);
 	}
 
 	@Override
@@ -225,7 +225,7 @@ public class ProgramFactory implements IProgramFactory<Expression<? extends Type
 
 	@Override
 	public Expression<? extends Type> createGetDirectionExpression(SourceLocation location) {
-		return new UnaryGetDirExpression(location);
+		return new SelfGetDirExpression(location);
 	}
 
 	@Override

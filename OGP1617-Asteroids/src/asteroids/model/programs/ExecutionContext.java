@@ -21,10 +21,6 @@ public class ExecutionContext {
 		this.world = world;
 	}
 
-	private List<Object> printLog = new ArrayList<Object>();
-	private Stack<Desertable> stack = new Stack<Desertable>();
-	private final GlobalScope globalScope;
-
 	public void addToPrintLog(Type value, SourceLocation line) throws ProgramExecutionTimeException {
 		if (value == null)
 			throw new ProgramExecutionTimeException("Trying to add null to the print log", line);
@@ -34,8 +30,14 @@ public class ExecutionContext {
 	}
 	
 	public List<Object> getPrintLog() {
-		return printLog;
+		return printLog.size() > 0 ? printLog : null;
 	}
+	
+	public void clearPrintLog() {
+		printLog.clear();
+	}
+	
+	private List<Object> printLog = new ArrayList<Object>();
 	
 	public World getWorld(){
 		return world;
@@ -60,6 +62,8 @@ public class ExecutionContext {
 		return globalScope;
 	}
 	
+	private final GlobalScope globalScope;
+	
 	private Function getCurrentFunction(){
 		Function f = null;
 		for(Desertable d : stack)
@@ -67,14 +71,6 @@ public class ExecutionContext {
 				f = (Function) d;
 		return f;
 	}
-	
-//	private Breakable getCurrentBreakable(){
-//		Breakable b = null;
-//		for(Desertable d : stack)
-//			if(d instanceof Breakable)
-//				b = (Breakable) d;
-//		return b;
-//	}
 
 	public void addToStack(Desertable d, SourceLocation line) throws ProgramExecutionTimeException {
 		if (d == null)
@@ -101,6 +97,8 @@ public class ExecutionContext {
 		} while (!(top instanceof Function));
 		setReturn();
 	}
+	
+	private Stack<Desertable> stack = new Stack<Desertable>();
 	
 	public boolean isBreaking(){
 		return breaking;

@@ -9,22 +9,24 @@ import asteroids.model.programs.expressions.types.EntityLiteral;
 import asteroids.model.programs.expressions.types.Type;
 import asteroids.part3.programs.SourceLocation;
 
-public class UnaryEntityExpression extends UnaryExpression<EntityLiteral, DoubleLiteral>{
+public class UnaryEntityGetExpression extends UnaryExpression<EntityLiteral, DoubleLiteral>{
 
-	public UnaryEntityExpression(Expression<? super EntityLiteral> arg, UnaryEntityOperation operation, SourceLocation location) throws IllegalArgumentException{
+	public UnaryEntityGetExpression(Expression<? super EntityLiteral> arg, UnaryEntityGetOperation operation, SourceLocation location) throws IllegalArgumentException{
 		super(arg, location);
 		if(operation == null)
 			throw new IllegalArgumentException("The UnaryEntityOperation must be effective.");
 		this.operationType = operation;
 	}
 
-	private final UnaryEntityOperation operationType;
+	private final UnaryEntityGetOperation operationType;
 	
 	@Override
 	public DoubleLiteral evaluate(Scope scope, World world, Ship executor) throws ExpressionEvaluationException{
 		Type arg = getArgument().evaluate(scope, world, executor);
-		if(!((arg instanceof EntityLiteral)))
+		if(!(arg instanceof EntityLiteral))
 			throw new ExpressionEvaluationException("Given operand does not evaluate to EntityLiteral", getSourceLocation());
+		if(arg.getValue() == null)
+			throw new ExpressionEvaluationException("Given operand evaluates to null", getSourceLocation());
 		
 		Double result = null;
 		switch(operationType){

@@ -23,7 +23,7 @@ public class BooleanLiteral extends Type{
 		if(this.getClass() != other.getClass())
 			return false;
 		BooleanLiteral otherVector = (BooleanLiteral) other;
-		return getValue() == otherVector.getValue();
+		return getValue().equals(otherVector.getValue());
 	}
 	
 	@Override
