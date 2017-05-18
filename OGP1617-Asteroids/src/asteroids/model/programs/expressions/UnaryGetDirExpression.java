@@ -4,22 +4,18 @@ import asteroids.model.Ship;
 import asteroids.model.World;
 import asteroids.model.programs.Scope;
 import asteroids.model.programs.expressions.types.DoubleLiteral;
-import asteroids.model.programs.expressions.types.ShipEntity;
-import asteroids.model.programs.expressions.types.Type;
 import asteroids.part3.programs.SourceLocation;
 
-public class UnaryGetDirExpression extends UnaryExpression<ShipEntity, DoubleLiteral>{
+public class UnaryGetDirExpression extends Expression<DoubleLiteral>{
 	
-	public UnaryGetDirExpression(Expression<? super ShipEntity> arg, SourceLocation location){
-		super(arg, location);
+	public UnaryGetDirExpression(SourceLocation location){
+		super(location);
 	}
 
 	@Override
-	public DoubleLiteral evaluate(Scope scope, World world) throws ExpressionEvaluationException{
-		Type arg = getArgument().evaluate(scope, world);
-		if(!((arg instanceof ShipEntity)))
-			throw new ExpressionEvaluationException("Given operands do not evaluate to ShipEntity", getSourceLocation());
-		return new DoubleLiteral(((Ship)((ShipEntity)arg).getValue()).getOrientation());
+	public DoubleLiteral evaluate(Scope scope, World world, Ship executor) throws ExpressionEvaluationException{
+//		return new DoubleLiteral(((Ship)((ShipEntity)arg).getValue()).getOrientation());
+		return null;
 	}
 	
 }

@@ -1,5 +1,6 @@
 package asteroids.model.programs.expressions;
 
+import asteroids.model.Ship;
 import asteroids.model.World;
 import asteroids.model.programs.Scope;
 import asteroids.model.programs.expressions.types.DoubleLiteral;
@@ -17,7 +18,7 @@ public class DoubleLiteralExpression extends Expression<DoubleLiteral> {
 	private final DoubleLiteral value;
 
 	@Override
-	public DoubleLiteral evaluate(Scope scope, World world){
+	public DoubleLiteral evaluate(Scope scope, World world, Ship executor){
 		return value;
 	}
 }

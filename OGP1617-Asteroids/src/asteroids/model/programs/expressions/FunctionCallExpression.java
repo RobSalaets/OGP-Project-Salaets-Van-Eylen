@@ -2,6 +2,7 @@ package asteroids.model.programs.expressions;
 
 import java.util.List;
 
+import asteroids.model.Ship;
 import asteroids.model.World;
 import asteroids.model.programs.ProgramExecutionTimeException;
 import asteroids.model.programs.Scope;
@@ -23,7 +24,7 @@ public class FunctionCallExpression extends Expression<Type> {
 	private final List<Expression<? extends Type>> arguments;
 
 	@Override
-	public Type evaluate(Scope scope, World world) throws ProgramExecutionTimeException {
+	public Type evaluate(Scope scope, World world, Ship executor) throws ProgramExecutionTimeException {
 		return scope.getFunction(functionName, getSourceLocation()).execute(arguments);
 	}
 

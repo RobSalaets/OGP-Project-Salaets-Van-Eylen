@@ -18,7 +18,7 @@ public class TurnAction extends Action {
 
 	@Override
 	public void execute(ExecutionContext context) throws ProgramExecutionTimeException {
-		Object eval = angle.evaluate(context.getCurrentScope(), context.getWorld());
+		Object eval = angle.evaluate(context.getCurrentScope(), context.getWorld(), context.getExecutor());
 		if(!(eval instanceof DoubleLiteral))
 			throw new ExpressionEvaluationException("Given operand does not evaluate to DoubleLiteral", getSourceLocation());
 		if(context.canExecuteAction()){

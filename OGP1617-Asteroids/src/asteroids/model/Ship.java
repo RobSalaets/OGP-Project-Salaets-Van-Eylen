@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Set;
 
 import asteroids.model.Program;
+import asteroids.model.programs.ProgramExecutionTimeException;
+import asteroids.model.programs.expressions.ExpressionEvaluationException;
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Raw;
@@ -760,6 +762,7 @@ public class Ship extends Entity implements Container<Entity>{
 	 */
 	public void setProgram(Program program) throws NullPointerException{
 		this.program = program;
+		program.addExecutor(this);
 	}
 	
 	/**
@@ -771,13 +774,19 @@ public class Ship extends Entity implements Container<Entity>{
 	}
 	
 	/**
-	 * TODO
+	 * Execute the current program on this Ship (if any) for a given amount of time.
+	 * This method returns the values printed by the program during execution.
+	 * 
 	 * @param dt
-	 * @return
+	 * 		The given time amount.
+	 * @return The objects in the resulting list are printed on the standard output stream.
+	 * 			If no program is loaded on the ship, the result is not effective.
+	 * 		| if(getProgram() == null)
+	 * 		| then result == null
 	 */
-	public List<Object> executeProgram(double dt){
+	public List<Object> executeProgram(double dt) throws ProgramExecutionTimeException, ExpressionEvaluationException{
 		if(program != null){
-			program.execute(dt);
+			return program.execute(dt);
 		}
 		return null;
 	}

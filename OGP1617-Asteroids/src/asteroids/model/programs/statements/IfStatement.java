@@ -20,7 +20,7 @@ public class IfStatement extends ConditionalStatement {
 
 	@Override
 	public void execute(ExecutionContext context) throws ProgramExecutionTimeException, ExpressionEvaluationException {
-		if(condition.evaluate(context.getCurrentScope(), context.getWorld()).getValue()){
+		if(condition.evaluate(context.getCurrentScope(), context.getWorld(), context.getExecutor()).getValue()){
 			body.execute(context);
 		}else if(elseBody != null){
 			elseBody.execute(context);

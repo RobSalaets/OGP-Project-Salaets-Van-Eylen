@@ -17,21 +17,21 @@ public class GlobalScope extends Scope {
 	}
 	
 	public Type getVariable(String varName, SourceLocation line) throws ExpressionEvaluationException{
-		Type result = variableMap.get(varName);
-		if(result == null)
+		if(!hasAsVariable(varName))
 			throw new ExpressionEvaluationException("No such variable: " + varName, line);
-		return result;
+		return variableMap.get(varName);
 	}
 	
-	public void putFunction(String functionName, Function function, SourceLocation line){
+	public void putFunction(String functionName, Function function, SourceLocation line) throws ProgramExecutionTimeException{
+		if(function == null)
+			throw new ProgramExecutionTimeException("Trying to add null to function scope", line);
 		functionMap.put(functionName, function);
 	}
 	
 	public Function getFunction(String functionName, SourceLocation line) throws ExpressionEvaluationException{
-		Function result = functionMap.get(functionName);
-		if(result == null)
+		if(!functionMap.containsKey(functionName))
 			throw new ExpressionEvaluationException("No such function: " + functionName, line);
-		return result;
+		return functionMap.get(functionName);
 	}
 	
 	public void setReadOnly(boolean state){

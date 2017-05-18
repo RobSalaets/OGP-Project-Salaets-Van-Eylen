@@ -20,12 +20,11 @@ public class LocalScope extends Scope{
 	}
 	
 	public Type getVariable(String varName, SourceLocation line) throws ExpressionEvaluationException{
-		Type result = this.variableMap.get(varName);
-		if(result == null)
-			result = global.variableMap.get(varName);
-		if(result == null)
-			throw new ExpressionEvaluationException("No such variable: " + varName, line);
-		return result;
+		if(hasAsVariable(varName))
+			return variableMap.get(varName);
+		if(global.hasAsVariable(varName))
+			return global.variableMap.get(varName);
+		throw new ExpressionEvaluationException("No such variable: " + varName, line);
 	}
 	
 	public Function getFunction(String functionName, SourceLocation line) throws ExpressionEvaluationException{

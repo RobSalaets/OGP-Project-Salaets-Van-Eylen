@@ -21,7 +21,7 @@ public class ExecutionContext {
 		this.world = world;
 	}
 
-	private List<Type> printLog = new ArrayList<Type>();
+	private List<Object> printLog = new ArrayList<Object>();
 	private Stack<Desertable> stack = new Stack<Desertable>();
 	private final GlobalScope globalScope;
 
@@ -30,7 +30,11 @@ public class ExecutionContext {
 			throw new ProgramExecutionTimeException("Trying to add null to the print log", line);
 		if(getCurrentFunction() != null)
 			throw new ProgramExecutionTimeException("Trying to print in a function environment", line);
-		printLog.add(value);
+		printLog.add(value.getValue());
+	}
+	
+	public List<Object> getPrintLog() {
+		return printLog;
 	}
 	
 	public World getWorld(){
@@ -63,6 +67,14 @@ public class ExecutionContext {
 				f = (Function) d;
 		return f;
 	}
+	
+//	private Breakable getCurrentBreakable(){
+//		Breakable b = null;
+//		for(Desertable d : stack)
+//			if(d instanceof Breakable)
+//				b = (Breakable) d;
+//		return b;
+//	}
 
 	public void addToStack(Desertable d, SourceLocation line) throws ProgramExecutionTimeException {
 		if (d == null)
@@ -71,9 +83,12 @@ public class ExecutionContext {
 	}
 
 	public void breakFromCurrent(SourceLocation line) throws ProgramExecutionTimeException {
-		if (stack.isEmpty() || !(stack.peek() instanceof Breakable))
-			throw new ProgramExecutionTimeException("No statement to break from.", line);
-		stack.pop();
+		Desertable top = null;
+		do {
+			if (stack.isEmpty())
+				throw new ProgramExecutionTimeException("No statement to break from.", line);
+			top = stack.pop();
+		} while (!(top instanceof Breakable));
 		setBreak();
 	}
 	
@@ -103,7 +118,6 @@ public class ExecutionContext {
 		if(getCurrentFunction() == null)
 			getGlobalScope().setReadOnly(false);
 		returning = false;
-		breaking = false;
 	}
 	
 	private void setBreak(){

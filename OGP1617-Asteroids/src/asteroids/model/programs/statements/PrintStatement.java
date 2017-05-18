@@ -21,7 +21,7 @@ public class PrintStatement extends Statement {
 	
 	@Override
 	public void execute(ExecutionContext context) throws ProgramExecutionTimeException, ExpressionEvaluationException{
-		Type eval = content.evaluate(context.getCurrentScope(), context.getWorld());
+		Type eval = content.evaluate(context.getCurrentScope(), context.getWorld(), context.getExecutor());
 		context.addToPrintLog(eval, getSourceLocation());
 		System.out.println(eval.toString());
 	}

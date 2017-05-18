@@ -11,7 +11,9 @@ import asteroids.model.Planetoid;
 import asteroids.model.Ship;
 import asteroids.model.Vector2d;
 import asteroids.model.World;
+import asteroids.model.programs.ProgramExecutionTimeException;
 import asteroids.model.programs.ProgramFactory;
+import asteroids.model.programs.expressions.ExpressionEvaluationException;
 import asteroids.part2.CollisionListener;
 import asteroids.part3.facade.IFacade;
 import asteroids.model.Program;
@@ -590,7 +592,9 @@ public class Facade implements IFacade{
 	public List<Object> executeProgram(Ship ship, double dt) throws ModelException{
 		try{
 			return ship.executeProgram(dt);			
-		}catch(Exception e){//TODO
+		}catch(ProgramExecutionTimeException e){
+			throw new ModelException(e);
+		}catch(ExpressionEvaluationException e){
 			throw new ModelException(e);
 		}
 	}

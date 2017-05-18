@@ -22,7 +22,7 @@ public class WhileStatement extends ConditionalStatement implements Breakable{
 	@Override
 	public void execute(ExecutionContext context) throws ProgramExecutionTimeException, ExpressionEvaluationException{
 		context.addToStack(this, getSourceLocation());
-		while(condition.evaluate(context.getCurrentScope(), context.getWorld()).getValue() &&
+		while(condition.evaluate(context.getCurrentScope(), context.getWorld(), context.getExecutor()).getValue() &&
 				!context.isBreaking() && context.canExecuteAction())
 			body.execute(context);
 		

@@ -16,4 +16,8 @@ public abstract class Scope {
 	
 	public abstract Function getFunction(String functionName, SourceLocation line);
 	
+	public boolean hasAsVariable(String var){
+		return variableMap.containsKey(var);
+	}
+	
 }

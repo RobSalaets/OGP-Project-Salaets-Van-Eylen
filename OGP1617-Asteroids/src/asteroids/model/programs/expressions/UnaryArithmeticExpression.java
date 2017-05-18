@@ -1,5 +1,6 @@
 package asteroids.model.programs.expressions;
 
+import asteroids.model.Ship;
 import asteroids.model.World;
 import asteroids.model.programs.Scope;
 import asteroids.model.programs.expressions.types.DoubleLiteral;
@@ -17,8 +18,8 @@ public class UnaryArithmeticExpression extends UnaryExpression<DoubleLiteral, Do
 	private final UnaryArithmeticOperation operationType;
 
 	@Override
-	public DoubleLiteral evaluate(Scope scope, World world) throws ExpressionEvaluationException {
-		Object eval = getArgument().evaluate(scope, world);
+	public DoubleLiteral evaluate(Scope scope, World world, Ship executor) throws ExpressionEvaluationException {
+		Object eval = getArgument().evaluate(scope, world, executor);
 		if(!(eval instanceof DoubleLiteral))
 			throw new ExpressionEvaluationException("Given operand does not evaluate to DoubleLiteral", getSourceLocation());
 		Double result = null;

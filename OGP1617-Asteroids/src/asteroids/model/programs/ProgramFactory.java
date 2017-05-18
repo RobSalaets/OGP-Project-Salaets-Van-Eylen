@@ -3,20 +3,32 @@ package asteroids.model.programs;
 import java.util.List;
 
 import asteroids.model.Program;
+import asteroids.model.programs.expressions.AnyExpression;
+import asteroids.model.programs.expressions.AsteroidExpression;
 import asteroids.model.programs.expressions.BinaryArithmeticExpression;
 import asteroids.model.programs.expressions.BinaryArithmeticOperation;
+import asteroids.model.programs.expressions.BinaryLessThanExpression;
+import asteroids.model.programs.expressions.BulletExpression;
 import asteroids.model.programs.expressions.DoubleLiteralExpression;
 import asteroids.model.programs.expressions.EqualsExpression;
 import asteroids.model.programs.expressions.Expression;
 import asteroids.model.programs.expressions.FunctionCallExpression;
-import asteroids.model.programs.expressions.LessThanExpression;
 import asteroids.model.programs.expressions.NotExpression;
+import asteroids.model.programs.expressions.NullExpression;
 import asteroids.model.programs.expressions.ParameterExpression;
+import asteroids.model.programs.expressions.PlanetExpression;
+import asteroids.model.programs.expressions.PlanetoidExpression;
+import asteroids.model.programs.expressions.SelfExpression;
+import asteroids.model.programs.expressions.ShipExpression;
 import asteroids.model.programs.expressions.UnaryArithmeticExpression;
 import asteroids.model.programs.expressions.UnaryArithmeticOperation;
+import asteroids.model.programs.expressions.UnaryEntityExpression;
+import asteroids.model.programs.expressions.UnaryEntityOperation;
+import asteroids.model.programs.expressions.UnaryGetDirExpression;
 import asteroids.model.programs.expressions.VariableExpression;
 import asteroids.model.programs.expressions.types.BooleanLiteral;
 import asteroids.model.programs.expressions.types.DoubleLiteral;
+import asteroids.model.programs.expressions.types.EntityLiteral;
 import asteroids.model.programs.expressions.types.Type;
 import asteroids.model.programs.statements.ActionType;
 import asteroids.model.programs.statements.AssingmentStatement;
@@ -119,86 +131,73 @@ public class ProgramFactory implements IProgramFactory<Expression<? extends Type
 
 	@Override
 	public Expression<? extends Type> createNullExpression(SourceLocation location) {
-		// TODO Auto-generated method stub
-		return null;
+		return new NullExpression(location);
 	}
 
 	@Override
 	public Expression<? extends Type> createSelfExpression(SourceLocation location) {
-		// TODO Auto-generated method stub
-		return null;
+		return new SelfExpression(location);
 	}
 
 	@Override
 	public Expression<? extends Type> createShipExpression(SourceLocation location) {
-		// TODO Auto-generated method stub
-		return null;
+		return new ShipExpression(location);
 	}
 
 	@Override
 	public Expression<? extends Type> createAsteroidExpression(SourceLocation location) {
-		// TODO Auto-generated method stub
-		return null;
+		return new AsteroidExpression(location);
 	}
 
 	@Override
 	public Expression<? extends Type> createPlanetoidExpression(SourceLocation location) {
-		// TODO Auto-generated method stub
-		return null;
+		return new PlanetoidExpression(location);
 	}
 
 	@Override
 	public Expression<? extends Type> createBulletExpression(SourceLocation location) {
-		// TODO Auto-generated method stub
-		return null;
+		return new BulletExpression(location);
 	}
 
 	@Override
 	public Expression<? extends Type> createPlanetExpression(SourceLocation location) {
-		// TODO Auto-generated method stub
-		return null;
+		return new PlanetExpression(location);
 	}
 
 	@Override
 	public Expression<? extends Type> createAnyExpression(SourceLocation location) {
-		// TODO Auto-generated method stub
-		return null;
+		return new AnyExpression(location);
 	}
 
 	@Override
 	public Expression<? extends Type> createGetXExpression(Expression<? extends Type> e, SourceLocation location) {
-		// TODO Auto-generated method stub
-		return null;
+		return new UnaryEntityExpression((Expression<? super EntityLiteral>) e, UnaryEntityOperation.GETX, location);
 	}
 
 	@Override
 	public Expression<? extends Type> createGetYExpression(Expression<? extends Type> e, SourceLocation location) {
-		// TODO Auto-generated method stub
-		return null;
+		return new UnaryEntityExpression((Expression<? super EntityLiteral>) e, UnaryEntityOperation.GETY, location);
 	}
 
 	@Override
 	public Expression<? extends Type> createGetVXExpression(Expression<? extends Type> e, SourceLocation location) {
-		// TODO Auto-generated method stub
-		return null;
+		return new UnaryEntityExpression((Expression<? super EntityLiteral>) e, UnaryEntityOperation.GETVX, location);
 	}
 
 	@Override
 	public Expression<? extends Type> createGetVYExpression(Expression<? extends Type> e, SourceLocation location) {
-		// TODO Auto-generated method stub
-		return null;
+		return new UnaryEntityExpression((Expression<? super EntityLiteral>) e, UnaryEntityOperation.GETVY, location);
 	}
 
 	@Override
 	public Expression<? extends Type> createGetRadiusExpression(Expression<? extends Type> e, SourceLocation location) {
-		// TODO Auto-generated method stub
-		return null;
+		return new UnaryEntityExpression((Expression<? super EntityLiteral>) e, UnaryEntityOperation.GET_RADIUS, location);
 	}
 
 	@Override
 	public Expression<? extends Type> createLessThanExpression(Expression<? extends Type> e1,
 			Expression<? extends Type> e2, SourceLocation location) {
-		return new LessThanExpression((Expression<? super DoubleLiteral>)e1, (Expression<? super DoubleLiteral>)e2, location);
+		return new BinaryLessThanExpression((Expression<? super DoubleLiteral>)e1, (Expression<? super DoubleLiteral>)e2, location);
 	}
 
 	@Override
@@ -226,8 +225,7 @@ public class ProgramFactory implements IProgramFactory<Expression<? extends Type
 
 	@Override
 	public Expression<? extends Type> createGetDirectionExpression(SourceLocation location) {
-		// TODO Auto-generated method stub
-		return null;
+		return new UnaryGetDirExpression(location);
 	}
 
 	@Override

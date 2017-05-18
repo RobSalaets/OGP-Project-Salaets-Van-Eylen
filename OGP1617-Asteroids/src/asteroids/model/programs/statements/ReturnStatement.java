@@ -18,7 +18,7 @@ public class ReturnStatement extends Statement {
 	
 	@Override
 	public void execute(ExecutionContext context) throws ProgramExecutionTimeException, ExpressionEvaluationException{
-		Type result = value.evaluate(context.getCurrentScope(), context.getWorld());
+		Type result = value.evaluate(context.getCurrentScope(), context.getWorld(), context.getExecutor());
 		context.getCurrentScope().putVariable("$0", result, getSourceLocation());
 		context.returnFromCurrent(getSourceLocation());
 	}

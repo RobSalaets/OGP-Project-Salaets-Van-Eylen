@@ -1,5 +1,6 @@
 package asteroids.model.programs.expressions;
 
+import asteroids.model.Ship;
 import asteroids.model.World;
 import asteroids.model.programs.ProgramExecutionTimeException;
 import asteroids.model.programs.Scope;
@@ -22,5 +23,5 @@ public abstract class Expression<ET extends Type>{
 		return location;
 	}
 
-	public abstract ET evaluate(Scope scope, World world) throws ExpressionEvaluationException, ProgramExecutionTimeException;
+	public abstract ET evaluate(Scope scope, World world, Ship executor) throws ExpressionEvaluationException, ProgramExecutionTimeException;
 }

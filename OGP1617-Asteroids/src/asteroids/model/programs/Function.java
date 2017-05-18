@@ -30,14 +30,19 @@ public class Function implements Desertable{
 			throw new ProgramExecutionTimeException("The execution context of this Function was not set", sourceLocation);
 		localScope = new LocalScope(context.getGlobalScope());
 		for(int i = 0; i < arguments.size(); i++)
-			localScope.putVariable("$"+String.valueOf(i), arguments.get(i).evaluate(context.getCurrentScope(), context.getWorld()), sourceLocation);
+			localScope.putVariable("$"+String.valueOf(i), arguments.get(i).evaluate(context.getCurrentScope(), context.getWorld(), context.getExecutor()), sourceLocation);
 		context.getGlobalScope().setReadOnly(true);
 		context.addToStack(this, sourceLocation);
 		body.execute(context);
-		if(!context.isReturning())
+		if(!(context.isReturning() || context.isBreaking()))
 			throw new ProgramExecutionTimeException("No return statement in function: " + name, sourceLocation);
+		if(context.isReturning()){
+			context.stopBreaking();
+			context.stopReturning();
+			return localScope.getVariable("$0", sourceLocation);
+		}
 		context.stopReturning();
-		return localScope.getVariable("$0", sourceLocation);
+		return null;
 	}
 
 	public LocalScope getLocalScope() {

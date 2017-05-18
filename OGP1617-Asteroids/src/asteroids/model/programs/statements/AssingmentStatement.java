@@ -22,6 +22,6 @@ public class AssingmentStatement extends Statement {
 	
 	@Override
 	public void execute(ExecutionContext context) throws ProgramExecutionTimeException, ExpressionEvaluationException{
-		context.getCurrentScope().putVariable(variableName, expression.evaluate(context.getCurrentScope(), context.getWorld()), getSourceLocation());
+		context.getCurrentScope().putVariable(variableName, expression.evaluate(context.getCurrentScope(), context.getWorld(), context.getExecutor()), getSourceLocation());
 	}
 }
