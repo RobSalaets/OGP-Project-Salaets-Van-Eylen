@@ -8,8 +8,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import asteroids.model.programs.exceptions.ExpressionEvaluationException;
+import asteroids.model.programs.exceptions.ProgramExecutionTimeException;
 import asteroids.part2.CollisionListener;
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Immutable;
@@ -23,7 +26,7 @@ import be.kuleuven.cs.som.annotate.Raw;
  * @invar  Each world must have proper entities.
  *       | hasProperItems()       
  */
-public class World implements Container<Entity>{
+public class World implements Container{
 
 	/**
 	 * Initialize this new World as a non-terminated world with given width and height
@@ -128,14 +131,19 @@ public class World implements Container<Entity>{
 	 * 			The amount of time to apply to the current state of this World.
 	 * @throws IllegalArgumentException
 	 * 			| timeDelta < 0.0 
+	 * @throws ProgramExecutionTimeException
+	 * 			When an error occurs during program execution
+	 * @throws ExpressionEvaluationException
+	 * 			When an error occurs during program exection,
+	 * 			while evaluating an expression.
 	 */
-	public void evolve(double timeDelta) throws IllegalArgumentException{
+	public void evolve(double timeDelta) throws IllegalArgumentException, ProgramExecutionTimeException, ExpressionEvaluationException{
 		if(timeDelta >= 0.0){
 			CollisionData next = getNextCollision();
 			if(next.getTimeToCollision() > timeDelta){
-				advanceEntities(timeDelta);
+				evolveEntities(timeDelta);
 			}else{
-				advanceEntities(next.getTimeToCollision());
+				evolveEntities(next.getTimeToCollision());
 				next.resolve();
 				evolve(timeDelta - next.getTimeToCollision());
 			}	
@@ -150,26 +158,24 @@ public class World implements Container<Entity>{
 	 * @see evolve(double timeDelta)
 	 * @throws IllegalArgumentException
 	 * 			| timeDelta < 0.0 || cl == null
+	 * @throws ProgramExecutionTimeException
+	 * 			When an error occurs during program execution
+	 * @throws ExpressionEvaluationException
+	 * 			When an error occurs during program exection,
+	 * 			while evaluating an expression.
 	 */
-	public void evolve(double timeDelta, CollisionListener cl) throws IllegalArgumentException{
+	public void evolve(double timeDelta, CollisionListener cl) throws IllegalArgumentException, ProgramExecutionTimeException, ExpressionEvaluationException{
 		if(timeDelta >= 0.0 && cl != null){
 			CollisionData next = getNextCollision();
 			if(next.getTimeToCollision() > timeDelta){
-				advanceEntities(timeDelta);
+				evolveEntities(timeDelta);
 			}else{
-				advanceEntities(next.getTimeToCollision());
+				evolveEntities(next.getTimeToCollision());
 				if(next.getCollisionType() == CollisionType.INTER_ENTITY){
-					boolean showCollision = true;
-					for(Entity e : next.getColliders())
-						if(e instanceof Bullet && ((Bullet) e).getSource() != null
-						&& next.getOther(e) == ((Bullet) e).getSource())
-							showCollision = false;
 					synchronized(cl){
-						if(showCollision){
-							cl.notify();
-							cl.objectCollision(next.getColliders().get(0), next.getColliders().get(1),
-									next.getCollisionPoint().getX(), next.getCollisionPoint().getY());
-						}
+						cl.notify();
+						cl.objectCollision(next.getColliders().get(0), next.getColliders().get(1),
+								next.getCollisionPoint().getX(), next.getCollisionPoint().getY());
 					}
 				}
 				next.resolve();
@@ -180,17 +186,25 @@ public class World implements Container<Entity>{
 	}
 	
 	/**
-	 * Advance the entities in this world with given timeDelta
+	 * Evolve the entities in this world with given timeDelta
+	 * 
 	 * @param timeDelta
 	 * 			The given time delta
+	 * @throws IllegalArgumentException
+	 * 			| timeDelta < 0
+	 * @throws ProgramExecutionTimeException
+	 * 			When an error occurs during program execution
+	 * @throws ExpressionEvaluationException
+	 * 			When an error occurs during program exection,
+	 * 			while evaluating an expression.
 	 */
-	private void advanceEntities(double timeDelta){
+	private void evolveEntities(double timeDelta) throws IllegalArgumentException, ProgramExecutionTimeException, ExpressionEvaluationException{
+		if(timeDelta < 0)
+			throw new IllegalArgumentException();
 		List<Entity> values = new ArrayList<>(entities.values());
-		for(Entity entity : values){
-			entity.move(timeDelta);
-			if(entity instanceof Ship && ((Ship) entity).getThrusterStatus())
-				((Ship) entity).thrust(timeDelta);
-		}
+		for(Entity entity : values)
+			entity.evolve(timeDelta);
+		
 	}
 	
 	/**
@@ -497,8 +511,7 @@ public class World implements Container<Entity>{
 	 * 		 | 	this.hasAsItem(mPlanet)
 	*/
 	public Set<MinorPlanet> getMinorPlanets(){
-//		return entities.values().stream().filter(e -> e instanceof MinorPlanet).map(e->(MinorPlanet)e).collect(Collectors.toSet());
-		return null;
+		return entities.values().stream().filter(e -> e instanceof MinorPlanet).map(e->(MinorPlanet)e).collect(Collectors.toSet());
 	}
 	
 	/**
@@ -521,6 +534,17 @@ public class World implements Container<Entity>{
 	*/
 	public Set<Planetoid> getPlanetoids(){
 		return entities.values().stream().filter(e -> e instanceof Planetoid).map(e->(Planetoid)e).collect(Collectors.toSet());
+	}
+	
+	/**
+	 * Return a set of entities that satisfy the given filter.
+	 * 
+	 * @return Each entity in the resulting set is an item of this World.
+	 * 		 | for each entity in result:
+	 * 		 | 	this.hasAsItem(entity)
+	 */
+	public Set<Entity> getEntitiesByFilter(Predicate<? super Entity> filter){
+		return entities.values().stream().filter(filter).collect(Collectors.toSet());
 	}
 	
 	/**

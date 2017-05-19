@@ -1,12 +1,10 @@
 package asteroids.model;
 
 /**
- * An interface of a container in the game
+ * An interface of an entity container in the game
  * 
- * @param T
- * 		The type of Entity being an item of a container
  */
-public interface Container<T extends Entity>{
+public interface Container{
 	
 	public boolean isInBounds(Vector2d position, double radius);
 	
@@ -16,9 +14,9 @@ public interface Container<T extends Entity>{
      * @param item
      * 		The item to check.
      */
-	public boolean hasAsItem(T item);
+	public boolean hasAsItem(Entity item);
 	
-	public boolean canHaveAsItem(T item);
+	public boolean canHaveAsItem(Entity item);
 	
 	public boolean hasProperItems();
 	
@@ -30,9 +28,9 @@ public interface Container<T extends Entity>{
 	 */
 	public int getNbItems();
 	
-	public void addItem(T item);
+	public void addItem(Entity item);
 	
-	public void removeItem(T item);
+	public void removeItem(Entity item);
 
 	/**
 	 * Return whether or not this Container

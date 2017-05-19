@@ -5,20 +5,20 @@ import asteroids.model.programs.exceptions.ProgramExecutionTimeException;
 import asteroids.model.programs.expressions.types.Type;
 import asteroids.part3.programs.SourceLocation;
 
-public class VariableExpression extends Expression<Type>{
+public class ParameterExpression extends Expression<Type> {
 	
-	public VariableExpression(String varName, SourceLocation location) throws IllegalArgumentException{
+	private final String parameter;
+
+	public ParameterExpression(String param, SourceLocation location) throws IllegalArgumentException{
 		super(location);
-		if(varName == null)
+		if(param == null)
 			throw new IllegalArgumentException();
-		this.varName = varName;
+		this.parameter = param;
 	}
-	
-	private final String varName;
 
 	@Override
 	public Type evaluate(ExecutionContext context) throws ProgramExecutionTimeException {
-		Type result = context.getCurrentScope().getVariable(varName, getSourceLocation());
-		return result;
+		return context.getCurrentScope().getVariable(parameter, getSourceLocation());
 	}
+
 }

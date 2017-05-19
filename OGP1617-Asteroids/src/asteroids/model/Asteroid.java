@@ -28,7 +28,7 @@ public class Asteroid extends MinorPlanet{
 	 * 			| super(x, y, xVelocity, yVelocity, radius, 4.0/3.0*Math.PI*Math.pow(radius, 3)*ASTEROID_MASS_DENSITY, container)
 	 */
 	@Raw
-	public Asteroid(double x, double y, double xVelocity, double yVelocity, double radius, Container<Entity> container) throws IllegalArgumentException{
+	public Asteroid(double x, double y, double xVelocity, double yVelocity, double radius, Container container) throws IllegalArgumentException{
 		super(x, y, xVelocity, yVelocity, radius, 4.0/3.0*Math.PI*Math.pow(radius, 3)*ASTEROID_MASS_DENSITY, container);
 	}
 	

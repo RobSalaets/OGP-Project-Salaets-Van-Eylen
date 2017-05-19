@@ -12,6 +12,8 @@ import asteroids.model.Ship;
 import asteroids.model.Vector2d;
 import asteroids.model.World;
 import asteroids.model.programs.ProgramFactory;
+import asteroids.model.programs.exceptions.ExpressionEvaluationException;
+import asteroids.model.programs.exceptions.ProgramExecutionTimeException;
 import asteroids.part2.CollisionListener;
 import asteroids.part3.facade.IFacade;
 import asteroids.model.Program;
@@ -519,7 +521,7 @@ public class Facade implements IFacade{
 			return null;
 		}
 	}
-	// TODO TOTALTRAVELLEDDISTANCE
+	
 	@Override
 	public Planetoid createPlanetoid(double x, double y, double xVelocity, double yVelocity, double radius, double totalTraveledDistance) throws ModelException{
 		try{
@@ -590,7 +592,11 @@ public class Facade implements IFacade{
 	public List<Object> executeProgram(Ship ship, double dt) throws ModelException{
 		try{
 			return ship.executeProgram(dt);			
-		}catch(Exception e){//TODO
+		}catch(ProgramExecutionTimeException e){
+			throw new ModelException(e);
+		}catch(ExpressionEvaluationException e){
+			throw new ModelException(e);
+		}catch(ClassCastException e){
 			throw new ModelException(e);
 		}
 	}

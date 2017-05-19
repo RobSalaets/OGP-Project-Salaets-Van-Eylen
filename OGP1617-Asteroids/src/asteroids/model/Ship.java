@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Set;
 
 import asteroids.model.Program;
+import asteroids.model.programs.exceptions.ExpressionEvaluationException;
+import asteroids.model.programs.exceptions.ProgramExecutionTimeException;
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Raw;
@@ -21,7 +23,7 @@ import be.kuleuven.cs.som.annotate.Raw;
  * @invar   Each Ship must have proper Bullets.
  *          | hasProperItems()
  */
-public class Ship extends Entity implements Container<Entity>{
+public class Ship extends Entity implements Container{
 
 	/**
 	 * Initialize this new Ship with given x, y, xVelocity, yVelocity, orientation, radius, mass, container and thrustForce
@@ -57,7 +59,7 @@ public class Ship extends Entity implements Container<Entity>{
 	 *      	| new.getNbItems() == 0
 	 */
 	@Raw
-	public Ship(double x, double y, double xVelocity, double yVelocity, double orientation, double radius, double mass, Container<Entity> container, double thrustForce) throws IllegalArgumentException{
+	public Ship(double x, double y, double xVelocity, double yVelocity, double orientation, double radius, double mass, Container container, double thrustForce) throws IllegalArgumentException{
 		super(x, y, xVelocity, yVelocity, radius, mass, container);
 		this.setOrientation(orientation);
 		this.setThrustForce(thrustForce);
@@ -240,7 +242,7 @@ public class Ship extends Entity implements Container<Entity>{
 	 *       |   then result == (container == null) && ((container instanceof World) && (!container.isTerminatedContainer()))
 	 */
 	@Raw
-	public boolean canHaveAsContainer(Container<Entity> container){
+	public boolean canHaveAsContainer(Container container){
 		if(this.isTerminated())
 			return container == null;
 		return (container == null) ||  ((container instanceof World) && (!container.isTerminated()));
@@ -376,7 +378,8 @@ public class Ship extends Entity implements Container<Entity>{
 	 *			|						getVelocity().getY() + getAcceleration() * Math.sin(getOrientation()) * timeDelta)
 	 * 			| then new.getVelocity().getLength() == getMaxVelocity()
 	 */
-	public void thrust(double timeDelta){
+	@Model
+	private void thrust(double timeDelta){
 		assert getThrusterStatus();
 		if(timeDelta <= 0.0)
 			return;
@@ -389,6 +392,32 @@ public class Ship extends Entity implements Container<Entity>{
 
 			setVelocity(newVel.getX(), newVel.getY());
 		}
+	}
+	
+	/**
+	 * Evolve this Ship with a given time duration, based on its current properties.
+	 * If this Ship has a program loaded, it wil be executed for the given duration.
+	 * 
+	 * @param timeDelta
+	 * 		The given time duration.
+	 * @effect If a program is loaded, it is executed.
+	 * 			| if(hasProgram()) then executeProgram(timeDelta)
+	 * @effect If the thruster of this Ship is turned on, the velocity is updated.
+	 * 			| if(getThrusterStatus()) then thrust(timeDelta)
+	 * @throws IllegalArgumentException
+	 * 			| timeDelta < 0
+	 * @throws ProgramExecutionTimeException TODO
+	 * 			When an error occurs during program execution
+	 * @throws ExpressionEvaluationException
+	 * 			When an error occurs during program exection,
+	 * 			while evaluating an expression.
+	 */
+	@Override
+	public void evolve(double timeDelta) throws IllegalArgumentException, ProgramExecutionTimeException, ExpressionEvaluationException{
+		super.evolve(timeDelta);
+		executeProgram(timeDelta);
+		if(getThrusterStatus())
+			thrust(timeDelta);
 	}
 	
 	/**
@@ -607,7 +636,7 @@ public class Ship extends Entity implements Container<Entity>{
 	 */
 	public void terminate(){
 		if(!isTerminated()){
-			Container<Entity> oldContainer = getContainer();
+			Container oldContainer = getContainer();
 			if(oldContainer != null){
 				setContainer(null);
 				oldContainer.removeItem(this);
@@ -760,6 +789,7 @@ public class Ship extends Entity implements Container<Entity>{
 	 */
 	public void setProgram(Program program) throws NullPointerException{
 		this.program = program;
+		program.addExecutor(this);
 	}
 	
 	/**
@@ -771,13 +801,33 @@ public class Ship extends Entity implements Container<Entity>{
 	}
 	
 	/**
-	 * TODO
-	 * @param dt
-	 * @return
+	 * Return whether or not this Ship has a program loaded.
+	 * 
+	 * @return | result == getProgram() != null
 	 */
-	public List<Object> executeProgram(double dt){
-		if(getProgram() != null){
-			
+	public boolean hasProgram(){
+		return getProgram() != null;
+	}
+	
+	/**
+	 * Execute the current program on this Ship (if any) for a given amount of time.
+	 * This method returns the values printed by the program during execution.
+	 * 
+	 * @param dt
+	 * 		The given time amount.
+	 * @return The objects in the resulting list are printed on the standard output stream.
+	 * 			If no program is loaded on the ship, the result is not effective.
+	 * 		| if(getProgram() == null)
+	 * 		| then result == null
+	 * @throws ProgramExecutionTimeException
+	 * 		An exception was thrown during the program execution.
+	 * @throws ExpressionEvalutionException
+	 * 		An exception was thrown during the program execution, while evaluation
+	 * 		an expression.
+	 */
+	public List<Object> executeProgram(double dt) throws ProgramExecutionTimeException, ExpressionEvaluationException{
+		if(program != null){
+			return program.execute(dt);
 		}
 		return null;
 	}

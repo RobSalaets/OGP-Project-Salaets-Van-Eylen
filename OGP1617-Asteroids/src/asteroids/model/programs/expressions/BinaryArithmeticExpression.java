@@ -1,11 +1,16 @@
 package asteroids.model.programs.expressions;
 
-import asteroids.model.programs.Scope;
+import asteroids.model.programs.ExecutionContext;
+import asteroids.model.programs.exceptions.ExpressionEvaluationException;
+import asteroids.model.programs.exceptions.ProgramExecutionTimeException;
+import asteroids.model.programs.expressions.types.DoubleLiteral;
+import asteroids.model.programs.expressions.types.Type;
+import asteroids.part3.programs.SourceLocation;
 
 public class BinaryArithmeticExpression extends BinaryExpression<DoubleLiteral, DoubleLiteral>{
 
-	public BinaryArithmeticExpression(Expression<? super DoubleLiteral> left, Expression<? super DoubleLiteral> right, BinaryArithmeticOperation operation) throws IllegalArgumentException{
-		super(left, right);
+	public BinaryArithmeticExpression(Expression<? super DoubleLiteral> left, Expression<? super DoubleLiteral> right, BinaryArithmeticOperation operation, SourceLocation location) throws IllegalArgumentException{
+		super(left, right, location);
 		if(operation == null)
 			throw new IllegalArgumentException("The BinaryArithmeticOperation must be effective.");
 		this.operationType = operation;
@@ -14,11 +19,11 @@ public class BinaryArithmeticExpression extends BinaryExpression<DoubleLiteral, 
 	private final BinaryArithmeticOperation operationType;
 	
 	@Override
-	public DoubleLiteral evaluate(Scope scope) {
-		Type evalL = getLeftArgument().evaluate(scope);
-		Type evalR = getRightArgument().evaluate(scope);
+	public DoubleLiteral evaluate(ExecutionContext context) throws ExpressionEvaluationException, ProgramExecutionTimeException{
+		Type evalL = getLeftArgument().evaluate(context);
+		Type evalR = getRightArgument().evaluate(context);
 		if(!((evalL instanceof DoubleLiteral) && (evalR instanceof DoubleLiteral)))
-			throw new IllegalArgumentException();
+			throw new ExpressionEvaluationException("Given operands do not evaluate to DoubleLiteral", getSourceLocation(), this);
 		
 		Double result = null;
 		switch(operationType){

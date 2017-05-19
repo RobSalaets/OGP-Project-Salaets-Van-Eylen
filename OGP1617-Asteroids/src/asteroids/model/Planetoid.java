@@ -44,7 +44,7 @@ public class Planetoid extends MinorPlanet{
 	 * 			| shrink()
 	 */
 	@Raw
-	public Planetoid(double x, double y, double xVelocity, double yVelocity, double startRadius, Container<Entity> container, double totalTraveledDistance){
+	public Planetoid(double x, double y, double xVelocity, double yVelocity, double startRadius, Container container, double totalTraveledDistance){
 		super(x, y, xVelocity, yVelocity, startRadius, 4.0 / 3.0 * Math.PI * Math.pow(startRadius, 3) * PLANETOID_MASS_DENSITY, container);
 		this.setRadius(startRadius);
 		this.setTotalTraveledDistance(totalTraveledDistance);
@@ -252,7 +252,7 @@ public class Planetoid extends MinorPlanet{
 	@Override
 	public void terminate(){
 		if(!isTerminated()){
-			Container<Entity> oldContainer = getContainer();
+			Container oldContainer = getContainer();
 			super.terminate();
 			if(oldContainer instanceof World && getRadius() >= PLANETOID_MIN_SPAWN_RADIUS){
 				Vector2d randomDirection = Vector2d.randomUnit();

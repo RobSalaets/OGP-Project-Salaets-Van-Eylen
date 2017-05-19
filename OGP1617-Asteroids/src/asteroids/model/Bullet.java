@@ -48,7 +48,7 @@ public class Bullet extends Entity{
 	 * 			| !isValidMaxBoundaryCollisions(maxBoundaryCollisions)
 	 */
 	@Raw
-	public Bullet(double x, double y, double xVelocity, double yVelocity, double radius, Container<Entity> container, int maxBoundaryCollisions) throws IllegalArgumentException{
+	public Bullet(double x, double y, double xVelocity, double yVelocity, double radius, Container container, int maxBoundaryCollisions) throws IllegalArgumentException{
 		super(x, y, xVelocity, yVelocity, radius, 4.0/3.0*Math.PI*Math.pow(radius, 3)*BULLET_MASS_DENSITY, container);
 		assert isValidMaxBoundaryCollisions(maxBoundaryCollisions);
 		this.maxBoundaryCollision = maxBoundaryCollisions;
@@ -76,7 +76,7 @@ public class Bullet extends Entity{
 	 * 			| this(x, y, xVelocity, yVelocity, radius, container, DEFAULT_MAX_BOUNDARY_COLLISIONS)
 	 */
 	@Raw
-	public Bullet(double x, double y, double xVelocity, double yVelocity, double radius, Container<Entity> container) throws IllegalArgumentException{
+	public Bullet(double x, double y, double xVelocity, double yVelocity, double radius, Container container) throws IllegalArgumentException{
 		this(x, y, xVelocity, yVelocity, radius, container, DEFAULT_MAX_BOUNDARY_COLLISIONS);
 	}
 	
@@ -249,7 +249,7 @@ public class Bullet extends Entity{
 		else if(collisionData.getCollisionType() == CollisionType.INTER_ENTITY){
 			Entity other = collisionData.getOther(this);
 			if(other instanceof Ship && other == getSource()){
-				Container<Entity> old = getContainer();
+				Container old = getContainer();
 				setContainer(null);
 				old.removeItem(this);
 				setPosition(other.getPosition().getX(), other.getPosition().getY());
@@ -324,7 +324,7 @@ public class Bullet extends Entity{
 	 *       | ! canHaveAsContainer(container)
 	 */
 	@Override @Raw
-	public void setContainer(Container<Entity> container){
+	public void setContainer(Container container){
 		super.setContainer(container);
 		if(container instanceof Ship)
 			this.source = (Ship) container;
@@ -347,7 +347,7 @@ public class Bullet extends Entity{
 	 *       |							&& (!container.isTerminatedContainer()))
 	 */
 	@Raw @Override
-	public boolean canHaveAsContainer(Container<Entity> container){
+	public boolean canHaveAsContainer(Container container){
 		if(this.isTerminated())
 			return container == null;
 		return (container == null) || ((container instanceof World || container instanceof Ship) && (!container.isTerminated()));
@@ -391,7 +391,7 @@ public class Bullet extends Entity{
 	@Override
 	public void terminate(){
 		if(!isTerminated()){
-			Container<Entity> oldContainer = getContainer();
+			Container oldContainer = getContainer();
 			if(oldContainer != null){
 				setContainer(null);
 				oldContainer.removeItem(this);

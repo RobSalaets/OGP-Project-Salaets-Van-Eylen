@@ -2,34 +2,23 @@ package asteroids.model.programs;
 
 import java.util.HashMap;
 
-import asteroids.model.programs.expressions.Type;
+import asteroids.model.programs.exceptions.ProgramExecutionTimeException;
+import asteroids.model.programs.expressions.types.Type;
+import asteroids.part3.programs.SourceLocation;
 
-public class Scope {
+public abstract class Scope {
 
-	private HashMap<String, Function> functionMap;
-	private HashMap<String, Type> variableMap;
+	protected HashMap<String, Function> functionMap = new HashMap<String, Function>();
+	protected HashMap<String, Type> variableMap = new HashMap<String, Type>();
 	
-	public void putVariable(String varName, Type value) throws IllegalStateException{
-		if(readOnly)
-			throw new IllegalStateException();
-		variableMap.put(varName, value);
+	public abstract void putVariable(String varName, Type value, SourceLocation line) throws ProgramExecutionTimeException;
+	
+	public abstract Type getVariable(String varName, SourceLocation line) throws ProgramExecutionTimeException;
+	
+	public abstract Function getFunction(String functionName, SourceLocation line) throws ProgramExecutionTimeException;
+	
+	public boolean hasAsVariable(String var){
+		return variableMap.containsKey(var);
 	}
 	
-	public Type getVariable(String varName){
-		return variableMap.get(varName);
-	}
-	
-	public void putFunction(String functionName, Function value){
-		functionMap.put(functionName, value);
-	}
-	
-	public Function getFunction(String functionName){
-		return functionMap.get(functionName);
-	}
-	
-	public void setReadOnly(boolean state){
-		this.readOnly = state;
-	}
-	
-	private boolean readOnly = false;
 }

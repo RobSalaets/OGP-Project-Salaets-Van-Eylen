@@ -1,6 +1,7 @@
 package asteroids.model.programs.statements;
 
-import asteroids.model.programs.Scope;
+import asteroids.model.programs.ExecutionContext;
+import asteroids.model.programs.exceptions.ProgramExecutionTimeException;
 import asteroids.part3.programs.SourceLocation;
 
 public class BreakStatement extends Statement{
@@ -9,11 +10,9 @@ public class BreakStatement extends Statement{
 		super(location);
 	}
 
-	private WhileStatement whileLoop;
-
 	@Override
-	public void execute(Scope scope) {
-		// TODO Auto-generated method stub
-		
+	public boolean execute(ExecutionContext context) throws ProgramExecutionTimeException{
+		context.breakFromCurrent(getSourceLocation());
+		return false;
 	}
 }

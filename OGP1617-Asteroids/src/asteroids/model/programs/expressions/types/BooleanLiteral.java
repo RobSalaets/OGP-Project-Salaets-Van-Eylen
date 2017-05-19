@@ -1,4 +1,4 @@
-package asteroids.model.programs.expressions;
+package asteroids.model.programs.expressions.types;
 
 import be.kuleuven.cs.som.annotate.Value;
 
@@ -23,7 +23,7 @@ public class BooleanLiteral extends Type{
 		if(this.getClass() != other.getClass())
 			return false;
 		BooleanLiteral otherVector = (BooleanLiteral) other;
-		return getValue() == otherVector.getValue();
+		return getValue().equals(otherVector.getValue());
 	}
 	
 	@Override

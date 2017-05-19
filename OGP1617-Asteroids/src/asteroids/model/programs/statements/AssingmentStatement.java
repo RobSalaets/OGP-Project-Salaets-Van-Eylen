@@ -7,23 +7,22 @@ import asteroids.model.programs.expressions.Expression;
 import asteroids.model.programs.expressions.types.Type;
 import asteroids.part3.programs.SourceLocation;
 
-public class PrintStatement extends Statement {
-
-
-	public PrintStatement(SourceLocation location, Expression<? extends Type> content) throws IllegalArgumentException{
+public class AssingmentStatement extends Statement {
+	
+	public AssingmentStatement(SourceLocation location, String name, Expression<? extends Type> expression) throws IllegalArgumentException{
 		super(location);
-		if(content == null)
+		if(expression == null || name == null)
 			throw new IllegalArgumentException();
-		this.content = content;
+		this.variableName = name;
+		this.expression = expression;
 	}
 
-	private final Expression<? extends Type> content;
+	private final String variableName;
+	private final Expression<? extends Type> expression;
 	
 	@Override
 	public boolean execute(ExecutionContext context) throws ProgramExecutionTimeException, ExpressionEvaluationException{
-		Type eval = content.evaluate(context);
-		context.addToPrintLog(eval, getSourceLocation());
-		System.out.println(eval.toString());
+		context.getCurrentScope().putVariable(variableName, expression.evaluate(context), getSourceLocation());
 		return false;
 	}
 }

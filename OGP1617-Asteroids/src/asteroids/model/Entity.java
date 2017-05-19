@@ -2,6 +2,8 @@ package asteroids.model;
 
 import java.util.Arrays;
 
+import asteroids.model.programs.exceptions.ExpressionEvaluationException;
+import asteroids.model.programs.exceptions.ProgramExecutionTimeException;
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Immutable;
 import be.kuleuven.cs.som.annotate.Model;
@@ -76,7 +78,7 @@ public abstract class Entity{
 	 */
 	@Model
 	@Raw
-	protected Entity(double x, double y, double xVelocity, double yVelocity, double radius, double mass, Container<Entity> container) throws IllegalArgumentException{
+	protected Entity(double x, double y, double xVelocity, double yVelocity, double radius, double mass, Container container) throws IllegalArgumentException{
 		if(!canHaveAsRadius(radius))
 			throw new IllegalArgumentException();
 		this.setPosition(x, y);
@@ -599,6 +601,23 @@ public abstract class Entity{
 	}
 	
 	/**
+	 * Evolve this Entity with a given timeDelta, based on its current properties.
+	 * 
+	 * @param timeDelta
+	 * 		The given time duration.
+	 * @throws IllegalArgumentException
+	 * 			| timeDelta < 0
+	 * @throws ProgramExecutionTimeException TODO
+	 * 			When an error occurs during program execution
+	 * @throws ExpressionEvaluationException
+	 * 			When an error occurs during program exection,
+	 * 			while evaluating an expression.
+	 */
+	public void evolve(double timeDelta) throws IllegalArgumentException, ProgramExecutionTimeException, ExpressionEvaluationException{
+		move(timeDelta);
+	}
+	
+	/**
 	 * Resolve given collision case appropriatly
 	 * 
 	 * @param collisionData
@@ -677,11 +696,11 @@ public abstract class Entity{
 	 */
 	@Basic
 	@Raw
-	public Container<Entity> getContainer(){
+	public Container getContainer(){
 		return this.container;
 	}
 
-	public abstract boolean canHaveAsContainer(Container<Entity> container);
+	public abstract boolean canHaveAsContainer(Container container);
 	
 	/**
 	 * Check whether this Entity has a proper container.
@@ -711,7 +730,7 @@ public abstract class Entity{
 	 *       | ! canHaveAsContainer(container) || (getContainer() != null && container != null)
 	 */
 	@Raw
-	public void setContainer(Container<Entity> container) throws IllegalArgumentException{
+	public void setContainer(Container container) throws IllegalArgumentException{
 		if(!canHaveAsContainer(container) || (getContainer() != null && container != null))
 			throw new IllegalArgumentException();
 		this.container = container;
@@ -720,7 +739,7 @@ public abstract class Entity{
 	/**
 	 * Variable referencing the Container to which this Entity belongs.
 	 */
-	private Container<Entity> container;
+	private Container container;
   
 }
 
