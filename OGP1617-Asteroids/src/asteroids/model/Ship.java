@@ -776,7 +776,7 @@ public class Ship extends Entity implements Container<Entity>{
 	 * @return
 	 */
 	public List<Object> executeProgram(double dt){
-		if(program != null){
+		if(getProgram() != null){
 			
 		}
 		return null;
