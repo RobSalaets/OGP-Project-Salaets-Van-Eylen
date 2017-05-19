@@ -29,8 +29,8 @@ public class BlockStatement extends Statement{
 		for(int i = context.getBlockPointerFor(this); i < statements.size(); i++){
 			
 			if(context.canExecuteAction())
-				statementPointer = statements.get(i).execute(context) ? i + 1: i;
-//				context.setBlockPointer(this, statements.get(i).execute(context) ? i + 1: i, getSourceLocation());
+//				statementPointer = statements.get(i).execute(context) ? i + 1: i;
+				context.setBlockPointer(this, statements.get(i).execute(context) ? i + 1: i, getSourceLocation());
 			if(!context.canExecuteAction())
 				return false;
 			

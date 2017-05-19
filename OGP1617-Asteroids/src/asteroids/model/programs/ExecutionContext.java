@@ -26,7 +26,7 @@ public class ExecutionContext {
 	public void addToPrintLog(Type value, SourceLocation line) throws ProgramExecutionTimeException {
 		if (value == null)
 			throw new ProgramExecutionTimeException("Trying to add null to the print log", line);
-		if(getCurrentFunction() != null)
+		if(inFunction())
 			throw new ProgramExecutionTimeException("Trying to print in a function environment", line);
 		printLog.add(value.getValue());
 	}
@@ -73,6 +73,10 @@ public class ExecutionContext {
 				f = (Function) d;
 		return f;
 	}
+	
+	private boolean inFunction(){
+		return getCurrentFunction() != null;
+	}
 
 	public void addToStack(Desertable d, SourceLocation line) throws ProgramExecutionTimeException {
 		if (d == null)
@@ -115,7 +119,7 @@ public class ExecutionContext {
 	}
 	
 	public void stopReturning(){
-		if(getCurrentFunction() == null)
+		if(!inFunction())
 			getGlobalScope().setReadOnly(false);
 		returning = false;
 	}
@@ -141,7 +145,7 @@ public class ExecutionContext {
 	}
 	
 	public void decrementExecutionTime(SourceLocation line) throws ProgramExecutionTimeException{
-		if(getCurrentFunction() != null)
+		if(inFunction())
 			throw new ProgramExecutionTimeException("Trying to execute action statement in function environment", line);
 		executionTimeLeft -= Action.ACTION_TIME;
 	}
@@ -152,20 +156,21 @@ public class ExecutionContext {
 	
 	private double executionTimeLeft;
 	
-	private final HashMap<BlockStatement, Stack<Integer>> blockPointers = new HashMap<>();
-	
 	public int getBlockPointerFor(BlockStatement b){
-		if(blockPointers.containsKey(b))
-			return blockPointers.get(b).peek();
-		Stack<Integer> newStack = new Stack<>();
-		blockPointers.put(b, newStack);
-		return newStack.push(0);
+		if(!inFunction()){
+			if(blockPointers.containsKey(b))
+				return blockPointers.get(b);
+			blockPointers.put(b, 0);
+		}
+		return 0;
 	}
 	
 	public void setBlockPointer(BlockStatement b, int pointer, SourceLocation line){
 		if(blockPointers.containsKey(b))
-			blockPointers.get(b).push(pointer);
+			blockPointers.put(b, pointer);
 		else
-			throw new ProgramExecutionTimeException("No stack for " + b.toString(), line);
+			throw new ProgramExecutionTimeException("No pointer for " + b.toString(), line);
 	}
+	
+	private final HashMap<BlockStatement, Integer> blockPointers = new HashMap<>();
 }
