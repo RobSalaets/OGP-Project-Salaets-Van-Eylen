@@ -35,7 +35,7 @@ import asteroids.model.programs.statements.AssingmentStatement;
 import asteroids.model.programs.statements.BasicAction;
 import asteroids.model.programs.statements.BreakStatement;
 import asteroids.model.programs.statements.IfStatement;
-import asteroids.model.programs.statements.MultiStatement;
+import asteroids.model.programs.statements.BlockStatement;
 import asteroids.model.programs.statements.PrintStatement;
 import asteroids.model.programs.statements.ReturnStatement;
 import asteroids.model.programs.statements.Statement;
@@ -92,7 +92,7 @@ public class ProgramFactory implements IProgramFactory<Expression<? extends Type
 
 	@Override
 	public Statement createSequenceStatement(List<Statement> statements, SourceLocation sourceLocation) {
-		return new MultiStatement(sourceLocation, statements);
+		return new BlockStatement(sourceLocation, statements);
 	}
 
 	@Override

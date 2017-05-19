@@ -2,8 +2,8 @@ package asteroids.model.programs;
 
 import java.util.List;
 
-import asteroids.model.programs.expressions.Expression;
 import asteroids.model.programs.expressions.types.Type;
+import asteroids.model.programs.statements.BlockStatement;
 import asteroids.model.programs.statements.Statement;
 import asteroids.part3.programs.SourceLocation;
 
@@ -13,24 +13,16 @@ public class Function implements Desertable{
 		if(body == null || sourceLocation == null)
 			throw new IllegalArgumentException();
 		this.name = functionName;
-		this.body = body;
+		this.body = new BlockStatement(body.getSourceLocation(), body);
 		this.sourceLocation = sourceLocation;
 	}
 	
-	private final Statement body;
-	
-	public void setExecutionContext(ExecutionContext context){
-		this.context = context;
-	}
-	
-	private ExecutionContext context;
-	
-	public Type execute(List<Expression<? extends Type>> arguments) throws ProgramExecutionTimeException{
+	public Type execute(ExecutionContext context, List<Type> arguments) throws ProgramExecutionTimeException{
 		if(context == null)
 			throw new ProgramExecutionTimeException("The execution context of this Function was not set", sourceLocation);
 		localScope = new LocalScope(context.getGlobalScope());
 		for(int i = 0; i < arguments.size(); i++)
-			localScope.putVariable("$"+String.valueOf(i), arguments.get(i).evaluate(context.getCurrentScope(), context.getWorld(), context.getExecutor()), sourceLocation);
+			localScope.putVariable("$"+String.valueOf(i+1), arguments.get(i), sourceLocation);
 		context.getGlobalScope().setReadOnly(true);
 		context.addToStack(this, sourceLocation);
 		body.execute(context);
@@ -62,5 +54,7 @@ public class Function implements Desertable{
 	}
 	
 	private final String name;
+	
+	private final BlockStatement body;
 	
 }

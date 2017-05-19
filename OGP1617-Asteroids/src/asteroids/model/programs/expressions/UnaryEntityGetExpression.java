@@ -1,9 +1,7 @@
 package asteroids.model.programs.expressions;
 
 import asteroids.model.Entity;
-import asteroids.model.Ship;
-import asteroids.model.World;
-import asteroids.model.programs.Scope;
+import asteroids.model.programs.ExecutionContext;
 import asteroids.model.programs.expressions.types.DoubleLiteral;
 import asteroids.model.programs.expressions.types.EntityLiteral;
 import asteroids.model.programs.expressions.types.Type;
@@ -21,8 +19,8 @@ public class UnaryEntityGetExpression extends UnaryExpression<EntityLiteral, Dou
 	private final UnaryEntityGetOperation operationType;
 	
 	@Override
-	public DoubleLiteral evaluate(Scope scope, World world, Ship executor) throws ExpressionEvaluationException{
-		Type arg = getArgument().evaluate(scope, world, executor);
+	public DoubleLiteral evaluate(ExecutionContext context) throws ExpressionEvaluationException{
+		Type arg = getArgument().evaluate(context);
 		if(!(arg instanceof EntityLiteral))
 			throw new ExpressionEvaluationException("Given operand does not evaluate to EntityLiteral", getSourceLocation());
 		if(arg.getValue() == null)

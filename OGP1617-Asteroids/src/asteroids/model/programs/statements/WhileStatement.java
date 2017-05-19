@@ -20,13 +20,14 @@ public class WhileStatement extends ConditionalStatement implements Breakable{
 	private final Statement body;
 
 	@Override
-	public void execute(ExecutionContext context) throws ProgramExecutionTimeException, ExpressionEvaluationException{
+	public boolean execute(ExecutionContext context) throws ProgramExecutionTimeException, ExpressionEvaluationException{
 		context.addToStack(this, getSourceLocation());
-		while(condition.evaluate(context.getCurrentScope(), context.getWorld(), context.getExecutor()).getValue() &&
+		while(condition.evaluate(context).getValue() &&
 				!context.isBreaking() && context.canExecuteAction())
 			body.execute(context);
 		
 		if(!context.isReturning() && context.isBreaking())
 			context.stopBreaking();
+		return false;
 	}
 }

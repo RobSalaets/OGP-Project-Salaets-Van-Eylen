@@ -21,6 +21,11 @@ public abstract class Statement{
 		return location;
 	}
 	
-	public abstract void execute(ExecutionContext context) throws ProgramExecutionTimeException, ExpressionEvaluationException;
+	/**
+	 * Execute this Statement
+	 * 
+	 * @return whether or not the execution time decremented.
+	 */
+	public abstract boolean execute(ExecutionContext context) throws ProgramExecutionTimeException, ExpressionEvaluationException;
 	
 }

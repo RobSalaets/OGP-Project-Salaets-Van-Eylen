@@ -19,12 +19,12 @@ public class IfStatement extends ConditionalStatement {
 	private final Statement elseBody;
 
 	@Override
-	public void execute(ExecutionContext context) throws ProgramExecutionTimeException, ExpressionEvaluationException {
-		if(condition.evaluate(context.getCurrentScope(), context.getWorld(), context.getExecutor()).getValue()){
-			body.execute(context);
+	public boolean execute(ExecutionContext context) throws ProgramExecutionTimeException, ExpressionEvaluationException {
+		if(condition.evaluate(context).getValue()){
+			return body.execute(context);
 		}else if(elseBody != null){
-			elseBody.execute(context);
+			return elseBody.execute(context);
 		}
-		
+		return false;
 	}
 }

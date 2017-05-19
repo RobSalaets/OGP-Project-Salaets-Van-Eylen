@@ -1,8 +1,6 @@
 package asteroids.model.programs.expressions;
 
-import asteroids.model.Ship;
-import asteroids.model.World;
-import asteroids.model.programs.Scope;
+import asteroids.model.programs.ExecutionContext;
 import asteroids.model.programs.expressions.types.DoubleLiteral;
 import asteroids.part3.programs.SourceLocation;
 
@@ -13,8 +11,8 @@ public class SelfGetDirExpression extends Expression<DoubleLiteral>{
 	}
 
 	@Override
-	public DoubleLiteral evaluate(Scope scope, World world, Ship executor) throws ExpressionEvaluationException{
-		return new DoubleLiteral(executor.getOrientation());
+	public DoubleLiteral evaluate(ExecutionContext context) throws ExpressionEvaluationException{
+		return new DoubleLiteral(context.getExecutor().getOrientation());
 	}
 	
 }

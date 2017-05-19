@@ -1,11 +1,10 @@
 package asteroids.model.programs.expressions;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import asteroids.model.Ship;
-import asteroids.model.World;
+import asteroids.model.programs.ExecutionContext;
 import asteroids.model.programs.ProgramExecutionTimeException;
-import asteroids.model.programs.Scope;
 import asteroids.model.programs.expressions.types.Type;
 import asteroids.part3.programs.SourceLocation;
 
@@ -24,8 +23,11 @@ public class FunctionCallExpression extends Expression<Type> {
 	private final List<Expression<? extends Type>> arguments;
 
 	@Override
-	public Type evaluate(Scope scope, World world, Ship executor) throws ProgramExecutionTimeException {
-		return scope.getFunction(functionName, getSourceLocation()).execute(arguments);
+	public Type evaluate(ExecutionContext context) throws ProgramExecutionTimeException {
+		List<Type> evaluatatedArguments = new ArrayList<Type>();
+		for(Expression<? extends Type> arg : arguments)
+			evaluatatedArguments.add(arg.evaluate(context));
+		return context.getGlobalScope().getFunction(functionName, getSourceLocation()).execute(context, evaluatatedArguments);
 	}
 
 }

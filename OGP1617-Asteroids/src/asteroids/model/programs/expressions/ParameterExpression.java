@@ -1,8 +1,6 @@
 package asteroids.model.programs.expressions;
 
-import asteroids.model.Ship;
-import asteroids.model.World;
-import asteroids.model.programs.Scope;
+import asteroids.model.programs.ExecutionContext;
 import asteroids.model.programs.expressions.types.Type;
 import asteroids.part3.programs.SourceLocation;
 
@@ -18,8 +16,8 @@ public class ParameterExpression extends Expression<Type> {
 	}
 
 	@Override
-	public Type evaluate(Scope scope, World world, Ship executor) throws ExpressionEvaluationException {
-		return scope.getVariable(parameter, getSourceLocation());
+	public Type evaluate(ExecutionContext context) throws ExpressionEvaluationException {
+		return context.getCurrentScope().getVariable(parameter, getSourceLocation());
 	}
 
 }

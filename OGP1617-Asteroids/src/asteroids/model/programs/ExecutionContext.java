@@ -1,6 +1,7 @@
 package asteroids.model.programs;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Stack;
 
@@ -8,6 +9,7 @@ import asteroids.model.Ship;
 import asteroids.model.World;
 import asteroids.model.programs.expressions.types.Type;
 import asteroids.model.programs.statements.Action;
+import asteroids.model.programs.statements.BlockStatement;
 import asteroids.part3.programs.SourceLocation;
 
 public class ExecutionContext {
@@ -30,7 +32,7 @@ public class ExecutionContext {
 	}
 	
 	public List<Object> getPrintLog() {
-		return printLog.size() > 0 ? printLog : null;
+		return printLog;
 	}
 	
 	public void clearPrintLog() {
@@ -149,4 +151,21 @@ public class ExecutionContext {
 	}
 	
 	private double executionTimeLeft;
+	
+	private final HashMap<BlockStatement, Stack<Integer>> blockPointers = new HashMap<>();
+	
+	public int getBlockPointerFor(BlockStatement b){
+		if(blockPointers.containsKey(b))
+			return blockPointers.get(b).peek();
+		Stack<Integer> newStack = new Stack<>();
+		blockPointers.put(b, newStack);
+		return newStack.push(0);
+	}
+	
+	public void setBlockPointer(BlockStatement b, int pointer, SourceLocation line){
+		if(blockPointers.containsKey(b))
+			blockPointers.get(b).push(pointer);
+		else
+			throw new ProgramExecutionTimeException("No stack for " + b.toString(), line);
+	}
 }

@@ -14,7 +14,7 @@ public class BasicAction extends Action {
 	private final ActionType actionType;
 	
 	@Override
-	public void execute(ExecutionContext context) throws ProgramExecutionTimeException {
+	public boolean execute(ExecutionContext context) throws ProgramExecutionTimeException {
 		if(context.canExecuteAction()){
 			context.decrementExecutionTime(getSourceLocation());
 			switch(actionType){
@@ -31,9 +31,10 @@ public class BasicAction extends Action {
 				break;
 			default:
 				break;
-			
 			}
+			return true;
 		}
+		throw new ProgramExecutionTimeException("Executing action with not enough time left", getSourceLocation());
 	}
 
 }
