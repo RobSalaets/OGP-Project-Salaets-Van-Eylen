@@ -47,7 +47,7 @@ public class CollisionData{
 		this.colliders = colliders;
 	}
 	
-	public static final CollisionData UNDEFINED_COLLISION = new CollisionData(Double.POSITIVE_INFINITY, Vector2d.ZERO , CollisionType.UNDEFINED, new ArrayList<Entity>());
+	public static final CollisionData UNDEFINED_COLLISION = new CollisionData(Double.POSITIVE_INFINITY, null , CollisionType.UNDEFINED, new ArrayList<Entity>());
 
 	/**
 	 * Return the timeToCollision of this CollisionData.
@@ -139,7 +139,8 @@ public class CollisionData{
 	 * Check whether this CollisionData is equal to the given object
 	 * 
 	 * @return | result == (other != null) && (this.getClass() == other.getClass()) 
-	 * 		   | && this.getTimeToCollision() == (CollisionData other).getTimeToCollision() && this.getCollisionPoint() == (CollisionData other).getCollisionPoint()
+	 * 		   | && this.getTimeToCollision() == (CollisionData other).getTimeToCollision() && (getCollisionPoint() == null && (CollisionData other).getCollisionPoint() == null || 
+	 * 		   | getCollisionPoint().equals((CollisionData other).getCollisionPoint())) && getCollisionType().equals((CollisionData other).getCollisionType())
 	 */
 	@Override
 	public boolean equals(Object other){
@@ -149,7 +150,9 @@ public class CollisionData{
 			return false;
 		CollisionData otherData = (CollisionData) other;
 		return getTimeToCollision() == otherData.getTimeToCollision() &&
-				getCollisionPoint().equals(otherData.getCollisionPoint()) && getCollisionType().equals(otherData.getCollisionType());
+				(getCollisionPoint() == null && otherData.getCollisionPoint() == null || 
+				 getCollisionPoint().equals(otherData.getCollisionPoint())) &&
+				getCollisionType().equals(otherData.getCollisionType());
 	}
 
 	/**

@@ -268,9 +268,11 @@ public class Part3ExtraTestSuite{
 
 	@Test
 	public void testThrust() throws ModelException{
+		World world = facade.createWorld(1000, 1000);
 		Ship ship = facade.createShip(500, 500, 0, 0, 200, 0.0, 20e18);
+		facade.addShipToWorld(world, ship);
 		ship.thrustOn();
-		ship.thrust(1);
+		facade.evolve(world, 1, null);
 		double[] velocity = facade.getShipVelocity(ship);
 		assertNotNull(velocity);
 		assertEquals(ship.getAcceleration(), velocity[0], EPSILON);
@@ -279,9 +281,11 @@ public class Part3ExtraTestSuite{
 
 	@Test
 	public void testThrustNegativeAmount() throws ModelException{
+		World world = facade.createWorld(1000, 1000);
 		Ship ship = facade.createShip(500, 500, 0, 0, 200, 0.0, 20e18);
+		facade.addShipToWorld(world, ship);
 		ship.thrustOn();
-		ship.thrust(-1);
+		facade.evolve(world, -1, null);
 		double[] velocity = facade.getShipVelocity(ship);
 		assertNotNull(velocity);
 		assertEquals(0, velocity[0], EPSILON);
@@ -291,8 +295,10 @@ public class Part3ExtraTestSuite{
 	@Test
 	public void testThrustVelocityExceeds() throws ModelException{
 		Ship ship = facade.createShip(500, 500, 299999, 0, 200, 0.0, 5e14);
+		World world = facade.createWorld(1e13, 1000);
+		facade.addShipToWorld(world, ship);
 		ship.thrustOn();
-		ship.thrust(100);
+		facade.evolve(world, 100, null);
 		double[] velocity = facade.getShipVelocity(ship);
 		assertNotNull(velocity);
 		assertEquals(ship.getMaxVelocity(), velocity[0], EPSILON);
@@ -414,7 +420,6 @@ public class Part3ExtraTestSuite{
 		Ship ship1 = new Ship(200, 500, 100, 0, 0, 100, 20e20, world, 100e20);
 		Ship ship2 = new Ship(1000, 500, -150, 0, Math.PI, 100, 20e20, world, 100e20);
 		Bullet bullet = new Bullet(605, 500, -5, 0, 5, world);
-		Bullet bullet2 = new Bullet(200, 500, -5, 0, 5, ship1);
 		world.evolve(1);
 		assertEqualsVector(new Vector2d(300, 500), ship1.getPosition(), EPSILON);
 		assertEqualsVector(new Vector2d(850, 500), ship2.getPosition(), EPSILON);

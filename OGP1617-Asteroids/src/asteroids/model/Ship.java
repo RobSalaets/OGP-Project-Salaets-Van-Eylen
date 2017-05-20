@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import asteroids.model.Program;
 import asteroids.model.programs.exceptions.ExpressionEvaluationException;
 import asteroids.model.programs.exceptions.ProgramExecutionTimeException;
 import be.kuleuven.cs.som.annotate.Basic;
