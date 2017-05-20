@@ -395,6 +395,7 @@ public class Bullet extends Entity{
 			if(oldContainer != null){
 				setContainer(null);
 				oldContainer.removeItem(this);
+				source = null;
 			}
 			this.isTerminated = true;
 		}
