@@ -390,13 +390,13 @@ public abstract class Entity{
 	 * 			The other Entity
 	 * @return The euclidean distance between this Entity and the other Entity
 	 * 			| result == this.getPosition().sub(other.getPosition()).getLength() - this.getRadius() - other.getRadius()
-	 * @throws NullPointerException
+	 * @throws IllegalArgumentException
 	 * 			| other == null
 	 */
 
-	public double getDistanceBetween(Entity other) throws NullPointerException{
+	public double getDistanceBetween(Entity other) throws IllegalArgumentException{
 		if(other == null)
-			throw new NullPointerException();
+			throw new IllegalArgumentException();
 		return this.getPosition().sub(other.getPosition()).getLength() - this.getRadius() - other.getRadius();
 	}
 
@@ -407,12 +407,12 @@ public abstract class Entity{
 	 * @param  other
 	 * 			The other Entity
 	 * @return 	| result == (this == other || overlapsCircle(other.getPosition(), other.getRadius())
-	 * @throws NullPointerException
+	 * @throws IllegalArgumentException
 	 * 			| other == null
 	 */
-	public boolean overlaps(Entity other) throws NullPointerException{
+	public boolean overlaps(Entity other) throws IllegalArgumentException{
 		if(other == null)
-			throw new NullPointerException();
+			throw new IllegalArgumentException();
 		return this == other || overlapsCircle(other.getPosition(), other.getRadius());
 	}
 	
@@ -424,12 +424,12 @@ public abstract class Entity{
 	 * @param radius
 	 * 		The radius of the circle to check.
 	 * @return | result ==  (this.getPosition().sub(position).getLength() <= 0.99 * (this.getRadius() + radius))
-	 * @throws NullPointerException
+	 * @throws IllegalArgumentException
 	 * 			| position == null
 	 */
-	public boolean overlapsCircle(Vector2d position, double radius) throws NullPointerException{
+	public boolean overlapsCircle(Vector2d position, double radius) throws IllegalArgumentException{
 		if(position == null)
-			throw new NullPointerException();
+			throw new IllegalArgumentException();
 		return (this.getPosition().sub(position).getLength() <= 0.99 * (this.getRadius() + radius));
 	}
 
@@ -463,16 +463,16 @@ public abstract class Entity{
 	 * 			collision so the time till the collision will be considered as infinity.
 	 * 			| if this.getContainer() != other.getContainer()
 	 * 			| then new.getTimeToCollision(other) == Double.POSITIVE_INFINITY
-	 * @throws NullPointerException
+	 * @throws IllegalArgumentException
 	 * 			The other entity is ineffective
 	 * 			| other == null
 	 * @throws IllegalArgumentException 
 	 * 			The entities overlap
 	 * 			| this.overlaps(other)
 	 */
-	public double getTimeToCollision(Entity other) throws NullPointerException, IllegalArgumentException{
+	public double getTimeToCollision(Entity other) throws IllegalArgumentException{
 		if(other == null)
-			throw new NullPointerException();
+			throw new IllegalArgumentException();
 		if(this.overlaps(other))
 			throw new IllegalArgumentException(); 
 		if(this.getContainer() != other.getContainer())
@@ -504,7 +504,7 @@ public abstract class Entity{
 	 * 		|   if(getTimeToCollision(other) == Double.POSITIVE_INFINITY)
 	 * 		|   then result == null
 	 * 		|	else result.equals(thisCollision.mul(other.getRadius()).add(otherCollision.mul(this.getRadius())).mul(1.0/(this.getRadius() + other.getRadius())))
-	 * @throws NullPointerException
+	 * @throws IllegalArgumentException
 	 * 			| other == null
 	 * @throws IllegalArgumentException
 	 * 			| this.overlaps(other)
@@ -512,7 +512,7 @@ public abstract class Entity{
 	 * 			The container of this Entity and the given Entity does not match
 	 * 			| this.getContainer() != other.getContainer()
 	 */
-	public Vector2d getCollisionPosition(Entity other) throws NullPointerException, IllegalArgumentException{
+	public Vector2d getCollisionPosition(Entity other) throws IllegalArgumentException{
 		double timeTilCollision = getTimeToCollision(other);
 		if(timeTilCollision == Double.POSITIVE_INFINITY)
 			return null;

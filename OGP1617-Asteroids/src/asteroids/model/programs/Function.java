@@ -8,7 +8,7 @@ import asteroids.model.programs.statements.BlockStatement;
 import asteroids.model.programs.statements.Statement;
 import asteroids.part3.programs.SourceLocation;
 
-public class Function implements Desertable{
+public class Function implements Breakable{
 	
 	public Function(String functionName, Statement body, SourceLocation sourceLocation) throws IllegalArgumentException{
 		if(body == null || sourceLocation == null)

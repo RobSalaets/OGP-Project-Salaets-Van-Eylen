@@ -11,6 +11,7 @@ import asteroids.model.programs.exceptions.ProgramExecutionTimeException;
 import asteroids.model.programs.expressions.types.Type;
 import asteroids.model.programs.statements.Action;
 import asteroids.model.programs.statements.BlockStatement;
+import asteroids.model.programs.statements.WhileStatement;
 import asteroids.part3.programs.SourceLocation;
 
 public class ExecutionContext {
@@ -69,7 +70,7 @@ public class ExecutionContext {
 	
 	private Function getCurrentFunction(){
 		Function f = null;
-		for(Desertable d : stack)
+		for(Breakable d : stack)
 			if(d instanceof Function)
 				f = (Function) d;
 		return f;
@@ -79,24 +80,24 @@ public class ExecutionContext {
 		return getCurrentFunction() != null;
 	}
 
-	public void addToStack(Desertable d, SourceLocation line) throws ProgramExecutionTimeException {
+	public void addToStack(Breakable d, SourceLocation line) throws ProgramExecutionTimeException {
 		if (d == null)
 			throw new ProgramExecutionTimeException("Trying to add null to the execution stack", line);
 		stack.push(d);
 	}
 
 	public void breakFromCurrent(SourceLocation line) throws ProgramExecutionTimeException {
-		Desertable top = null;
+		Breakable top = null;
 		do {
 			if (stack.isEmpty())
 				throw new ProgramExecutionTimeException("No statement to break from.", line);
 			top = stack.pop();
-		} while (!(top instanceof Breakable));
+		} while (!(top instanceof WhileStatement));
 		setBreak();
 	}
 	
 	public void returnFromCurrent(SourceLocation line) throws ProgramExecutionTimeException {
-		Desertable top = null;
+		Breakable top = null;
 		do {
 			if (stack.isEmpty())
 				throw new ProgramExecutionTimeException("No function to return from.", line);
@@ -105,7 +106,7 @@ public class ExecutionContext {
 		setReturn();
 	}
 	
-	private Stack<Desertable> stack = new Stack<Desertable>();
+	private Stack<Breakable> stack = new Stack<Breakable>();
 	
 	public boolean isBreaking(){
 		return breaking;
