@@ -688,7 +688,20 @@ public abstract class Entity{
 		this.setVelocity(this.getVelocity().getX() + j * dx / thisMass, this.getVelocity().getY() + j * dy / thisMass);
 		other.setVelocity(other.getVelocity().getX() - j * dx / otherMass, other.getVelocity().getY() - j * dy / otherMass);
 	}
-
+	
+	/**
+	 * Terminate this Entity.
+	 *
+	 * @post   This Entity  is terminated.
+	 *       | new.isTerminated()
+	 * @post   This Entity no longer references an effective container.
+	 *       | new.getContainer() == null
+	 * @post   If this Entity was not yet terminated, this Entity
+	 *         is no longer one of the Entities for the Container to which
+	 *         this Entity belonged.
+	 *       | if (! isTerminated())
+	 *       |   then ! new.getContainer().hasAsItem(this))
+	 */
 	public abstract void terminate();
 
 	/**
@@ -715,6 +728,23 @@ public abstract class Entity{
 		return this.container;
 	}
 
+	/**
+	 * Check whether this Entity can have the given container as
+	 * its container.
+	 * 
+	 * @param  container
+	 * 		   The container to check.
+	 * @return If this Entity is terminated, true if and only if the
+	 *         given Container is not effective.
+	 *       | if (this.isTerminated())
+	 *       |   then result == (container == null)
+	 * @return If this Entity is not terminated, true if and only if the given
+	 *         Container is not effective or an instance of Ship or World and not yet terminated.
+	 *       | if (! this.isTerminated())
+	 *       |   then result == (container == null) || ((container instanceof World) 
+	 *       |							&& (!container.isTerminatedContainer()))
+	 */
+	@Raw
 	public abstract boolean canHaveAsContainer(Container container);
 	
 	/**

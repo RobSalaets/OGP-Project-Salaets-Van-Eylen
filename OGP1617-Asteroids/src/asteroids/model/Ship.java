@@ -47,7 +47,7 @@ public class Ship extends Entity implements Container{
 	 * @param container
 	 * 			The world for this new Ship.
 	 * @effect This new Ship is initialized as a new Entity with
-	 * 		   given x, y, xVelocity, yVelocity, radius and mass.
+	 * 		   given x, y, xVelocity, yVelocity, radius, mass and container.
 	 * 			| super(x, y, xVelocity, yVelocity, radius, mass, container)
 	 * @post The orientation of this new Ship is equal to the given
 	 *       orientation.
@@ -412,7 +412,7 @@ public class Ship extends Entity implements Container{
 	 * @throws ProgramExecutionTimeException
 	 * 			When an error occurs during program execution
 	 * @throws ExpressionEvaluationException
-	 * 			When an error occurs during program exection,
+	 * 			When an error occurs during program execution,
 	 * 			while evaluating an expression.
 	 */
 	@Override
