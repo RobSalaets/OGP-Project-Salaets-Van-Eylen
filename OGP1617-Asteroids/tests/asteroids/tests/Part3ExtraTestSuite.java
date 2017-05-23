@@ -1105,11 +1105,13 @@ public class Part3ExtraTestSuite {
 		entities.add(bullet2);
 		entities.add(asteroid);
 		entities.add(planetoid);
-		assertEquals(bullets, world.getEntitiesByFilter(a -> a instanceof Bullet));
-		assertEquals(ships, world.getEntitiesByFilter(a -> a instanceof Ship));
-		assertEquals(entities, world.getEntitiesByFilter(a -> a instanceof Entity));
-		assertEquals(asteroids, world.getEntitiesByFilter(a -> a instanceof Asteroid));
-		assertEquals(planetoids, world.getEntitiesByFilter(a -> a instanceof Planetoid));
+		assertEquals(bullets, world.getEntitiesByFilter(a -> a instanceof Bullet, a -> (Bullet)a));
+		assertEquals(ships, world.getEntitiesByFilter(a -> a instanceof Ship, a -> (Ship)a));
+		assertEquals(entities, world.getEntitiesByFilter(a -> a instanceof Entity, a -> (Entity)a));
+		assertEquals(asteroids, world.getEntitiesByFilter(a -> a instanceof Asteroid, a -> (Asteroid)a));
+		assertEquals(planetoids, world.getEntitiesByFilter(a -> a instanceof Planetoid, a -> (Planetoid)a));
+		assertEquals(1, world.getEntitiesByFilter(a -> a.getMass() == 1.0E20, a -> (Ship)a).size());
+		assertEquals(ship, world.getEntitiesByFilter(a -> a.getMass() == 1.0E20, a -> (Ship)a).iterator().next());
 	}
 
 	@Test

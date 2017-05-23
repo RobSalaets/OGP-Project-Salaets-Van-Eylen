@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -489,7 +490,7 @@ public class World implements Container{
 	 * 		 | 	this.hasAsItem(ship)
 	*/
 	public Set<Ship> getShips(){
-		return entities.values().stream().filter(e -> e instanceof Ship).map(e->(Ship)e).collect(Collectors.toSet());
+		return getEntitiesByFilter(e -> e instanceof Ship, e -> (Ship)e);
 	}
 	
 	/**
@@ -500,7 +501,7 @@ public class World implements Container{
 	 * 		 | 	this.hasAsItem(bullet)
 	*/
 	public Set<Bullet> getBullets(){
-		return entities.values().stream().filter(e -> e instanceof Bullet).map(e->(Bullet)e).collect(Collectors.toSet());
+		return getEntitiesByFilter(e -> e instanceof Bullet, e -> (Bullet)e);
 	}
 	
 	/**
@@ -511,7 +512,7 @@ public class World implements Container{
 	 * 		 | 	this.hasAsItem(mPlanet)
 	*/
 	public Set<MinorPlanet> getMinorPlanets(){
-		return entities.values().stream().filter(e -> e instanceof MinorPlanet).map(e->(MinorPlanet)e).collect(Collectors.toSet());
+		return getEntitiesByFilter(e -> e instanceof MinorPlanet, e -> (MinorPlanet)e);
 	}
 	
 	/**
@@ -522,7 +523,7 @@ public class World implements Container{
 	 * 		 | 	this.hasAsItem(asteroid)
 	*/
 	public Set<Asteroid> getAsteroids(){
-		return entities.values().stream().filter(e -> e instanceof Asteroid).map(e->(Asteroid)e).collect(Collectors.toSet());
+		return getEntitiesByFilter(e -> e instanceof Asteroid, e -> (Asteroid)e);
 	}
 	
 	/**
@@ -533,18 +534,23 @@ public class World implements Container{
 	 * 		 | 	this.hasAsItem(planetoid)
 	*/
 	public Set<Planetoid> getPlanetoids(){
-		return entities.values().stream().filter(e -> e instanceof Planetoid).map(e->(Planetoid)e).collect(Collectors.toSet());
+		return getEntitiesByFilter(e -> e instanceof Planetoid, e -> (Planetoid)e);
 	}
 	
 	/**
-	 * Return a set of entities that satisfy the given filter.
+	 * Return a set of entities that satisfy the given filter and map the results by the given map function.
+	 * 
+	 * @param filter
+	 * 		The filter to apply to this Worlds entities.
+	 * @param map
+	 * 		The map to apply after the filter.
 	 * 
 	 * @return Each entity in the resulting set is an item of this World.
 	 * 		 | for each entity in result:
 	 * 		 | 	this.hasAsItem(entity)
 	 */
-	public Set<Entity> getEntitiesByFilter(Predicate<? super Entity> filter){
-		return entities.values().stream().filter(filter).collect(Collectors.toSet());
+	public <T extends Entity> Set<T> getEntitiesByFilter(Predicate<? super Entity> filter, Function<? super Entity, T> map){
+		return entities.values().stream().filter(filter).map(map).collect(Collectors.toSet());
 	}
 	
 	/**
