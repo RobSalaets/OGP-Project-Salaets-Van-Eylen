@@ -93,7 +93,7 @@ public class ExecutionContext {
 				throw new ProgramExecutionTimeException("No Interruptable to interrupt from.", line);
 			top = stack.pop();
 		} while (!(top.isValidInterruptStatement(interruptStatement)));
-		top.onBreak(this);
+		top.onInterrupt(this);
 	}
 	
 	private Stack<Interruptable> stack = new Stack<Interruptable>();
@@ -104,12 +104,6 @@ public class ExecutionContext {
 	
 	public boolean isReturning(){
 		return returning;
-	}
-	
-	public void stopReturning(){
-		if(!inFunction())
-			getGlobalScope().setReadOnly(false);
-		returning = false;
 	}
 	
 	public void setBreakBlockStatement(boolean state){

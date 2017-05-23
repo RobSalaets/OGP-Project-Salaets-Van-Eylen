@@ -570,14 +570,14 @@ public class World implements Container{
 	 * 		The entity to check.
 	 * @return The resulting list contains entities that overlap with the given entity
 	 * 		| for each other in result:
-	 * 		|	entity.overlaps(other)
+	 * 		|	entity.overlaps(other) && entity != other
 	 * @throws NullPointerException
 	 * 		| entity == null
 	 */
 	public List<Entity> overlapsWithAnyEntity(Entity entity) throws NullPointerException{
 		if (entity == null)
 			throw new NullPointerException();
-		return entities.values().stream().filter(e -> e.overlaps(entity) && !entity.equals(e)).collect(Collectors.toList());
+		return entities.values().stream().filter(e -> e.overlaps(entity) && entity != e).collect(Collectors.toList());
 	}
 	
 	/**

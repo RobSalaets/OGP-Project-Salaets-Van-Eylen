@@ -21,22 +21,24 @@ public class Function implements Interruptable{
 	
 	public Type execute(ExecutionContext context, List<Type> arguments) throws ProgramExecutionTimeException{
 		if(context == null)
-			throw new ProgramExecutionTimeException("The execution context of this Function was not set", sourceLocation);
+			throw new ProgramExecutionTimeException("The execution context of this Function was not set", getSourceLocation());
 		localScope = new LocalScope(context.getGlobalScope());
 		for(int i = 0; i < arguments.size(); i++)
-			localScope.putVariable("$"+String.valueOf(i+1), arguments.get(i), sourceLocation);
+			getLocalScope().putVariable("$"+String.valueOf(i+1), arguments.get(i), getSourceLocation());
 		context.getGlobalScope().setReadOnly(true);
-		context.addToStack(this, sourceLocation);
+		context.addToStack(this, getSourceLocation());
 		body.execute(context);
-		if(!(context.isReturning() || context.isBreaking()))
-			throw new ProgramExecutionTimeException("No return statement in function: " + name, sourceLocation);
 		if(context.isReturning()){
 			context.setBreakBlockStatement(false);
-			context.stopReturning();
-			return localScope.getVariable("$0", sourceLocation);
+			context.setReturn(false);
+			context.getGlobalScope().setReadOnly(false);
+			return localScope.getVariable("$0", getSourceLocation());
 		}
-		context.stopReturning();
-		return null;
+		else if(context.isBreaking()){
+			context.getGlobalScope().setReadOnly(false);
+			return null;
+		}
+		throw new ProgramExecutionTimeException("No return statement in function: " + name, getSourceLocation());
 	}
 
 	public LocalScope getLocalScope() {
@@ -60,7 +62,7 @@ public class Function implements Interruptable{
 	private final BlockStatement body;
 	
 	@Override
-	public void onBreak(ExecutionContext executionContext) {
+	public void onInterrupt(ExecutionContext executionContext) {
 		executionContext.setBreakBlockStatement(true);
 		executionContext.setReturn(true);
 	}

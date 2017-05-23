@@ -30,7 +30,7 @@ public class WhileStatement extends ConditionalStatement implements Interruptabl
 	}
 
 	@Override
-	public void onBreak(ExecutionContext executionContext) {
+	public void onInterrupt(ExecutionContext executionContext) {
 		executionContext.setBreakBlockStatement(true);
 	}
 

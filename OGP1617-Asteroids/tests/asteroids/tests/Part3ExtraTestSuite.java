@@ -363,6 +363,18 @@ public class Part3ExtraTestSuite {
 		assertTrue(world.overlapsWithAnyEntity(ship2).size() == 0);
 		assertTrue(world2.overlapsWithAnyEntity(ship).size() == 0);
 	}
+	
+	@Test
+	public void testOverlapsWithAnyEntitiesFromPositionAndRadius() throws ModelException {
+		World world = facade.createWorld(1000, 1000);
+		World world2 = facade.createWorld(1000, 1000);
+		Ship ship = facade.createShip(500, 500, 0, 10, 100, 0, 1.1E18);
+		Ship ship2 = facade.createShip(200, 200, 0, 10, 100, 0, 1.1E18);
+		facade.addShipToWorld(world, ship);
+		facade.addShipToWorld(world2, ship2);
+		assertTrue(world.overlapsWithAnyEntity(new Vector2d(500, 505), 30).size() == 1);
+		assertTrue(world2.overlapsWithAnyEntity(new Vector2d(200, 505), 300).size() == 1);
+	}
 
 	@Test
 	public void testCollisionInterShip() throws ModelException {
@@ -1147,5 +1159,14 @@ public class Part3ExtraTestSuite {
 		Entity e = facade.createAsteroid(0, 0, 0, 0, 10);
 		assertTrue(e.overlapsCircle(new Vector2d(5, 0), 2));
 		assertTrue(!e.overlapsCircle(new Vector2d(11, 0), 1));
+	}
+	
+	@Test
+	public void testGetEntityAt() throws ModelException {
+		World world = facade.createWorld(5000, 5000);
+		Planetoid planetoid = facade.createPlanetoid(500, 500, 500, 500, 45, 0);
+		facade.addPlanetoidToWorld(world, planetoid);
+		planetoid.setPosition(200, 200);
+		assertEquals(planetoid, world.getEntityAt(new Vector2d(200,200)));
 	}
 }
