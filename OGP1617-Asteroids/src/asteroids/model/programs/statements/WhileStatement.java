@@ -1,6 +1,6 @@
 package asteroids.model.programs.statements;
 
-import asteroids.model.programs.Breakable;
+import asteroids.model.programs.Interruptable;
 import asteroids.model.programs.ExecutionContext;
 import asteroids.model.programs.exceptions.ExpressionEvaluationException;
 import asteroids.model.programs.exceptions.ProgramExecutionTimeException;
@@ -8,7 +8,7 @@ import asteroids.model.programs.expressions.Expression;
 import asteroids.model.programs.expressions.types.BooleanLiteral;
 import asteroids.part3.programs.SourceLocation;
 
-public class WhileStatement extends ConditionalStatement implements Breakable{
+public class WhileStatement extends ConditionalStatement implements Interruptable{
 	
 	public WhileStatement(SourceLocation location, Expression<BooleanLiteral> condition, Statement body) throws IllegalArgumentException{
 		super(location, condition);
@@ -29,5 +29,15 @@ public class WhileStatement extends ConditionalStatement implements Breakable{
 		if(!context.isReturning() && context.isBreaking())
 			context.stopBreaking();
 		return false;
+	}
+
+	@Override
+	public void onBreak(ExecutionContext executionContext) {
+		executionContext.setBreak();
+	}
+
+	@Override
+	public boolean isValidInterruptStatement(Statement s) {
+		return s instanceof BreakStatement;
 	}
 }

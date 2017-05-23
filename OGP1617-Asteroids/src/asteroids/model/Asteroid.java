@@ -57,7 +57,7 @@ public class Asteroid extends MinorPlanet{
 	}
 
 	/**
-	 * The mass density for any Asteroid in kilograms per cubic kilometre.
+	 * The mass density for any Asteroid in kilograms per cubic kilometer.
 	 */
 	public static final double ASTEROID_MASS_DENSITY = 2.65e12;
 	

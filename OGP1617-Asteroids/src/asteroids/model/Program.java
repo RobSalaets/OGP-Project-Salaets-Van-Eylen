@@ -37,6 +37,11 @@ public class Program{
 		context.addExecTime(dt);
 		body.execute(context);
 		context.clearStack();
-		return body.hasFullyExecuted() ? context.getPrintLog() : null;
+		if(body.hasFullyExecuted()){
+			List<Object> log = context.getPrintLog();
+			context.clearPrintLog();
+			return log;
+		}
+		return null;
 	}
 }

@@ -5,10 +5,11 @@ import java.util.List;
 import asteroids.model.programs.exceptions.ProgramExecutionTimeException;
 import asteroids.model.programs.expressions.types.Type;
 import asteroids.model.programs.statements.BlockStatement;
+import asteroids.model.programs.statements.ReturnStatement;
 import asteroids.model.programs.statements.Statement;
 import asteroids.part3.programs.SourceLocation;
 
-public class Function implements Breakable{
+public class Function implements Interruptable{
 	
 	public Function(String functionName, Statement body, SourceLocation sourceLocation) throws IllegalArgumentException{
 		if(body == null || sourceLocation == null)
@@ -57,6 +58,17 @@ public class Function implements Breakable{
 	private final String name;
 	
 	private final BlockStatement body;
+	
+	@Override
+	public void onBreak(ExecutionContext executionContext) {
+		executionContext.setBreak();
+		executionContext.setReturn();
+	}
+	
+	@Override
+	public boolean isValidInterruptStatement(Statement s) {
+		return s instanceof ReturnStatement;
+	}
 
 	public Function getNew(){
 		return new Function(getName(), body, getSourceLocation());

@@ -25,24 +25,24 @@ import asteroids.part3.facade.IFacade;
 import asteroids.facade.Facade;
 import asteroids.util.ModelException;
 
-public class Part3ExtraTestSuite{
+public class Part3ExtraTestSuite {
 
 	private static final double EPSILON = 0.0001;
 
 	IFacade facade;
 
 	@Before
-	public void setUp(){
+	public void setUp() {
 		facade = new Facade();
 	}
 
-	private static void assertEqualsVector(Vector2d target, Vector2d actual, double range){
+	private static void assertEqualsVector(Vector2d target, Vector2d actual, double range) {
 		assertEquals(target.getX(), actual.getX(), range);
 		assertEquals(target.getY(), actual.getY(), range);
 	}
 
 	@Test
-	public void testCreateWorld() throws ModelException{
+	public void testCreateWorld() throws ModelException {
 		World world = facade.createWorld(1000, 800);
 		assertEquals(1000, facade.getWorldSize(world)[0], EPSILON);
 		assertEquals(800, facade.getWorldSize(world)[1], EPSILON);
@@ -51,7 +51,7 @@ public class Part3ExtraTestSuite{
 	}
 
 	@Test
-	public void testLoadBulletOnShipOverlappingBullets() throws ModelException{
+	public void testLoadBulletOnShipOverlappingBullets() throws ModelException {
 		Ship ship = facade.createShip(100, 120, 10, 5, 500, 0, 1.0E20);
 		Bullet bullet1 = facade.createBullet(100, 120, 10, 5, 50);
 		Bullet bullet2 = facade.createBullet(130, 110, 10, 5, 30);
@@ -61,10 +61,10 @@ public class Part3ExtraTestSuite{
 	}
 
 	@Test
-	public void testEvolveShipWithActiveThruster() throws ModelException{
+	public void testEvolveShipWithActiveThruster() throws ModelException {
 		World world = facade.createWorld(5000, 5000);
 		Ship ship = facade.createShip(100, 120, 10, 0, 50, Math.PI, 1.1E18);
-		ship = new Ship(100, 120, 10, 0,  Math.PI, 50, 1.1E18, 1.1e21);
+		ship = new Ship(100, 120, 10, 0, Math.PI, 50, 1.1E18, 1.1e21);
 		facade.addShipToWorld(world, ship);
 		facade.setThrusterActive(ship, true);
 		assertEquals(1000.0, facade.getShipAcceleration(ship), EPSILON);
@@ -75,7 +75,7 @@ public class Part3ExtraTestSuite{
 	}
 
 	@Test
-	public void testCreateEntity() throws ModelException{
+	public void testCreateEntity() throws ModelException {
 		Bullet entity1 = facade.createBullet(100.0, 200.0, 10.0, -10.0, 20.0);
 		Ship entity2 = facade.createShip(200.0, 300.0, 10.0, -10.0, 20.0, 0.0, 8e16);
 		assertNotNull(entity1);
@@ -115,7 +115,7 @@ public class Part3ExtraTestSuite{
 	// }
 
 	@Test
-	public void testCreateEntityExceedingVelocity() throws ModelException{
+	public void testCreateEntityExceedingVelocity() throws ModelException {
 		Bullet entity = facade.createBullet(100.0, 200.0, 300001.0, -10.0, 20.0);
 		assertNotNull(entity);
 		double[] velocity = facade.getBulletVelocity(entity);
@@ -125,17 +125,17 @@ public class Part3ExtraTestSuite{
 	}
 
 	@Test(expected = ModelException.class)
-	public void testCreateEntityRadiusNegative() throws ModelException{
+	public void testCreateEntityRadiusNegative() throws ModelException {
 		facade.createShip(200.0, 300.0, 10.0, -10.0, -200.0, 0.0, 8e16);
 	}
 
 	@Test(expected = ModelException.class)
-	public void testCreateEntityRadiusInsufficient() throws ModelException{
+	public void testCreateEntityRadiusInsufficient() throws ModelException {
 		facade.createShip(200.0, 300.0, 10.0, -10.0, 9.0, 0.0, 8e16);
 	}
 
 	@Test
-	public void testCreateEntityMassTooLow() throws ModelException{
+	public void testCreateEntityMassTooLow() throws ModelException {
 		Ship ship = facade.createShip(200.0, 300.0, 10.0, -10.0, 500.0, 0.0, 1e8);
 		assertNotNull(ship);
 		assertEquals(ship.getLowestMassDensity() * 4.0 / 3.0 * Math.PI * Math.pow(500, 3), ship.getMass(), EPSILON);
@@ -143,7 +143,7 @@ public class Part3ExtraTestSuite{
 	}
 
 	@Test
-	public void testCreateShip() throws ModelException{
+	public void testCreateShip() throws ModelException {
 		Ship ship = new Ship(200.0, 300.0, 10.0, -10.0, 0.0, 20.0, 8e16);
 		Ship ship2 = new Ship(200.0, 300.0, 10.0, -10.0, 0.0, 20.0, 8e16, null, 1);
 		assertNotNull(ship);
@@ -155,17 +155,17 @@ public class Part3ExtraTestSuite{
 	}
 
 	@Test(expected = ModelException.class)
-	public void testCreateShipOrientationExceeds() throws ModelException{
+	public void testCreateShipOrientationExceeds() throws ModelException {
 		facade.createShip(200.0, 300.0, 10.0, -10.0, 20.0, 7.0, 8e16);
 	}
 
 	@Test(expected = ModelException.class)
-	public void testCreateShipOrientationNegative() throws ModelException{
+	public void testCreateShipOrientationNegative() throws ModelException {
 		facade.createShip(200.0, 300.0, 10.0, -10.0, 20.0, -1.0, 8e16);
 	}
-	
+
 	@Test
-	public void testShipTotalMass() throws ModelException{
+	public void testShipTotalMass() throws ModelException {
 		Ship ship = facade.createShip(200.0, 300.0, 10.0, -10.0, 20.0, 3.0, 20e20);
 		Bullet bullet = new Bullet(200, 300, 0, 0, 16, null);
 		assertNotNull(ship);
@@ -173,9 +173,9 @@ public class Part3ExtraTestSuite{
 		facade.loadBulletOnShip(ship, bullet);
 		assertEquals(20e20 + bullet.getMass(), ship.getTotalMass(), EPSILON);
 	}
-	
+
 	@Test
-	public void testShipTotalMassAfterFiringABullet() throws ModelException{
+	public void testShipTotalMassAfterFiringABullet() throws ModelException {
 		World world = facade.createWorld(1000, 1000);
 		Ship ship = facade.createShip(200.0, 300.0, 10.0, -10.0, 20.0, 3.0, 20e20);
 		facade.addShipToWorld(world, ship);
@@ -185,24 +185,24 @@ public class Part3ExtraTestSuite{
 		facade.loadBulletOnShip(ship, bullet);
 		assertEquals(20e20 + bullet.getMass(), ship.getTotalMass(), EPSILON);
 		facade.fireBullet(ship);
-		assertEquals(20e20,ship.getTotalMass(),EPSILON);
+		assertEquals(20e20, ship.getTotalMass(), EPSILON);
 	}
-	
+
 	@Test
-	public void testShipAcceleration() throws ModelException{
+	public void testShipAcceleration() throws ModelException {
 		Ship ship = facade.createShip(200.0, 300.0, 10.0, -10.0, 20.0, 3.0, 20e20);
 		Bullet bullet = new Bullet(200, 300, 0, 0, 16, null);
 		assertNotNull(ship);
 		assertNotNull(bullet);
 		facade.loadBulletOnShip(ship, bullet);
 		ship.thrustOn();
-		assertEquals(Ship.DEFAULT_THRUST_FORCE/ (20e20 + bullet.getMass()), ship.getAcceleration(), EPSILON);
+		assertEquals(Ship.DEFAULT_THRUST_FORCE / (20e20 + bullet.getMass()), ship.getAcceleration(), EPSILON);
 		ship.thrustOff();
 		assertEquals(0.0, ship.getAcceleration(), EPSILON);
 	}
-	
+
 	@Test
-	public void testCreateBullet() throws ModelException{
+	public void testCreateBullet() throws ModelException {
 		Ship ship = facade.createShip(0, 0, 0, 0, 200, 0.0, 20e18);
 		Bullet bullet = facade.createBullet(1, 1, 1, 1, 10);
 		Bullet bullet2 = new Bullet(1, 1, 1, 1, 10, ship, 4);
@@ -215,26 +215,26 @@ public class Part3ExtraTestSuite{
 		assertEqualsVector(bullet2.getPosition(), Vector2d.ZERO, EPSILON);
 		assertEqualsVector(bullet2.getVelocity(), Vector2d.ZERO, EPSILON);
 	}
-	
+
 	@Test(expected = ModelException.class)
-	public void testCreateBulletNegativeMaxBCollisions() throws ModelException{
-		try{
+	public void testCreateBulletNegativeMaxBCollisions() throws ModelException {
+		try {
 			new Bullet(1, 1, 1, 1, 10, null, -4);
-		}catch(AssertionError e){
+		} catch (AssertionError e) {
 			throw new ModelException(e);
 		}
 	}
-	
+
 	@Test
-	public void testIncrementBulletBCollisionCount() throws ModelException{
+	public void testIncrementBulletBCollisionCount() throws ModelException {
 		Bullet bullet = new Bullet(0, 0, 0, 0, 15, null, 5);
 		assertNotNull(bullet);
 		bullet.incrementBoundaryCollisionCount();
 		assertEquals(1, bullet.getBoundaryCollisionCount());
 	}
-	
+
 	@Test
-	public void testMove() throws ModelException{
+	public void testMove() throws ModelException {
 		Ship ship = facade.createShip(500, 500, 0, 123, 200, 0.0, 20e18);
 		ship.move(1);
 		double[] position = facade.getShipPosition(ship);
@@ -244,30 +244,30 @@ public class Part3ExtraTestSuite{
 	}
 
 	@Test(expected = ModelException.class)
-	public void testMoveNegativeTimeDelta() throws ModelException{
+	public void testMoveNegativeTimeDelta() throws ModelException {
 		Ship ship = facade.createShip(500, 500, 0, 0, 200, 0.0, 20e18);
-		try{
-			ship.move(-1);			
-		}catch(IllegalArgumentException e){
+		try {
+			ship.move(-1);
+		} catch (IllegalArgumentException e) {
 			throw new ModelException(e);
 		}
 	}
 
 	@Test
-	public void testTurn() throws ModelException{
+	public void testTurn() throws ModelException {
 		Ship ship = facade.createShip(500, 500, 0, 0, 200, 0.0, 20e18);
 		facade.turn(ship, Math.PI / 4.0);
 		assertEquals(Math.PI / 4.0, facade.getShipOrientation(ship), EPSILON);
 	}
 
 	@Test(expected = ModelException.class)
-	public void testTurnAngleExceeds() throws ModelException{
+	public void testTurnAngleExceeds() throws ModelException {
 		Ship ship = facade.createShip(500, 500, 0, 0, 200, 0.0, 20e18);
 		facade.turn(ship, 20);
 	}
 
 	@Test
-	public void testThrust() throws ModelException{
+	public void testThrust() throws ModelException {
 		World world = facade.createWorld(1000, 1000);
 		Ship ship = facade.createShip(500, 500, 0, 0, 200, 0.0, 20e18);
 		facade.addShipToWorld(world, ship);
@@ -280,7 +280,7 @@ public class Part3ExtraTestSuite{
 	}
 
 	@Test(expected = ModelException.class)
-	public void testThrustNegativeAmount() throws ModelException{
+	public void testThrustNegativeAmount() throws ModelException {
 		World world = facade.createWorld(1000, 1000);
 		Ship ship = facade.createShip(500, 500, 0, 0, 200, 0.0, 20e18);
 		facade.addShipToWorld(world, ship);
@@ -289,7 +289,7 @@ public class Part3ExtraTestSuite{
 	}
 
 	@Test
-	public void testThrustVelocityExceeds() throws ModelException{
+	public void testThrustVelocityExceeds() throws ModelException {
 		Ship ship = facade.createShip(500, 500, 299999, 0, 200, 0.0, 5e14);
 		World world = facade.createWorld(1e13, 1000);
 		facade.addShipToWorld(world, ship);
@@ -302,35 +302,35 @@ public class Part3ExtraTestSuite{
 	}
 
 	@Test
-	public void testDistanceBetween() throws ModelException{
+	public void testDistanceBetween() throws ModelException {
 		Ship ship1 = facade.createShip(0, 0, 0, 0, 200, 0.0, 20e18);
 		Ship ship2 = facade.createShip(400, 0, 0, 0, 100, 0.0, 20e18);
 		assertEquals(100, facade.getDistanceBetween(ship1, ship2), EPSILON);
 	}
 
 	@Test(expected = ModelException.class)
-	public void testDistanceBetweenNull() throws ModelException{
+	public void testDistanceBetweenNull() throws ModelException {
 		Ship ship1 = facade.createShip(500, 500, 0, 0, 200, 0.0, 20e18);
 		Ship ship2 = null;
 		facade.getDistanceBetween(ship1, ship2);
 	}
 
 	@Test
-	public void testOverlaps() throws ModelException{
+	public void testOverlaps() throws ModelException {
 		Ship ship1 = facade.createShip(0, 0, 0, 0, 200, 0.0, 20e18);
 		Ship ship2 = facade.createShip(400, 0, 0, 0, 500, 0.0, 20e18);
 		assertTrue(facade.overlap(ship1, ship2));
 	}
 
 	@Test(expected = ModelException.class)
-	public void testOverlapsNull() throws ModelException{
+	public void testOverlapsNull() throws ModelException {
 		Ship ship1 = facade.createShip(500, 500, 0, 0, 200, 0.0, 20e18);
 		Ship ship2 = null;
 		facade.overlap(ship1, ship2);
 	}
 
 	@Test
-	public void testOverlapsWithAnyEntitiesWithActualOverlaps() throws ModelException{
+	public void testOverlapsWithAnyEntitiesWithActualOverlaps() throws ModelException {
 		World world = facade.createWorld(1000, 1000);
 		Bullet bullet1 = facade.createBullet(500, 500, 10, 5, 50);
 		Bullet bullet2 = facade.createBullet(500, 500, 10, 5, 50);
@@ -339,7 +339,7 @@ public class Part3ExtraTestSuite{
 	}
 
 	@Test
-	public void testOverlapsWithAnyEntitiesWithoutOverlaps() throws ModelException{
+	public void testOverlapsWithAnyEntitiesWithoutOverlaps() throws ModelException {
 		World world = facade.createWorld(1000, 1000);
 		Ship ship = facade.createShip(500, 500, 0, 10, 100, 0, 1.1E18);
 		Ship ship1 = facade.createShip(200, 200, 0, 10, 100, 0, 1.1E18);
@@ -353,7 +353,7 @@ public class Part3ExtraTestSuite{
 	}
 
 	@Test
-	public void testOverlapsWithAnyEntitiesWithoutAssociationWithTheSameWorld() throws ModelException{
+	public void testOverlapsWithAnyEntitiesWithoutAssociationWithTheSameWorld() throws ModelException {
 		World world = facade.createWorld(1000, 1000);
 		World world2 = facade.createWorld(1000, 1000);
 		Ship ship = facade.createShip(500, 500, 0, 10, 100, 0, 1.1E18);
@@ -363,9 +363,9 @@ public class Part3ExtraTestSuite{
 		assertTrue(world.overlapsWithAnyEntity(ship2).size() == 0);
 		assertTrue(world2.overlapsWithAnyEntity(ship).size() == 0);
 	}
-	
+
 	@Test
-	public void testCollisionInterShip() throws ModelException{
+	public void testCollisionInterShip() throws ModelException {
 		World world = facade.createWorld(10000, 10000);
 		Ship ship1 = new Ship(500, 500, 100, 0, 0, 100, 20e20, world, 20e20);
 		Ship ship2 = new Ship(1000, 500, -200, 0, Math.PI, 100, 20e20, world, 20e20);
@@ -385,9 +385,9 @@ public class Part3ExtraTestSuite{
 		assertEqualsVector(new Vector2d(-200, 0), ship1.getVelocity(), EPSILON);
 		assertEqualsVector(new Vector2d(100, 0), ship2.getVelocity(), EPSILON);
 	}
-	
+
 	@Test
-	public void testCollisionInterShipWithThrusters() throws ModelException{
+	public void testCollisionInterShipWithThrusters() throws ModelException {
 		World world = facade.createWorld(10000, 10000);
 		Ship ship1 = new Ship(200, 500, 100, 0, 0, 100, 20e20, world, 100e20);
 		Ship ship2 = new Ship(1000, 500, -200, 0, Math.PI, 100, 20e20, world, 100e20);
@@ -409,9 +409,9 @@ public class Part3ExtraTestSuite{
 		assertEqualsVector(new Vector2d(501.61290323, 500), ship1.getCollisionPosition(ship2), EPSILON);
 		assertEquals(0.967741935, ship2.getTimeToCollision(ship1), EPSILON);
 	}
-	
+
 	@Test
-	public void testCollisionInterEntity() throws ModelException{
+	public void testCollisionInterEntity() throws ModelException {
 		World world = facade.createWorld(10000, 10000);
 		Ship ship1 = new Ship(200, 500, 100, 0, 0, 100, 20e20, world, 100e20);
 		Ship ship2 = new Ship(1000, 500, -150, 0, Math.PI, 100, 20e20, world, 100e20);
@@ -435,9 +435,9 @@ public class Part3ExtraTestSuite{
 		assertTrue(bullet.isTerminated());
 		assertEquals(CollisionType.BOUNDARY, world.getNextCollision().getCollisionType());
 	}
-	
+
 	@Test
-	public void testCollisionBoundary() throws ModelException{
+	public void testCollisionBoundary() throws ModelException {
 		World world = facade.createWorld(1000, 1000);
 		Ship ship = new Ship(200, 500, 0, 100, 0, 100, 20e20, world, 100e20);
 		Bullet bullet = new Bullet(500, 500, 0, 200, 10, world);
@@ -455,9 +455,9 @@ public class Part3ExtraTestSuite{
 		world.evolve(2.5 + 4.95 * (Bullet.DEFAULT_MAX_BOUNDARY_COLLISIONS - 1));
 		assertTrue(bullet.isTerminated());
 	}
-	
+
 	@Test
-	public void testCollisionUndefined() throws ModelException{
+	public void testCollisionUndefined() throws ModelException {
 		World world1 = facade.createWorld(1000, 1000);
 		Ship stationaryShip = new Ship(500, 500, 0, 0, 0, 100, 20e20, world1, 100e20);
 		new Bullet(500, 700, 450, 0, 50, world1);
@@ -469,9 +469,9 @@ public class Part3ExtraTestSuite{
 		assertEquals(CollisionData.UNDEFINED_COLLISION, unBoundedBullet.getBoundaryCollisionData());
 		assertEquals(CollisionData.UNDEFINED_COLLISION, loadedBullet.getBoundaryCollisionData());
 	}
-	
+
 	@Test
-	public void testCollisionBulletSource() throws ModelException{
+	public void testCollisionBulletSource() throws ModelException {
 		World world1 = facade.createWorld(1000, 1000);
 		Ship ship = new Ship(500, 500, 0, 0, 0, 100, 20e20, world1, 100e20);
 		Bullet bullet = new Bullet(0, 0, 450, 0, 50, ship);
@@ -490,9 +490,9 @@ public class Part3ExtraTestSuite{
 		assertTrue(!ship.isTerminated());
 		assertTrue(!bullet.isTerminated());
 	}
-	
+
 	@Test
-	public void testTimeToCollisionNoCollision() throws ModelException{
+	public void testTimeToCollisionNoCollision() throws ModelException {
 		Ship ship1 = facade.createShip(200.0, 300.0, 10.0, -10.0, 100.0, 0.0, 8e18);
 		Ship ship2 = facade.createShip(400.0, 300.0, 10.0, -10.0, 100.0, 0.0, 8e18);
 		World world = facade.createWorld(5000, 5000);
@@ -503,28 +503,28 @@ public class Part3ExtraTestSuite{
 	}
 
 	@Test(expected = ModelException.class)
-	public void testTimeToCollisionNullCase() throws ModelException{
+	public void testTimeToCollisionNullCase() throws ModelException {
 		Ship ship1 = facade.createShip(200.0, 300.0, 10.0, -10.0, 200.0, 0.0, 8e16);
 		Bullet bullet1 = null;
 		facade.getTimeCollisionEntity(ship1, bullet1);
 	}
 
 	@Test(expected = ModelException.class)
-	public void testTimeToCollisionOverlappingShips() throws ModelException{
+	public void testTimeToCollisionOverlappingShips() throws ModelException {
 		Ship ship1 = facade.createShip(200.0, 300.0, 10.0, -10.0, 200.0, 0.0, 8e16);
 		Ship ship2 = facade.createShip(205.0, 300.0, 10.0, -10.0, 200.0, 0.0, 8e16);
 		facade.getTimeCollisionEntity(ship1, ship2);
 	}
-	
+
 	@Test(expected = ModelException.class)
-	public void testCollisionPositionNullCase() throws ModelException{
+	public void testCollisionPositionNullCase() throws ModelException {
 		Ship ship1 = facade.createShip(200.0, 300.0, 10.0, -10.0, 200.0, 0.0, 8e16);
 		Ship ship2 = null;
 		facade.getPositionCollisionEntity(ship1, ship2);
 	}
-	
+
 	@Test
-	public void testCollisionPositionNoCollision() throws ModelException{
+	public void testCollisionPositionNoCollision() throws ModelException {
 		Ship ship1 = facade.createShip(200.0, 300.0, 10.0, -10.0, 100.0, 0.0, 8e18);
 		Ship ship2 = facade.createShip(500.0, 300.0, 10.0, -10.0, 100.0, 0.0, 8e18);
 		World world = facade.createWorld(5000, 5000);
@@ -532,16 +532,16 @@ public class Part3ExtraTestSuite{
 		facade.addShipToWorld(world, ship2);
 		assertNull(facade.getPositionCollisionEntity(ship1, ship2));
 	}
-	
+
 	@Test(expected = ModelException.class)
-	public void testCollisionPositionOverlappingShips() throws ModelException{
+	public void testCollisionPositionOverlappingShips() throws ModelException {
 		Ship ship1 = facade.createShip(300.0, 300.0, 10.0, -10.0, 200.0, 0.0, 8e18);
 		Ship ship2 = facade.createShip(500.0, 300.0, 10.0, -10.0, 200.0, 0.0, 8e18);
 		facade.getCollisionPosition(ship1, ship2);
 	}
-	
+
 	@Test
-	public void testLoadNormalBullets() throws ModelException{
+	public void testLoadNormalBullets() throws ModelException {
 		Ship ship = facade.createShip(100, 120, 10, 5, 500, 0, 1.0E20);
 		Bullet bullet1 = facade.createBullet(300, 300, 10, 5, 50);
 		Bullet bullet2 = facade.createBullet(250, 250, 10, 5, 30);
@@ -555,7 +555,7 @@ public class Part3ExtraTestSuite{
 	}
 
 	@Test(expected = ModelException.class)
-	public void testLoadInvalidBullets() throws ModelException{
+	public void testLoadInvalidBullets() throws ModelException {
 		Ship ship = facade.createShip(100, 120, 10, 5, 500, 0, 1.0E20);
 		Ship ship2 = facade.createShip(200, 300, 10, 5, 500, 0, 1.0E20);
 		Bullet bullet1 = facade.createBullet(500, 500, 10, 5, 50);
@@ -571,7 +571,7 @@ public class Part3ExtraTestSuite{
 	}
 
 	@Test
-	public void testLoadListOfBullets() throws ModelException{
+	public void testLoadListOfBullets() throws ModelException {
 		Ship ship = facade.createShip(100, 120, 10, 5, 500, 0, 1.0E20);
 		Bullet bullet1 = facade.createBullet(100, 120, 10, 5, 50);
 		Bullet bullet2 = facade.createBullet(400, 400, 10, 5, 30);
@@ -591,7 +591,7 @@ public class Part3ExtraTestSuite{
 	}
 
 	@Test
-	public void testFireBulletWhenShipIsNotAPartOffAWorld() throws ModelException{
+	public void testFireBulletWhenShipIsNotAPartOffAWorld() throws ModelException {
 		Ship ship = facade.createShip(100, 120, 10, 5, 500, 0, 1.0E20);
 		Bullet bullet1 = facade.createBullet(300, 300, 10, 5, 50);
 		Bullet bullet2 = facade.createBullet(250, 250, 10, 5, 30);
@@ -611,7 +611,7 @@ public class Part3ExtraTestSuite{
 	}
 
 	@Test
-	public void testFireBulletWhenShipHasNoBullets() throws ModelException{
+	public void testFireBulletWhenShipHasNoBullets() throws ModelException {
 		World world = facade.createWorld(1000, 1000);
 		Ship ship = facade.createShip(500, 500, 10, 5, 100, 0, 1.0E20);
 		facade.addShipToWorld(world, ship);
@@ -623,7 +623,7 @@ public class Part3ExtraTestSuite{
 	}
 
 	@Test
-	public void testFireBulletWhenFiredBulletIsOutsideWorldBoundaries() throws ModelException{
+	public void testFireBulletWhenFiredBulletIsOutsideWorldBoundaries() throws ModelException {
 		World world = facade.createWorld(1000, 1000);
 		Ship ship = facade.createShip(900, 100, 10, 5, 80, 0, 1.0E20);
 		facade.addShipToWorld(world, ship);
@@ -634,7 +634,7 @@ public class Part3ExtraTestSuite{
 	}
 
 	@Test
-	public void testFireBulletWhichResultsInImmediateCollisionWithAnotherShip() throws ModelException{
+	public void testFireBulletWhichResultsInImmediateCollisionWithAnotherShip() throws ModelException {
 		World world = facade.createWorld(1000, 1000);
 		Ship ship = facade.createShip(500, 500, 10, 5, 50, 0, 1.0E20);
 		Ship ship2 = facade.createShip(600, 500, 10, 5, 45, 0, 1.0E20);
@@ -650,7 +650,7 @@ public class Part3ExtraTestSuite{
 	}
 
 	@Test
-	public void testFireBullet() throws ModelException{
+	public void testFireBullet() throws ModelException {
 		World world = facade.createWorld(1000, 1000);
 		Ship ship = facade.createShip(500, 500, 10, 5, 50, 0, 1.0E20);
 		facade.addShipToWorld(world, ship);
@@ -662,7 +662,7 @@ public class Part3ExtraTestSuite{
 	}
 
 	@Test
-	public void testFireBulletMultipleBullets() throws ModelException{
+	public void testFireBulletMultipleBullets() throws ModelException {
 		World world = facade.createWorld(1000, 1000);
 		Ship ship = facade.createShip(500, 500, 10, 5, 200, 0, 1.0E20);
 		facade.addShipToWorld(world, ship);
@@ -680,12 +680,12 @@ public class Part3ExtraTestSuite{
 		facade.fireBullet(ship);
 		facade.fireBullet(ship);
 		facade.fireBullet(ship);
-		for(Bullet b : bullets)
+		for (Bullet b : bullets)
 			assertTrue(b.isTerminated());
 	}
 
 	@Test
-	public void testGetEntities_Ships_Bullets() throws ModelException{
+	public void testGetEntities_Ships_Bullets() throws ModelException {
 		World world = facade.createWorld(1000, 1000);
 		Ship ship = facade.createShip(500, 500, 10, 5, 50, 0, 1.0E20);
 		facade.addShipToWorld(world, ship);
@@ -708,7 +708,7 @@ public class Part3ExtraTestSuite{
 	}
 
 	@Test
-	public void testGetEntities_Ships_Bullets_WhenBulletsAreLoaded() throws ModelException{
+	public void testGetEntities_Ships_Bullets_WhenBulletsAreLoaded() throws ModelException {
 		World world = facade.createWorld(1000, 1000);
 		Ship ship = facade.createShip(500, 500, 10, 5, 50, 0, 1.0E20);
 		facade.addShipToWorld(world, ship);
@@ -735,7 +735,7 @@ public class Part3ExtraTestSuite{
 	}
 
 	@Test
-	public void testContainerAssociationByConstructor() throws ModelException{
+	public void testContainerAssociationByConstructor() throws ModelException {
 		World worldContainer = facade.createWorld(10000, 10000);
 		Ship shipContainer = facade.createShip(500, 500, 0, 0, 200, 0, 15e20);
 		assertTrue(worldContainer.hasProperItems());
@@ -749,9 +749,9 @@ public class Part3ExtraTestSuite{
 		assertTrue(worldContainer.hasAsItem(shipItem));
 		assertTrue(shipContainer.hasAsItem(bulletItem2));
 	}
-	
+
 	@Test
-	public void testContainerAddItem() throws ModelException{
+	public void testContainerAddItem() throws ModelException {
 		World worldContainer = facade.createWorld(10000, 10000);
 		Ship shipContainer = facade.createShip(500, 500, 0, 0, 200, 0, 15e20);
 		Bullet bulletItem = new Bullet(400, 400, 200, 200, 5, null);
@@ -766,69 +766,69 @@ public class Part3ExtraTestSuite{
 		assertTrue(worldContainer.hasAsItem(shipItem));
 		assertTrue(shipContainer.hasAsItem(bulletItem2));
 	}
-	
+
 	@Test(expected = ModelException.class)
-	public void testContainerAddItemNull() throws ModelException{
+	public void testContainerAddItemNull() throws ModelException {
 		World worldContainer = facade.createWorld(10000, 10000);
-		try{
+		try {
 			worldContainer.addItem(null);
-		}catch(IllegalArgumentException ex){
+		} catch (IllegalArgumentException ex) {
 			throw new ModelException(ex);
 		}
 	}
-	
+
 	@Test(expected = ModelException.class)
-	public void testContainerAddItemTerminated() throws ModelException{
+	public void testContainerAddItemTerminated() throws ModelException {
 		World worldContainer = facade.createWorld(10000, 10000);
 		Bullet bullet = new Bullet(200, 200, 200, 200, 5, worldContainer);
 		bullet.terminate();
 		facade.addBulletToWorld(worldContainer, bullet);
 	}
-	
+
 	@Test(expected = ModelException.class)
-	public void testContainerAddItemWorldTerminated() throws ModelException{
+	public void testContainerAddItemWorldTerminated() throws ModelException {
 		World worldContainer = facade.createWorld(10000, 10000);
 		Bullet bullet = new Bullet(200, 200, 200, 200, 5, worldContainer);
 		worldContainer.terminate();
 		facade.addBulletToWorld(worldContainer, bullet);
 	}
-	
+
 	@Test(expected = ModelException.class)
-	public void testContainerAddItemOutOfBounds() throws ModelException{
+	public void testContainerAddItemOutOfBounds() throws ModelException {
 		World worldContainer = facade.createWorld(10000, 10000);
 		Bullet bullet = new Bullet(-1, -2, 200, 200, 5, null);
 		facade.addBulletToWorld(worldContainer, bullet);
 	}
-	
+
 	@Test(expected = ModelException.class)
-	public void testContainerAddItemInvalidType() throws ModelException{
+	public void testContainerAddItemInvalidType() throws ModelException {
 		Ship shipContainer = facade.createShip(500, 500, 0, 0, 200, 0, 15e20);
 		Ship shipItem = facade.createShip(500, 500, 0, 0, 200, 0, 15e20);
-		try{
-			shipItem.setContainer(shipContainer);	
+		try {
+			shipItem.setContainer(shipContainer);
 			shipContainer.addItem(shipItem);
-		}catch(IllegalArgumentException ex){
+		} catch (IllegalArgumentException ex) {
 			throw new ModelException(ex);
 		}
 	}
-	
+
 	@Test(expected = ModelException.class)
-	public void testContainerAddItemOverlapping() throws ModelException{
+	public void testContainerAddItemOverlapping() throws ModelException {
 		World worldContainer = facade.createWorld(10000, 10000);
 		new Bullet(500, 500, 200, 200, 5, worldContainer);
 		Ship shipItem = facade.createShip(500, 500, 0, 0, 200, 0, 15e20);
 		facade.addShipToWorld(worldContainer, shipItem);
 	}
-	
+
 	@Test(expected = ModelException.class)
-	public void testContainerAddItemSame() throws ModelException{
+	public void testContainerAddItemSame() throws ModelException {
 		World worldContainer = facade.createWorld(10000, 10000);
 		Bullet bullet = new Bullet(500, 500, 200, 200, 5, worldContainer);
 		facade.addBulletToWorld(worldContainer, bullet);
 	}
-	
+
 	@Test
-	public void testContainerRemoveItem() throws ModelException{
+	public void testContainerRemoveItem() throws ModelException {
 		World worldContainer = facade.createWorld(10000, 10000);
 		Ship shipContainer = facade.createShip(500, 500, 0, 0, 200, 0, 15e20);
 		Bullet bulletItem = new Bullet(200, 200, 200, 200, 5, worldContainer);
@@ -853,42 +853,42 @@ public class Part3ExtraTestSuite{
 		assertTrue(shipContainer.hasProperItems());
 		assertTrue(!shipContainer.hasAsItem(bulletItem2));
 	}
-	
+
 	@Test(expected = ModelException.class)
-	public void testContainerRemoveItemNull() throws ModelException{
+	public void testContainerRemoveItemNull() throws ModelException {
 		World worldContainer = facade.createWorld(10000, 10000);
-		try{
-			worldContainer.removeItem(null);			
-		}catch(IllegalArgumentException ex){
+		try {
+			worldContainer.removeItem(null);
+		} catch (IllegalArgumentException ex) {
 			throw new ModelException(ex);
 		}
 	}
-	
+
 	@Test(expected = ModelException.class)
-	public void testContainerRemoveItemHasContainer() throws ModelException{
+	public void testContainerRemoveItemHasContainer() throws ModelException {
 		World worldContainer = facade.createWorld(10000, 10000);
 		Bullet bulletItem = new Bullet(200, 200, 200, 200, 5, worldContainer);
-		try{
-			worldContainer.removeItem(bulletItem);			
-		}catch(IllegalArgumentException ex){
+		try {
+			worldContainer.removeItem(bulletItem);
+		} catch (IllegalArgumentException ex) {
 			throw new ModelException(ex);
 		}
 	}
-	
+
 	@Test(expected = ModelException.class)
-	public void testContainerRemoveItemHasOtherContainer() throws ModelException{
+	public void testContainerRemoveItemHasOtherContainer() throws ModelException {
 		World worldContainer = facade.createWorld(10000, 10000);
 		Ship shipContainer = facade.createShip(500, 500, 0, 0, 200, 0, 15e20);
 		Bullet bulletItem = new Bullet(200, 200, 200, 200, 5, shipContainer);
-		try{
-			worldContainer.removeItem(bulletItem);			
-		}catch(IllegalArgumentException ex){
+		try {
+			worldContainer.removeItem(bulletItem);
+		} catch (IllegalArgumentException ex) {
 			throw new ModelException(ex);
 		}
 	}
-	
+
 	@Test
-	public void testTerminateBullet() throws ModelException{
+	public void testTerminateBullet() throws ModelException {
 		World worldContainer = facade.createWorld(10000, 10000);
 		Ship shipContainer = facade.createShip(500, 500, 0, 0, 200, 0, 15e20);
 		Bullet bulletItem = new Bullet(200, 200, 200, 200, 5, worldContainer);
@@ -906,9 +906,9 @@ public class Part3ExtraTestSuite{
 		assertTrue(!shipContainer.hasAsItem(bulletItem2));
 		assertEquals(0, shipContainer.getNbItems());
 	}
-	
+
 	@Test
-	public void testTerminateShip() throws ModelException{
+	public void testTerminateShip() throws ModelException {
 		World worldContainer = facade.createWorld(10000, 10000);
 		Ship ship = new Ship(800, 800, 800, 800, 3, 30, 12e18, worldContainer, 1);
 		Bullet bulletItem = new Bullet(200, 200, 200, 200, 5, ship);
@@ -923,12 +923,12 @@ public class Part3ExtraTestSuite{
 		assertTrue(!ship.hasAsItem(bulletItem2));
 		assertEquals(0, ship.getNbItems());
 		assertTrue(!worldContainer.isTerminated());
-		for(Bullet b : ship.getBullets())
+		for (Bullet b : ship.getBullets())
 			assertTrue(!b.isTerminated());
 	}
-	
+
 	@Test
-	public void testTerminateWorld() throws ModelException{
+	public void testTerminateWorld() throws ModelException {
 		World worldContainer = facade.createWorld(10000, 10000);
 		Ship ship = new Ship(800, 800, 800, 800, 3, 30, 12e18, worldContainer, 1);
 		Bullet bulletItem = new Bullet(200, 200, 200, 200, 5, worldContainer);
@@ -944,27 +944,27 @@ public class Part3ExtraTestSuite{
 		assertTrue(!ship.isTerminated());
 		assertTrue(!bulletItem.isTerminated());
 	}
-	
+
 	@Test
-	public void testBoundsWorld() throws ModelException{
+	public void testBoundsWorld() throws ModelException {
 		World worldContainer = facade.createWorld(10000, 10000);
-		assertTrue(worldContainer.isInBounds(new Vector2d(50,50), 50));
-		assertTrue(worldContainer.isInBounds(new Vector2d(9950,9950), 50));
+		assertTrue(worldContainer.isInBounds(new Vector2d(50, 50), 50));
+		assertTrue(worldContainer.isInBounds(new Vector2d(9950, 9950), 50));
 		assertTrue(!worldContainer.isInBounds(Vector2d.ZERO, 5));
 		assertTrue(!worldContainer.isInBounds(new Vector2d(15000, 500), 2e6));
 	}
-	
+
 	@Test
-	public void testBoundsShip() throws ModelException{
+	public void testBoundsShip() throws ModelException {
 		Ship shipContainer = facade.createShip(500, 500, 0, 0, 200, 0, 15e20);
-		assertTrue(shipContainer.isInBounds(new Vector2d(500,500), 200));
-		assertTrue(shipContainer.isInBounds(new Vector2d(600,500), 100));
+		assertTrue(shipContainer.isInBounds(new Vector2d(500, 500), 200));
+		assertTrue(shipContainer.isInBounds(new Vector2d(600, 500), 100));
 		assertTrue(!shipContainer.isInBounds(Vector2d.ZERO, 5));
 		assertTrue(!shipContainer.isInBounds(new Vector2d(500, 500), 2e6));
 	}
-	
+
 	@Test
-	public void testIsCollidingBounds() throws ModelException{
+	public void testIsCollidingBounds() throws ModelException {
 		World worldContainer = facade.createWorld(10000, 10000);
 		Ship ship = new Ship(800, 800, 800, 800, 3, 30, 12e18, worldContainer, 1);
 		worldContainer.evolve(worldContainer.getNextBoundaryCollision().getTimeToCollision());
@@ -972,24 +972,27 @@ public class Part3ExtraTestSuite{
 		worldContainer.evolve(1);
 		assertTrue(!worldContainer.isEntityCollidingBounds(ship.getPosition(), ship.getRadius()));
 	}
-	
+
 	@Test
-	public void testVector2d() throws ModelException{
+	public void testVector2d() throws ModelException {
 		Vector2d a = new Vector2d(1, 2.2);
-		assertEqualsVector(new Vector2d(0, Math.PI + 2.2), a.add(new Vector2d(-1,Math.PI)), EPSILON);
+		assertEqualsVector(new Vector2d(0, Math.PI + 2.2), a.add(new Vector2d(-1, Math.PI)), EPSILON);
 		assertEqualsVector(new Vector2d(-5, 4.4), a.mul(new Vector2d(-5, 2)), EPSILON);
 		assertEqualsVector(new Vector2d(0.1, 0.22), a.mul(0.1), EPSILON);
 		assertEqualsVector(new Vector2d(6, 0.2), a.sub(new Vector2d(-5, 2)), EPSILON);
-		assertEqualsVector(new Vector2d(Math.cos(Math.PI / 6), Math.sin(Math.PI / 6)), new Vector2d(Math.sqrt(3), 1).normalize(), EPSILON);
+		assertEqualsVector(new Vector2d(Math.cos(Math.PI / 6), Math.sin(Math.PI / 6)),
+				new Vector2d(Math.sqrt(3), 1).normalize(), EPSILON);
 		assertEquals(1, a.dot(Vector2d.X_AXIS), EPSILON);
 		assertEquals(Math.sqrt(1 + 2.2 * 2.2), a.getLength(), EPSILON);
 		assertEquals(1 + 2.2 * 2.2, a.getLengthSquared(), EPSILON);
 		assertEquals(-1, Vector2d.intersect(a, Vector2d.X_AXIS, Vector2d.ZERO, Vector2d.Y_AXIS), EPSILON);
-		assertEquals(1, Vector2d.intersect(new Vector2d(2,3), new Vector2d(1,2), new Vector2d(4,6), new Vector2d(1, 1)), EPSILON);
+		assertEquals(1,
+				Vector2d.intersect(new Vector2d(2, 3), new Vector2d(1, 2), new Vector2d(4, 6), new Vector2d(1, 1)),
+				EPSILON);
 	}
-	
+
 	@Test
-	public void testGetSource() throws ModelException{
+	public void testGetSource() throws ModelException {
 		Ship ship = facade.createShip(100, 120, 10, 5, 500, 0, 1.0E20);
 		Bullet bullet1 = facade.createBullet(300, 300, 10, 5, 50);
 		Bullet bullet2 = facade.createBullet(250, 250, 10, 5, 30);
@@ -999,14 +1002,14 @@ public class Part3ExtraTestSuite{
 		facade.loadBulletOnShip(ship, bullet2);
 		facade.loadBulletOnShip(ship, bullet3);
 		facade.loadBulletOnShip(ship, bullet4);
-		assertEquals(ship,bullet1.getSource());
-		assertEquals(ship,bullet2.getSource());
-		assertEquals(ship,bullet3.getSource());
-		assertEquals(ship,bullet4.getSource());
+		assertEquals(ship, bullet1.getSource());
+		assertEquals(ship, bullet2.getSource());
+		assertEquals(ship, bullet3.getSource());
+		assertEquals(ship, bullet4.getSource());
 	}
-	
+
 	@Test
-	public void testGetSourceWhenBulletFired() throws ModelException{
+	public void testGetSourceWhenBulletFired() throws ModelException {
 		Ship ship = facade.createShip(100, 120, 10, 5, 500, 0, 1.0E20);
 		Bullet bullet1 = facade.createBullet(300, 300, 10, 5, 50);
 		Bullet bullet2 = facade.createBullet(250, 250, 10, 5, 30);
@@ -1017,17 +1020,17 @@ public class Part3ExtraTestSuite{
 		facade.loadBulletOnShip(ship, bullet3);
 		facade.loadBulletOnShip(ship, bullet4);
 		facade.fireBullet(ship);
-		assertEquals(ship,bullet1.getSource());
+		assertEquals(ship, bullet1.getSource());
 		facade.fireBullet(ship);
-		assertEquals(ship,bullet2.getSource());
+		assertEquals(ship, bullet2.getSource());
 		facade.fireBullet(ship);
-		assertEquals(ship,bullet3.getSource());
+		assertEquals(ship, bullet3.getSource());
 		facade.fireBullet(ship);
-		assertEquals(ship,bullet4.getSource());
+		assertEquals(ship, bullet4.getSource());
 	}
-	
+
 	@Test
-	public void testGetSourceWhenBulletTerminated() throws ModelException{
+	public void testGetSourceWhenBulletTerminated() throws ModelException {
 		Ship ship = facade.createShip(100, 120, 10, 5, 500, 0, 1.0E20);
 		Bullet bullet1 = facade.createBullet(300, 300, 10, 5, 50);
 		Bullet bullet2 = facade.createBullet(250, 250, 10, 5, 30);
@@ -1048,7 +1051,7 @@ public class Part3ExtraTestSuite{
 	}
 
 	@Test
-	public void testGetOtherCollidingEntity() throws ModelException{
+	public void testGetOtherCollidingEntity() throws ModelException {
 		World world = facade.createWorld(10000, 10000);
 		Ship ship1 = new Ship(500, 500, 100, 0, 0, 100, 20e20, world, 20e20);
 		Ship ship2 = new Ship(1000, 500, -200, 0, Math.PI, 100, 20e20, world, 20e20);
@@ -1058,12 +1061,12 @@ public class Part3ExtraTestSuite{
 		assertTrue(data.getColliders().contains(ship2));
 		assertTrue(data.getColliders().contains(ship1));
 		assertEquals(world.getNextCollision(), data);
-		assertEquals(ship1,data.getOther(ship2));
-		assertEquals(ship2,data.getOther(ship1));
+		assertEquals(ship1, data.getOther(ship2));
+		assertEquals(ship2, data.getOther(ship1));
 	}
-	
+
 	@Test
-	public void testGetEntitiesByFilter() throws ModelException{
+	public void testGetEntitiesByFilter() throws ModelException {
 		World world = facade.createWorld(1000, 1000);
 		Ship ship = facade.createShip(500, 500, 10, 5, 50, 0, 1.0E20);
 		facade.addShipToWorld(world, ship);
@@ -1081,21 +1084,68 @@ public class Part3ExtraTestSuite{
 		Set<Ship> ships = new HashSet<Ship>();
 		ships.add(ship);
 		Set<Entity> entities = new HashSet<Entity>();
-		Set<Asteroid> asteroids= new HashSet<Asteroid>();
+		Set<Asteroid> asteroids = new HashSet<Asteroid>();
 		asteroids.add(asteroid);
-		Set<Planetoid> planetoids= new HashSet<Planetoid>();
+		Set<Planetoid> planetoids = new HashSet<Planetoid>();
 		planetoids.add(planetoid);
 		entities.add(ship);
 		entities.add(bullet1);
 		entities.add(bullet2);
 		entities.add(asteroid);
 		entities.add(planetoid);
-		assertEquals(bullets, world.getEntitiesByFilter(a->a instanceof Bullet));
-		assertEquals(ships, world.getEntitiesByFilter(a->a instanceof Ship));
-		assertEquals(entities, world.getEntitiesByFilter(a->a instanceof Entity));
-		assertEquals(asteroids, world.getEntitiesByFilter(a->a instanceof Asteroid));
-		assertEquals(planetoids, world.getEntitiesByFilter(a->a instanceof Planetoid));
+		assertEquals(bullets, world.getEntitiesByFilter(a -> a instanceof Bullet));
+		assertEquals(ships, world.getEntitiesByFilter(a -> a instanceof Ship));
+		assertEquals(entities, world.getEntitiesByFilter(a -> a instanceof Entity));
+		assertEquals(asteroids, world.getEntitiesByFilter(a -> a instanceof Asteroid));
+		assertEquals(planetoids, world.getEntitiesByFilter(a -> a instanceof Planetoid));
 	}
-	
-}
 
+	@Test
+	public void testTerminateAsteroidInWorld() throws ModelException {
+		World world = facade.createWorld(5000, 5000);
+		Asteroid asteroid = facade.createAsteroid(500, 500, 500, 500, 20);
+		facade.addAsteroidToWorld(world, asteroid);
+		facade.terminateAsteroid(asteroid);
+		assertTrue(facade.isTerminatedAsteroid(asteroid));
+		assertNull(facade.getAsteroidWorld(asteroid));
+		assertTrue(facade.getWorldAsteroids(world).isEmpty());
+	}
+
+	@Test
+	public void testTerminatePlanetoidInWorldSmallRadius() throws ModelException {
+		World world = facade.createWorld(5000, 5000);
+		Planetoid planetoid = facade.createPlanetoid(500, 500, 500, 500, 29, 0);
+		facade.addPlanetoidToWorld(world, planetoid);
+		facade.terminatePlanetoid(planetoid);
+		assertTrue(facade.isTerminatedPlanetoid(planetoid));
+		assertNull(facade.getPlanetoidWorld(planetoid));
+		assertTrue(facade.getWorldPlanetoids(world).isEmpty());
+	}
+
+	@Test
+	public void testTerminatePlanetoidInWorldBigRadius() throws ModelException {
+		World world = facade.createWorld(5000, 5000);
+		Planetoid planetoid = facade.createPlanetoid(500, 500, 500, 500, 45, 0);
+		facade.addPlanetoidToWorld(world, planetoid);
+		facade.terminatePlanetoid(planetoid);
+		assertTrue(facade.isTerminatedPlanetoid(planetoid));
+		assertNull(facade.getPlanetoidWorld(planetoid));
+		assertTrue(facade.getWorldPlanetoids(world).isEmpty());
+		assertEquals(2, facade.getWorldAsteroids(world).size());
+	}
+
+	@Test
+	public void testTerminatePlanetoidNoWorldBigRadius() throws ModelException {
+		Planetoid planetoid = facade.createPlanetoid(500, 500, 500, 500, 45, 0);
+		facade.terminatePlanetoid(planetoid);
+		assertTrue(facade.isTerminatedPlanetoid(planetoid));
+		assertNull(facade.getPlanetoidWorld(planetoid));
+	}
+
+	@Test
+	public void testOverlapsCircle() throws ModelException {
+		Entity e = facade.createAsteroid(0, 0, 0, 0, 10);
+		assertTrue(e.overlapsCircle(new Vector2d(5, 0), 2));
+		assertTrue(!e.overlapsCircle(new Vector2d(11, 0), 1));
+	}
+}

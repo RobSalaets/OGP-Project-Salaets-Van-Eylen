@@ -11,7 +11,7 @@ import asteroids.model.programs.exceptions.ProgramExecutionTimeException;
 import asteroids.model.programs.expressions.types.Type;
 import asteroids.model.programs.statements.Action;
 import asteroids.model.programs.statements.BlockStatement;
-import asteroids.model.programs.statements.WhileStatement;
+import asteroids.model.programs.statements.Statement;
 import asteroids.part3.programs.SourceLocation;
 
 public class ExecutionContext {
@@ -34,7 +34,7 @@ public class ExecutionContext {
 	}
 	
 	public List<Object> getPrintLog() {
-		return printLog;
+		return new ArrayList<Object>(printLog);
 	}
 	
 	public void clearPrintLog() {
@@ -70,7 +70,7 @@ public class ExecutionContext {
 	
 	private Function getCurrentFunction(){
 		Function f = null;
-		for(Breakable d : stack)
+		for(Interruptable d : stack)
 			if(d instanceof Function)
 				f = (Function) d;
 		return f;
@@ -80,34 +80,23 @@ public class ExecutionContext {
 		return getCurrentFunction() != null;
 	}
 
-	public void addToStack(Breakable d, SourceLocation line) throws ProgramExecutionTimeException {
+	public void addToStack(Interruptable d, SourceLocation line) throws ProgramExecutionTimeException {
 		if (d == null)
 			throw new ProgramExecutionTimeException("Trying to add null to the execution stack", line);
 		stack.push(d);
 	}
-
-	public void breakFromCurrent(SourceLocation line) throws ProgramExecutionTimeException {
-		Breakable top = null;
+	
+	public void interruptFromCurrent(Statement interruptStatement, SourceLocation line) throws ProgramExecutionTimeException {
+		Interruptable top = null;
 		do {
 			if (stack.isEmpty())
-				throw new ProgramExecutionTimeException("No statement to break from.", line);
+				throw new ProgramExecutionTimeException("No Interruptable to interrupt from.", line);
 			top = stack.pop();
-		} while (!(top instanceof WhileStatement));
-		setBreak();
+		} while (!(top.isValidInterruptStatement(interruptStatement)));
+		top.onBreak(this);
 	}
 	
-	public void returnFromCurrent(SourceLocation line) throws ProgramExecutionTimeException {
-		Breakable top = null;
-		do {
-			if (stack.isEmpty())
-				throw new ProgramExecutionTimeException("No Function to return from.", line);
-			top = stack.pop();
-		} while (!(top instanceof Function));
-		setBreak();
-		setReturn();
-	}
-	
-	private Stack<Breakable> stack = new Stack<Breakable>();
+	private Stack<Interruptable> stack = new Stack<Interruptable>();
 	
 	public boolean isBreaking(){
 		return breaking;
@@ -127,11 +116,11 @@ public class ExecutionContext {
 		returning = false;
 	}
 	
-	private void setBreak(){
+	public void setBreak(){
 		breaking = true;
 	}
 	
-	private void setReturn(){
+	public void setReturn(){
 		returning = true;
 	}
 	
