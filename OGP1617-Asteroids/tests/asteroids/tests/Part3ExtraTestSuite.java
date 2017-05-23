@@ -279,17 +279,13 @@ public class Part3ExtraTestSuite{
 		assertEquals(0, velocity[1], EPSILON);
 	}
 
-	@Test
+	@Test(expected = ModelException.class)
 	public void testThrustNegativeAmount() throws ModelException{
 		World world = facade.createWorld(1000, 1000);
 		Ship ship = facade.createShip(500, 500, 0, 0, 200, 0.0, 20e18);
 		facade.addShipToWorld(world, ship);
 		ship.thrustOn();
 		facade.evolve(world, -1, null);
-		double[] velocity = facade.getShipVelocity(ship);
-		assertNotNull(velocity);
-		assertEquals(0, velocity[0], EPSILON);
-		assertEquals(0, velocity[1], EPSILON);
 	}
 
 	@Test

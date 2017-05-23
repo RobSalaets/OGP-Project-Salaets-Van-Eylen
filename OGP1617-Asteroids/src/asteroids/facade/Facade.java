@@ -55,7 +55,7 @@ public class Facade implements IFacade{
 	public double getDistanceBetween(Ship ship1, Ship ship2) throws ModelException{
 		try{
 			return ship1.getDistanceBetween(ship2);
-		}catch (NullPointerException ex){
+		}catch (IllegalArgumentException ex){
 			throw new ModelException(ex);
 		}
 	}
@@ -64,7 +64,7 @@ public class Facade implements IFacade{
 	public boolean overlap(Ship ship1, Ship ship2) throws ModelException{
 		try{
 			return ship1.overlaps(ship2);
-		}catch (NullPointerException ex){
+		}catch (IllegalArgumentException ex){
 			throw new ModelException(ex);
 		}
 	}
@@ -73,8 +73,6 @@ public class Facade implements IFacade{
 	public double getTimeToCollision(Ship ship1, Ship ship2) throws ModelException{
 		try{
 			return ship1.getTimeToCollision(ship2);
-		}catch (NullPointerException ex){
-			throw new ModelException(ex);
 		}catch (IllegalArgumentException ex){
 			throw new ModelException(ex);
 		}
@@ -84,8 +82,6 @@ public class Facade implements IFacade{
 	public double[] getCollisionPosition(Ship ship1, Ship ship2) throws ModelException{
 		try{
 			return ship1.getCollisionPosition(ship2).asArray();
-		}catch (NullPointerException ex){
-			throw new ModelException(ex);
 		}catch (IllegalArgumentException ex){
 			throw new ModelException(ex);
 		}
@@ -356,8 +352,6 @@ public class Facade implements IFacade{
 			return ((Entity) entity1).getTimeToCollision((Entity) entity2);
 		}catch (IllegalArgumentException e){
 			throw new ModelException(e);
-		}catch (NullPointerException e){
-			throw new ModelException(e);
 		}
 	}
 
@@ -367,8 +361,6 @@ public class Facade implements IFacade{
 			Vector2d result = ((Entity) entity1).getCollisionPosition((Entity) entity2);
 			return result == null ? null : result.asArray();
 		}catch (IllegalArgumentException e){
-			throw new ModelException(e);
-		}catch (NullPointerException e){
 			throw new ModelException(e);
 		}
 	}
