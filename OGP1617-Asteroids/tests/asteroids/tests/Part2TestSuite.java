@@ -267,7 +267,7 @@ public class Part2TestSuite{
 	public void testThrust() throws ModelException{
 		Ship ship = facade.createShip(500, 500, 0, 0, 200, 0.0, 20e18);
 		ship.thrustOn();
-		ship.thrust(1);
+		//ship.thrust(1);
 		double[] velocity = facade.getShipVelocity(ship);
 		assertNotNull(velocity);
 		assertEquals(ship.getAcceleration(), velocity[0], EPSILON);
@@ -278,7 +278,7 @@ public class Part2TestSuite{
 	public void testThrustNegativeAmount() throws ModelException{
 		Ship ship = facade.createShip(500, 500, 0, 0, 200, 0.0, 20e18);
 		ship.thrustOn();
-		ship.thrust(-1);
+		//ship.thrust(-1);
 		double[] velocity = facade.getShipVelocity(ship);
 		assertNotNull(velocity);
 		assertEquals(0, velocity[0], EPSILON);
@@ -289,7 +289,7 @@ public class Part2TestSuite{
 	public void testThrustVelocityExceeds() throws ModelException{
 		Ship ship = facade.createShip(500, 500, 299999, 0, 200, 0.0, 5e14);
 		ship.thrustOn();
-		ship.thrust(100);
+		//ship.thrust(100);
 		double[] velocity = facade.getShipVelocity(ship);
 		assertNotNull(velocity);
 		assertEquals(ship.getMaxVelocity(), velocity[0], EPSILON);

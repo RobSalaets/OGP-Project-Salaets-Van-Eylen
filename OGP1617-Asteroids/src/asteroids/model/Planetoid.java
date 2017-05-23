@@ -44,7 +44,7 @@ public class Planetoid extends MinorPlanet{
 	 * 			| shrink()
 	 */
 	@Raw
-	public Planetoid(double x, double y, double xVelocity, double yVelocity, double startRadius, Container container, double totalTraveledDistance){
+	public Planetoid(double x, double y, double xVelocity, double yVelocity, double startRadius, Container container, double totalTraveledDistance)throws IllegalArgumentException{
 		super(x, y, xVelocity, yVelocity, startRadius, 4.0 / 3.0 * Math.PI * Math.pow(startRadius, 3) * PLANETOID_MASS_DENSITY, container);
 		this.setRadius(startRadius);
 		this.setTotalTraveledDistance(totalTraveledDistance);
@@ -71,7 +71,7 @@ public class Planetoid extends MinorPlanet{
 	 * 			| this(x, y, xVelocity, yVelocity, startRadius, null)
 	 */
 	@Raw
-	public Planetoid(double x, double y, double xVelocity, double yVelocity, double startRadius, double totalTraveledDistance){
+	public Planetoid(double x, double y, double xVelocity, double yVelocity, double startRadius, double totalTraveledDistance)throws IllegalArgumentException{
 		this(x, y, xVelocity, yVelocity, startRadius, null, totalTraveledDistance);
 	}
 
