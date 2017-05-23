@@ -41,6 +41,9 @@ public abstract class MinorPlanet extends Entity{
 	 */
 	public static final double MIN_RADIUS = 5.0;
 
+	/**
+	 * Returns this minimum radius for this Entity
+	 */
 	@Basic
 	@Override
 	public double getMinRadius(){
@@ -48,7 +51,7 @@ public abstract class MinorPlanet extends Entity{
 	}
 
 	/**
-	 * Resolve given collision case appropriatly
+	 * Resolve given collision case appropriately
 	 * 
 	 * @param collisionData
 	 * 			The given collision case
@@ -71,7 +74,7 @@ public abstract class MinorPlanet extends Entity{
 	 * 			| 	collisionData.getCollisionType() == CollisionType.INTER_ENTITY)
 	 */
 	@Override
-	public void resolve(CollisionData collisionData) throws IllegalArgumentException{
+	public void resolve(CollisionData collisionData) throws IllegalArgumentException, IllegalStateException{
 		if(collisionData.getCollisionType() == CollisionType.BOUNDARY){
 			resolveBoundaryCollision(collisionData);
 		}else if(collisionData.getCollisionType() == CollisionType.INTER_ENTITY){

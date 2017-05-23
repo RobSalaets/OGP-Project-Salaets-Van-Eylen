@@ -2,6 +2,7 @@ package asteroids.model.programs;
 
 import java.util.List;
 
+import asteroids.model.Entity;
 import asteroids.model.Program;
 import asteroids.model.programs.expressions.AnyExpression;
 import asteroids.model.programs.expressions.AsteroidExpression;
@@ -10,6 +11,7 @@ import asteroids.model.programs.expressions.BinaryArithmeticOperation;
 import asteroids.model.programs.expressions.BinaryLessThanExpression;
 import asteroids.model.programs.expressions.BulletExpression;
 import asteroids.model.programs.expressions.DoubleLiteralExpression;
+import asteroids.model.programs.expressions.EntityDataExtractor;
 import asteroids.model.programs.expressions.EqualsExpression;
 import asteroids.model.programs.expressions.Expression;
 import asteroids.model.programs.expressions.FunctionCallExpression;
@@ -171,27 +173,52 @@ public class ProgramFactory implements IProgramFactory<Expression<? extends Type
 
 	@Override
 	public Expression<? extends Type> createGetXExpression(Expression<? extends Type> e, SourceLocation location) {
-		return new UnaryEntityGetExpression((Expression<? super EntityLiteral>) e, UnaryEntityGetOperation.GETX, location);
+		return new UnaryEntityGetExpression((Expression<? super EntityLiteral>) e, new EntityDataExtractor() {
+			@Override
+			public double extractValue(Entity e) {
+				return e.getPosition().getX();
+			}
+		}, location);
 	}
 
 	@Override
 	public Expression<? extends Type> createGetYExpression(Expression<? extends Type> e, SourceLocation location) {
-		return new UnaryEntityGetExpression((Expression<? super EntityLiteral>) e, UnaryEntityGetOperation.GETY, location);
+		return new UnaryEntityGetExpression((Expression<? super EntityLiteral>) e, new EntityDataExtractor() {
+			@Override
+			public double extractValue(Entity e) {
+				return e.getPosition().getY();
+			}
+		}, location);
 	}
 
 	@Override
 	public Expression<? extends Type> createGetVXExpression(Expression<? extends Type> e, SourceLocation location) {
-		return new UnaryEntityGetExpression((Expression<? super EntityLiteral>) e, UnaryEntityGetOperation.GETVX, location);
+		return new UnaryEntityGetExpression((Expression<? super EntityLiteral>) e, new EntityDataExtractor() {
+			@Override
+			public double extractValue(Entity e) {
+				return e.getVelocity().getX();
+			}
+		}, location);
 	}
 
 	@Override
 	public Expression<? extends Type> createGetVYExpression(Expression<? extends Type> e, SourceLocation location) {
-		return new UnaryEntityGetExpression((Expression<? super EntityLiteral>) e, UnaryEntityGetOperation.GETVY, location);
+		return new UnaryEntityGetExpression((Expression<? super EntityLiteral>) e, new EntityDataExtractor() {
+			@Override
+			public double extractValue(Entity e) {
+				return e.getVelocity().getY();
+			}
+		}, location);
 	}
 
 	@Override
 	public Expression<? extends Type> createGetRadiusExpression(Expression<? extends Type> e, SourceLocation location) {
-		return new UnaryEntityGetExpression((Expression<? super EntityLiteral>) e, UnaryEntityGetOperation.GET_RADIUS, location);
+		return new UnaryEntityGetExpression((Expression<? super EntityLiteral>) e, new EntityDataExtractor() {
+			@Override
+			public double extractValue(Entity e) {
+				return e.getRadius();
+			}
+		}, location);
 	}
 
 	@Override

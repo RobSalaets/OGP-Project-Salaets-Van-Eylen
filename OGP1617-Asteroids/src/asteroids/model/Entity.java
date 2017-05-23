@@ -485,8 +485,6 @@ public abstract class Entity{
 		double d = vDotr * vDotr - vDotv * (rDotr - sigmaSq);
 		if(vDotr >= 0 || d <= 0)
 			return Double.POSITIVE_INFINITY;
-		else if(-(vDotr + Math.sqrt(d)) / vDotv < 9 * Math.pow(10, -18))
-			return -(vDotr + Math.sqrt(d)) / vDotv;
 		else return -(vDotr + Math.sqrt(d)) / vDotv;
 	}
 
@@ -607,10 +605,10 @@ public abstract class Entity{
 	 * 		The given time duration.
 	 * @throws IllegalArgumentException
 	 * 			| timeDelta < 0
-	 * @throws ProgramExecutionTimeException TODO
+	 * @throws ProgramExecutionTimeException
 	 * 			When an error occurs during program execution
 	 * @throws ExpressionEvaluationException
-	 * 			When an error occurs during program exection,
+	 * 			When an error occurs during program execution,
 	 * 			while evaluating an expression.
 	 */
 	public void evolve(double timeDelta) throws IllegalArgumentException, ProgramExecutionTimeException, ExpressionEvaluationException{
@@ -618,15 +616,21 @@ public abstract class Entity{
 	}
 	
 	/**
-	 * Resolve given collision case appropriatly
+	 * Resolve given collision case appropriately
 	 * 
 	 * @param collisionData
 	 * 			The given collision case
 	 * @throws IllegalArgumentException
 	 * 			| !(collisionData.getCollisionType() == CollisionType.BOUNDARY) ||
 	 * 			| !(collisionData.getCollisionType() == CollisionType.INTER_ENTITY)
+	 * @throws IllegalArgumentExeption
+	 * 		The given collisionData has an invalid collisionPoint
+	 * 		| !(collisionData.getCollisionPoint().isXInRangeOf(0, 0.01) ||
+	 *		|	collisionData.getCollisionPoint().isXInRangeOf((World getContainer()).getWidth(), 0.01) ||
+	 *		|	collisionData.getCollisionPoint().isYInRangeOf(0, 0.01) ||
+	 *		|	collisionData.getCollisionPoint().isYInRangeOf((World getContainer()).getHeight(), 0.01)
 	 */
-	public abstract void resolve(CollisionData collisionData) throws IllegalArgumentException;
+	public abstract void resolve(CollisionData collisionData) throws IllegalArgumentException, IllegalStateException;
 	
 	/**
 	 * Resolve a given boundary collision case, by reflecting the velocity
@@ -664,6 +668,17 @@ public abstract class Entity{
 		
 	}
 	
+	/**
+	 * Resolve a collision with a given other Entity, so the entities bounce off each other,
+	 * with respect to their masses and current velocity.
+	 * 
+	 * @param other
+	 * 			The other Entity
+	 * @param thisMass
+	 * 			The mass of this Entity for the calculation.
+	 * @param otherMass
+	 * 			The mass of the other Entity for the calculation.
+	 */
 	public void resolveBounceCollision(Entity other, double thisMass, double otherMass){
 		double sigmaSq = Math.pow(this.getRadius() + other.getRadius(), 2);
 		double dx = other.getPosition().getX() - this.getPosition().getX();

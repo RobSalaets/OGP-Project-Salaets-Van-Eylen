@@ -100,9 +100,10 @@ public class ExecutionContext {
 		Breakable top = null;
 		do {
 			if (stack.isEmpty())
-				throw new ProgramExecutionTimeException("No function to return from.", line);
+				throw new ProgramExecutionTimeException("No Function to return from.", line);
 			top = stack.pop();
 		} while (!(top instanceof Function));
+		setBreak();
 		setReturn();
 	}
 	
@@ -132,7 +133,6 @@ public class ExecutionContext {
 	
 	private void setReturn(){
 		returning = true;
-		breaking = true;
 	}
 	
 	private boolean breaking = false;

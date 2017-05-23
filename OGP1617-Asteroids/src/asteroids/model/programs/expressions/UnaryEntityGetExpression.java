@@ -11,14 +11,14 @@ import asteroids.part3.programs.SourceLocation;
 
 public class UnaryEntityGetExpression extends UnaryExpression<EntityLiteral, DoubleLiteral>{
 
-	public UnaryEntityGetExpression(Expression<? super EntityLiteral> arg, UnaryEntityGetOperation operation, SourceLocation location) throws IllegalArgumentException{
+	public UnaryEntityGetExpression(Expression<? super EntityLiteral> arg, EntityDataExtractor extractor, SourceLocation location) throws IllegalArgumentException{
 		super(arg, location);
-		if(operation == null)
-			throw new IllegalArgumentException("The UnaryEntityOperation must be effective.");
-		this.operationType = operation;
+		if(extractor == null)
+			throw new IllegalArgumentException("The EntityDataExtractor must be effective.");
+		this.extractor = extractor;
 	}
 
-	private final UnaryEntityGetOperation operationType;
+	private final EntityDataExtractor extractor;
 	
 	@Override
 	public DoubleLiteral evaluate(ExecutionContext context) throws ExpressionEvaluationException, ProgramExecutionTimeException{
@@ -27,27 +27,13 @@ public class UnaryEntityGetExpression extends UnaryExpression<EntityLiteral, Dou
 			throw new ExpressionEvaluationException("Given operand does not evaluate to EntityLiteral", getSourceLocation(), this);
 		if(arg.getValue() == null)
 			throw new ExpressionEvaluationException("Given operand evaluates to null", getSourceLocation(), this);
-		
 		Double result = null;
-		switch(operationType){
-		case GETX:
-			result = ((Entity)((EntityLiteral)arg).getValue()).getPosition().getX();
-			break;
-		case GETY:
-			result = ((Entity)((EntityLiteral)arg).getValue()).getPosition().getY();
-			break;
-		case GETVX:
-			result = ((Entity)((EntityLiteral)arg).getValue()).getVelocity().getX();
-			break;	
-		case GETVY:
-			result = ((Entity)((EntityLiteral)arg).getValue()).getVelocity().getY();
-			break;	
-		case GET_RADIUS:
-			result = ((Entity)((EntityLiteral)arg).getValue()).getRadius();
-			break;
-		default:
-			break;
+		try{
+			result = extractor.extractValue(((Entity)((EntityLiteral)arg).getValue()));
+		}catch(Exception e){
+			throw new ExpressionEvaluationException("Exception during EntityDataExtractor evaluation.", getSourceLocation(), this);
 		}
+		
 		return new DoubleLiteral(result);
 	}
 	

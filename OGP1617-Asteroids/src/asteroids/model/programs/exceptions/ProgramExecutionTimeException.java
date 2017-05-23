@@ -10,6 +10,6 @@ public class ProgramExecutionTimeException extends RuntimeException {
 	private static final long serialVersionUID = 4078655052856062012L;
 
 	public ProgramExecutionTimeException(String errorMessage, SourceLocation line) {
-		System.err.println("Error: " + errorMessage + " " + line.toString());
+		System.err.println("Exception: " + errorMessage + " " + line.toString());
 	}
 }

@@ -23,7 +23,7 @@ public class ExpressionEvaluationException extends RuntimeException {
 	 */
 	public ExpressionEvaluationException(String string, SourceLocation sourceLocation, Expression<? extends Type> expression) {
 		this.expression = expression;
-		System.err.println("Error: " + string + " " + sourceLocation.toString());
+		System.err.println("Exception: " + string + " " + sourceLocation.toString());
 	}
 	
 	/**

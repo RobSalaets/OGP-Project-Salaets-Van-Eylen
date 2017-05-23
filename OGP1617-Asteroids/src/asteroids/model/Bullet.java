@@ -137,7 +137,10 @@ public class Bullet extends Entity{
 	public boolean canHaveAsMass(double mass){
 		return mass == 4.0 / 3.0 * Math.PI * Math.pow(getRadius(), 3) * BULLET_MASS_DENSITY;
 	}
-
+	
+	/**
+	 * Returns this minimum radius for this Entity
+	 */
 	@Basic
 	@Override
 	public double getMinRadius(){
@@ -225,7 +228,7 @@ public class Bullet extends Entity{
 	public static final int DEFAULT_MAX_BOUNDARY_COLLISIONS = 3;
 	
 	/**
-	 * Resolve given collision case appropriatly
+	 * Resolve given collision case appropriately
 	 * 
 	 * @param collisionData
 	 * 			The given collision case
@@ -243,7 +246,7 @@ public class Bullet extends Entity{
 	 * 			| 	collisionData.getCollisionType() == CollisionType.INTER_ENTITY)
 	 */
 	@Override
-	public void resolve(CollisionData collisionData) throws IllegalArgumentException {
+	public void resolve(CollisionData collisionData) throws IllegalArgumentException, IllegalStateException {
 		if(collisionData.getCollisionType() == CollisionType.BOUNDARY)
 			resolveBoundaryCollision(collisionData);
 		else if(collisionData.getCollisionType() == CollisionType.INTER_ENTITY){

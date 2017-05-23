@@ -171,6 +171,10 @@ public class Ship extends Entity implements Container{
 	 */
 	public static final double MIN_RADIUS = 10.0;
 
+	
+	/**
+	 * Returns this minimum radius for this Entity
+	 */
 	@Basic
 	@Override
 	public double getMinRadius(){
@@ -395,7 +399,7 @@ public class Ship extends Entity implements Container{
 	
 	/**
 	 * Evolve this Ship with a given time duration, based on its current properties.
-	 * If this Ship has a program loaded, it wil be executed for the given duration.
+	 * If this Ship has a program loaded, it will be executed for the given duration.
 	 * 
 	 * @param timeDelta
 	 * 		The given time duration.
@@ -405,7 +409,7 @@ public class Ship extends Entity implements Container{
 	 * 			| if(getThrusterStatus()) then thrust(timeDelta)
 	 * @throws IllegalArgumentException
 	 * 			| timeDelta < 0
-	 * @throws ProgramExecutionTimeException TODO
+	 * @throws ProgramExecutionTimeException
 	 * 			When an error occurs during program execution
 	 * @throws ExpressionEvaluationException
 	 * 			When an error occurs during program exection,
@@ -455,7 +459,7 @@ public class Ship extends Entity implements Container{
 	 * 			| 	collisionData.getCollisionType() == CollisionType.INTER_ENTITY)
 	 */
 	@Override
-	public void resolve(CollisionData collisionData) throws IllegalArgumentException{
+	public void resolve(CollisionData collisionData) throws IllegalArgumentException, IllegalStateException{
 		if(collisionData.getCollisionType() == CollisionType.BOUNDARY){
 			resolveBoundaryCollision(collisionData);
 		}else if(collisionData.getCollisionType() == CollisionType.INTER_ENTITY){
