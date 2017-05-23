@@ -17,10 +17,9 @@ public class ReturnStatement extends Statement {
 	private Expression<? extends Type> value;
 	
 	@Override
-	public boolean execute(ExecutionContext context) throws ProgramExecutionTimeException, ExpressionEvaluationException{
+	public void execute(ExecutionContext context) throws ProgramExecutionTimeException, ExpressionEvaluationException{
 		Type result = value.evaluate(context);
 		context.getCurrentScope().putVariable("$0", result, getSourceLocation());
 		context.interruptFromCurrent(this, getSourceLocation());
-		return false;
 	}
 }

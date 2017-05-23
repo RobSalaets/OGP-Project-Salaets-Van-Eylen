@@ -31,7 +31,7 @@ public class Function implements Interruptable{
 		if(!(context.isReturning() || context.isBreaking()))
 			throw new ProgramExecutionTimeException("No return statement in function: " + name, sourceLocation);
 		if(context.isReturning()){
-			context.stopBreaking();
+			context.setBreakBlockStatement(false);
 			context.stopReturning();
 			return localScope.getVariable("$0", sourceLocation);
 		}
@@ -61,8 +61,8 @@ public class Function implements Interruptable{
 	
 	@Override
 	public void onBreak(ExecutionContext executionContext) {
-		executionContext.setBreak();
-		executionContext.setReturn();
+		executionContext.setBreakBlockStatement(true);
+		executionContext.setReturn(true);
 	}
 	
 	@Override

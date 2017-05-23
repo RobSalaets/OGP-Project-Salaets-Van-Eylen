@@ -11,20 +11,19 @@ public class IfStatement extends ConditionalStatement {
 
 	public IfStatement(SourceLocation location, Expression<BooleanLiteral> condition, Statement body, Statement elseBody) {
 		super(location, condition);
-		this.body = body;
-		this.elseBody = elseBody;
+		this.body = new BlockStatement(getSourceLocation(), body);
+		this.elseBody = elseBody == null ? null : new BlockStatement(getSourceLocation(), elseBody);
 	}
 
-	private final Statement body;
-	private final Statement elseBody;
+	private final BlockStatement body;
+	private final BlockStatement elseBody;
 
 	@Override
-	public boolean execute(ExecutionContext context) throws ProgramExecutionTimeException, ExpressionEvaluationException {
+	public void execute(ExecutionContext context) throws ProgramExecutionTimeException, ExpressionEvaluationException {
 		if(condition.evaluate(context).getValue()){
-			return body.execute(context);
+			body.execute(context);
 		}else if(elseBody != null){
-			return elseBody.execute(context);
+			elseBody.execute(context);
 		}
-		return false;
 	}
 }

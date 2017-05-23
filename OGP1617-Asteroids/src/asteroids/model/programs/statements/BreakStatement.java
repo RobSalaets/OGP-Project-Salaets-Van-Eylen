@@ -11,8 +11,7 @@ public class BreakStatement extends Statement{
 	}
 
 	@Override
-	public boolean execute(ExecutionContext context) throws ProgramExecutionTimeException{
+	public void execute(ExecutionContext context) throws ProgramExecutionTimeException{
 		context.interruptFromCurrent(this, getSourceLocation());
-		return false;
 	}
 }

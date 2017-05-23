@@ -13,25 +13,24 @@ public class TurnAction extends Action {
 		super(location);
 		this.angle = angle;
 	}
-	
+
 	private final Expression<? super DoubleLiteral> angle;
 
 	@Override
-	public boolean execute(ExecutionContext context) throws ProgramExecutionTimeException, ExpressionEvaluationException {
+	public void execute(ExecutionContext context)
+			throws ProgramExecutionTimeException, ExpressionEvaluationException {
+		super.execute(context);
 		Object eval = angle.evaluate(context);
-		if(!(eval instanceof DoubleLiteral))
-			throw new ExpressionEvaluationException("Given operand does not evaluate to DoubleLiteral", getSourceLocation(), angle);
-		if(context.canExecuteAction()){
-			context.decrementExecutionTime(getSourceLocation());
-			try{
-				context.getExecutor().turn(((DoubleLiteral) eval).getValue());
-			}catch(AssertionError e){
-				throw new ProgramExecutionTimeException("Turning with given angle: " + ((DoubleLiteral) eval).getValue().toString() +
-														" results in invalid ship orientation.", getSourceLocation());
-			}
-			return true;
+		if (!(eval instanceof DoubleLiteral))
+			throw new ExpressionEvaluationException("Given operand does not evaluate to DoubleLiteral",
+					getSourceLocation(), angle);
+		try {
+			context.getExecutor().turn(((DoubleLiteral) eval).getValue());
+		} catch (AssertionError e) {
+			throw new ProgramExecutionTimeException("Turning with given angle: "
+					+ ((DoubleLiteral) eval).getValue().toString() + " results in invalid ship orientation.",
+					getSourceLocation());
 		}
-		throw new ProgramExecutionTimeException("Executing action with not enough time left", getSourceLocation());
 	}
 
 }

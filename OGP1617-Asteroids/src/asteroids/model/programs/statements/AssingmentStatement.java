@@ -21,8 +21,7 @@ public class AssingmentStatement extends Statement {
 	private final Expression<? extends Type> expression;
 	
 	@Override
-	public boolean execute(ExecutionContext context) throws ProgramExecutionTimeException, ExpressionEvaluationException{
+	public void execute(ExecutionContext context) throws ProgramExecutionTimeException, ExpressionEvaluationException{
 		context.getCurrentScope().putVariable(variableName, expression.evaluate(context), getSourceLocation());
-		return false;
 	}
 }

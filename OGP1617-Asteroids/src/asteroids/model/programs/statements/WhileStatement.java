@@ -14,26 +14,24 @@ public class WhileStatement extends ConditionalStatement implements Interruptabl
 		super(location, condition);
 		if(body == null)
 			throw new IllegalArgumentException();
-		this.body = body;
+		this.body = new BlockStatement(getSourceLocation(), body);
 	}
 
-	private final Statement body;
+	private final BlockStatement body;
 
 	@Override
-	public boolean execute(ExecutionContext context) throws ProgramExecutionTimeException, ExpressionEvaluationException{
+	public void execute(ExecutionContext context) throws ProgramExecutionTimeException, ExpressionEvaluationException{
 		context.addToStack(this, getSourceLocation());
-		while(condition.evaluate(context).getValue() &&
-				!context.isBreaking() && context.canExecuteAction())
+		while(condition.evaluate(context).getValue() && !context.isBreaking() && context.canExecuteAction())
 			body.execute(context);
 		
 		if(!context.isReturning() && context.isBreaking())
-			context.stopBreaking();
-		return false;
+			context.setBreakBlockStatement(false);
 	}
 
 	@Override
 	public void onBreak(ExecutionContext executionContext) {
-		executionContext.setBreak();
+		executionContext.setBreakBlockStatement(true);
 	}
 
 	@Override

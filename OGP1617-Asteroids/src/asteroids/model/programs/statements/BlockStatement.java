@@ -25,20 +25,20 @@ public class BlockStatement extends Statement{
 	private final List<Statement> statements;
 
 	@Override
-	public boolean execute(ExecutionContext context) throws ProgramExecutionTimeException, ExpressionEvaluationException{
-		for(int i = context.getBlockPointerFor(this); i < statements.size(); i++){
-			
+	public void execute(ExecutionContext context) throws ProgramExecutionTimeException, ExpressionEvaluationException{
+		for(int i = context.getBlockPointerFor(this); i < statements.size() && !context.isBreaking(); i++){
 			if(context.canExecuteAction())
-				context.setBlockPointer(this, statements.get(i).execute(context) ? i + 1 : i, getSourceLocation());
-			if(!context.canExecuteAction())
-				return false;
+				statements.get(i).execute(context);
 			
-			if(context.isBreaking())
-				break;
+			if(!context.canExecuteAction()){
+				context.setBlockPointer(this, statements.get(i) instanceof Action ? i + 1 : i, getSourceLocation());
+				return;
+			}
+			
 		}
+		
 		context.setBlockPointer(this, 0, getSourceLocation());
 		setExecuted();
-		return false;
 	}
 	
 	private void setExecuted(){

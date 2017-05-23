@@ -99,15 +99,11 @@ public class ExecutionContext {
 	private Stack<Interruptable> stack = new Stack<Interruptable>();
 	
 	public boolean isBreaking(){
-		return breaking;
+		return breakBlockStatement;
 	}
 	
 	public boolean isReturning(){
 		return returning;
-	}
-	
-	public void stopBreaking(){
-		breaking = false;
 	}
 	
 	public void stopReturning(){
@@ -116,15 +112,15 @@ public class ExecutionContext {
 		returning = false;
 	}
 	
-	public void setBreak(){
-		breaking = true;
+	public void setBreakBlockStatement(boolean state){
+		breakBlockStatement = state;
 	}
 	
-	public void setReturn(){
-		returning = true;
+	public void setReturn(boolean state){
+		returning = state;
 	}
 	
-	private boolean breaking = false;
+	private boolean breakBlockStatement = false;
 	private boolean returning = false;
 	
 	public void clearStack(){

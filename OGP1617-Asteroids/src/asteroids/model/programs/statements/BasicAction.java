@@ -10,31 +10,27 @@ public class BasicAction extends Action {
 		super(location);
 		this.actionType = actionType;
 	}
-	
+
 	private final ActionType actionType;
-	
+
 	@Override
-	public boolean execute(ExecutionContext context) throws ProgramExecutionTimeException {
-		if(context.canExecuteAction()){
-			context.decrementExecutionTime(getSourceLocation());
-			switch(actionType){
-			case FIRE_BULLET:
-				context.getExecutor().fireBullet();
-				break;
-			case SKIP:
-				break;
-			case THRUST_OFF:
-				context.getExecutor().thrustOff();
-				break;
-			case THRUST_ON:
-				context.getExecutor().thrustOn();
-				break;
-			default:
-				break;
-			}
-			return true;
+	public void execute(ExecutionContext context) throws ProgramExecutionTimeException {
+		super.execute(context);
+		switch (actionType) {
+		case FIRE_BULLET:
+			context.getExecutor().fireBullet();
+			break;
+		case SKIP:
+			break;
+		case THRUST_OFF:
+			context.getExecutor().thrustOff();
+			break;
+		case THRUST_ON:
+			context.getExecutor().thrustOn();
+			break;
+		default:
+			break;
 		}
-		throw new ProgramExecutionTimeException("Executing action with not enough time left", getSourceLocation());
 	}
 
 }
